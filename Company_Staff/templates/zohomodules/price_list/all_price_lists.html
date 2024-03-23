@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<body>       
+    <div class="body-wrapper">
+        <div class="container-fluid ">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-light">
+                    {% if log_details.user_type == 'Staff' %}
+                        <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>
+                    {% endif %}
+                    {% if log_details.user_type == 'Company' %}
+                        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item" aria-current="page">All price lists</li>
+                </ol>
+            </nav>
+          <div> 
+                <div class=" mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
+                    <h1 class="text-light">View Price Lists</h1>
+                    <br>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="row  ">
+                        <div class="col-md-6 d-flex p-2 ">
+
+                          <div class="col-md-6">
+                              <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
+                          </div>
+                          
+                              
+                              <div class="input-group-append ms-4">
+                                  <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                      <i class="fas fa-sort"></i> 
+                                  </button>
+                                  <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
+                                      <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
+                                      <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
+                                      <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
+                                  </div>
+                              </div>
+                        </div>
+                        
+                        
+                        <div class="col-md-6 d-flex justify-content-end h-100 p-2">
+                            <div class="input-group-append ms-2 " >
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa fa-filter"></i> 
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                    <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                </div>
+                            </div>
+                            <a href="#" id="exportBtn" class="btn btn-outline-warning ms-2">
+                                <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
+                            </a>
+                            
+                            <!-- <a href="#" id="importBtn" class="btn btn-outline-warning ms-1">
+                                <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                            </a> -->
+                            <button type="button" class="btn btn-outline-warning ms-2" data-toggle="modal" data-target="#importModal">
+                                <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                            </button>
+                            
+                            <a href="{% url 'create_price_list' %}" class="btn btn-outline-warning ms-2">New  <i class="fas fa-plus" style="color: #FFD43B;"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Import Modal -->
+                    <div class="modal fade mt-5" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content "style="background-color: #3b3b3b;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-light" id="importModalLabel">Import Price List</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{% url 'import_price_list' %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="price_list_file">Select price_list File :</label>
+                                            <input type="file" name="price_list_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        </div>
+                                        <br>
+                                        <div class="form-group">
+                                            <label for="items_file">Select items File :</label>
+                                            <input type="file" name="items_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        </div>
+                                        <br>
+                                        <button type="submit" class="btn btn-outline-warning">
+                                            <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- price lists table -->
+                    <div class="table-responsive " style="overflow-x:auto;margin-top: 20px;">
+                        <table id="table" class="table " >
+                            <thead class="thead-dark text-light">
+                                <tr style="text-align: center;">
+                                    <th scope="col"><b>#</b></th>
+                                    <th scope="col"><b>DATE</b></th>
+                                    <th scope="col"><b>NAME</b></th>
+                                    <th scope="col"><b>DESCRIPTION</b></th>
+                                    <th scope="col"><b>TYPE</b></th>
+                                    <th scope="col"><b>ROUNDING</b></th>
+                                    <th scope="col"><b>STATUS</b></th>
+                                    <th scope="col"><b>DETAILS</b></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for price_list in price_lists %}
+                                <a href="{% url 'price_list_details' price_list.id %}">
+                                <tr class="text-white" style="text-align: center;" >
+
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ forloop.counter }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.date }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.name }} </a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">
+                                        {% if price_list.description %}
+                                            <span title="{{ price_list.description }}">
+                                                <i class="fa fa-comment" aria-hidden="true"></i> 
+                                            </span>
+                                        {% else %}
+                                            <i class="fa fa-comment-o" aria-hidden="true"></i> 
+                                        {% endif %}
+                                    </a>
+                                    </td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.type }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.round_off }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.get_status_display }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">
+                                        {% if price_list.item_rate_type == 'Percentage' %}
+                                            {{ price_list.percentage_type }}
+                                        {% elif price_list.item_rate_type == 'Each Item' %}
+                                            Each Item
+                                        {% endif %}
+                                    </a></td>
+                                </tr>
+                            </a>
+                        </tbody>
+                        {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.7.5/dist/jspdf.plugin.autotable.js"></script>
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+
+<script>
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        
+        var table = document.getElementById('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'PriceLists');
+
+        var fileName = 'PriceLists.xlsx';
+        XLSX.writeFile(wb, fileName);
+    });
+
+    $(document).ready(function() {
+        $('.select2').select2({
+            templateResult: formatOption
+        });
+    });
+
+    function formatOption(option) {
+        if (!option.id) {
+            return option.text;
+        }
+        var $option = $(
+            '<span><i class="' + $(option.element).data('icon') + '"></i> ' + option.text + '</span>'
+        );
+        return $option;
+    }
+
+    $(document).ready(function() {
+        var $rows = $('#table tbody tr');
+        $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        $rows.show().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return !~text.indexOf(val);
+        }).hide();
+        });
+    });
+
+    $(document).ready(function () {
+        $('#sort-select').change(function () {
+            var sortBy = $(this).val();
+            window.location.href = '?sortBy=' + sortBy;
+        });
+        $('#status-select').change(function () {
+            var filterByStatus = $(this).val();
+            window.location.href = '?filterByStatus=' + filterByStatus;
+        });
+    });
+</script>
+    
+</body>
+</html>
+{% endblock %}

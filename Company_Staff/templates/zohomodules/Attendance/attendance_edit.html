@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+
+<style>
+  table tr td:hover {
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1); /* Invert color for the calendar icon */
+    }
+    .btn-container {
+    text-align: center; /* Center the content horizontally */
+  }
+
+  .btn-add {
+    border: 2px solid orange;
+    border-radius: 10px;
+    background-color: orange;
+    color: white;
+    width: 80px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    transition: background-color 0.3s ease; /* Add smooth transition effect */
+}
+
+.btn-add:hover {
+    background-color: orange;
+    color: white; /* Add this line to ensure text is visible on hover */
+}
+  
+
+</style>
+<body>
+  
+  <div class="body-wrapper">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+          
+          <li class="breadcrumb-item"><a href="{% url 'company_attendance_list' %}" class="text-warning-emphasis">Attendance list</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'attendance_calendar' item.employee.id ty tm  %}" class="text-warning-emphasis">Calendar</a></li>
+          
+          <li class="breadcrumb-item"><a href="{% url 'attendance_overview' item.employee.id tm ty  %}" class="text-warning-emphasis">Overview</a></li> 
+          <li class="breadcrumb-item"><a href="" >Edit</a></li> 
+        </ol>
+      </nav>
+      <div style="overflow-x:auto;"> 
+
+
+        <div class="container-fluid bg-black" style="padding: 20px;">
+
+         
+          <h3 style="color: white;">Edit Leave</h3>
+          {% if messages %}
+          {% for message in messages %}
+              <div class="alert alert-success" role="alert" style="color: orange;background-color: black;border: none;">
+                  {{ message }}
+              </div>
+          {% endfor %}
+      {% endif %}
+          <form method="post" action="{% url 'edit_attendance' item.id %}">
+            {% csrf_token %}
+            <div class="row justify-content-center mt-5">
+              <div class="col-md-4 mb-3">
+                  <label class="mb-3">Employee</label><br>
+                  <div class="input-group">
+                    <div class="input-group">
+                      
+                      
+                      <select name="employee"  class="form-control" style="font-size: 16px;color: white;">
+                        {% for employee in employee %}
+                        <option value="{{ employee.id }}" style="color: grey;" {% if employee.id == item.employee.id %} selected {% endif %}>
+                            {{ employee.first_name }} {{ employee.last_name }}
+
+                        </option>
+                        {% endfor %}
+                        
+                      </select>
+                  </div>
+                  </div>
+              </div>
+      
+              <div class="col-md-4 mb-3">
+                <label class="mb-3">Date</label><br>
+                  <div class="input-group">
+                    <input type="date" id="dateInput" name="date" class="form-control" value="{{item.date|date:'Y-m-d'}}" style="font-size: 16px;color: white;" required >
+                  </div>
+              </div>
+          </div>
+    
+
+
+          <div class="row justify-content-center mt-3">
+            <div class="col-md-4 mb-3">
+              <label class="mb-3">Status</label><br>
+                
+                <div class="input-group">
+                  <div class="input-group">
+                   
+                    
+                    <select name="status"  class="form-control" style="font-size: 16px;color: white;">
+                        <option class="form-control" value="leave" style="font-size: 16px;">Leave</option>
+                        
+                    </select>
+                </div>
+                </div>
+            </div>
+           
+    
+            <div class="col-md-4 mb-3">
+              <label class="mb-3">Reason</label><br>
+                <div class="input-group">
+                  <input type="text" name="reason" class="form-control" value="{{item.reason}}" style="font-size: 16px;color: white;" required>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-3">
+            
+          </div>
+        </div>
+        <div class="row justify-content-center mt-5">
+          <div class="col-md-1 mb-3">
+            <input type="submit" class="btn-add form-control" value="Edit">
+          </div>
+          <div class="col-md-1 mb-3">
+            <a href="{% url 'attendance_overview' item.employee.id tm ty %}" class="cancel-link btn-add form-control">Cancel</a>
+          </div>
+        </div>
+
+
+        </div>
+
+        
+          
+      </form>
+     
+      
+  </div>
+</body>
+
+{% endblock %}

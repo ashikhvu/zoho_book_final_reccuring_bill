@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            background-color: rgb(61, 61, 61);
+        }
+
+        th,
+        td {
+            border: 0.5vh solid black;
+            padding: 1.5vh;
+            text-align: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .details-container {
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .inner-container {
+            background-color: #ffffff;
+            border-radius: 1vh;
+            padding: 3vh;
+            margin-top: 2vh;
+        }
+
+        .table-container {
+            background-color: rgb(61, 61, 61);
+            border-radius: 1vh;
+            padding: 3vh;
+        }
+        
+        h2 {
+            padding: 3vh;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 0; 
+        }
+
+        .text-light {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="details-container">
+        <div class="inner-container">
+            
+
+            <div class="details row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label "><b>Date:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ journal.date}}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Journal_no:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{journal.journal_no }}</p>
+                        </div>
+                    </div>
+
+                    
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Reference no:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">{{ journal.reference_no }}</p>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Notes:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">{{ journal.notes }}</p>
+                            </div>
+                        </div>
+                    
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Amount:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ journal.total_debits }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Status:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ journal.status }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h2 class="text-light">Journal Account</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Description</th>
+                            <th>Contact</th>
+                            <th>Debits</th>
+                            <th>Credits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ja in journal_entry %}
+                            <tr>
+                                <td>{{ ja.account }}</td>
+                                <td>{{ ja.description }}</td>
+                                <td>{{ ja.contact }}</td>
+                                <td>{{ ja.debits }}</td>
+                                <td>{{ ja.credits }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

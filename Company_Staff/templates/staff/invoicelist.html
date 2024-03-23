@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--dropdown button-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://kit.fontawesome.com/274ee977b7.js" crossorigin="anonymous"></script>
+
+
+<div class="body-wrapper">
+  <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="" class="text-warning-emphasis">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="" class="text-warning-emphasis">sales</a></li>
+            <li class="breadcrumb-item" aria-current="page">invoice</li>
+          </ol>
+      </nav>
+
+      <div class="row mt-3">
+          <div class="container">
+              
+          </div>
+      </div>
+      
+<div class="page-content">
+  <div class="radius-15 h-20">
+    <div class="row">
+      <div class="col-md-12">
+        <center><h2 class="mt-3 text-white">INVOICE</h2></center>
+        <hr/>
+      </div>
+    </div>
+  </div>
+
+  <div class=" radius-15">
+    <div >
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="d-flex">
+              <input type="text" id="search" class="form-control" placeholder="Search.." autocomplete="off"/>
+              <div class="dropdown ml-1" style="justify-content: left">
+                <button type="button" class="btn btn-outline-warning dropdown-toggle text-grey" data-toggle="dropdown"><i class="fa fa-sort"></i> </button>
+                <div class="dropdown-menu" style="background-color: black">
+                  <a class="dropdown-item" href="" style="height: 40px; font-size: 15px; color: white">All</a>
+                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="sortTable(3)">Customer Name</a>
+                  <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="sortTable(2)">Invoice Number</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+          <div class="col-md-5 d-flex justify-content-end">
+            <button type="button" class="btn btn-outline-warning text-grey" id="exportBtn"><i class="fa fa-cloud-upload"></i> Export </button>
+            <button type="button" class="btn btn-outline-warning text-grey" id="importExcel" data-toggle="modal" data-target="#importModal" onclick="excelmodel()"><i class="fa fa-cloud-download" aria-hidden="true"></i>
+              Import</button>
+            
+            
+
+            <div class="dropdown ml-1">
+              <button type="button" class="btn btn-outline-warning dropdown-toggle text-grey" data-toggle="dropdown"><i class="fa fa-filter"></i> </button>
+              <div class="dropdown-menu" style="background-color: black">
+                <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="filterTable(6,'all')">All</a>
+                <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="filterTable(6,'draft')">Draft</a>
+                <a class="dropdown-item" style="height: 40px; font-size: 15px; color: white;cursor: pointer;" onclick="filterTable(6,'saved')">Saved</a>
+                
+              </div>
+            </div>
+            <a href="{% url 'invoice_createpage' %}" class="ml-1"></i><button type="button" class="btn btn-outline-warning text-grey"><i class="fa fa-plus font-weight-light"></i> New</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-responsive-md text-white mt-4" id="invoiceTable" style="text-align: center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>DATE</th>
+            <th>INVOICE NO.</th>
+            <th>NAME</th>
+            <th>EMAIL ID</th>
+            <th>AMOUNT</th>
+            <th>STATUS</th>
+            <th>BALANCE</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in invoices %}
+          <tr class="clickable-row" data-href="{% url 'view' a.id %} " style="cursor: pointer;">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ a.date }}</td>
+            <td>{{ a.invoice_number }}</td>
+            <td>{{ a.customer.first_name }} {{ a.customer.last_name }}</td>
+            <td>{{ a.customer_email}}</td>
+            <td>{{ a.grand_total }}</td>
+            <td>{{ a.status }}</td>
+            <td>{{ a.balance }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+          <div class="modal-header">
+              <h5 class="modal-title" id="importModalLabel" style="color: white;">Import Data</h5>
+              
+          </div>
+          <div class="modal-body">
+              <form id="importForm" method="post" action="{% url 'invoice_import' %}" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <input type="file" name="file" id="fileInput" class="form-control-file">
+              </form>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn orange-link" data-dismiss="modal">Cancel</button>
+              <button type="submit" form="importForm" class="btn orange-link">Save</button>
+          </div>
+      </div>
+  </div>
+          </div>
+<script>
+  function excelmodel() {
+      // Table 1
+      const table1 = document.querySelector('#attendancetablemodel');
+      const ws1 = XLSX.utils.table_to_sheet(table1);
+
+      // Table 2
+      const table2 = document.querySelector('#anotherTable');
+      const ws2 = XLSX.utils.table_to_sheet(table2);
+
+      // Create the workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1'); // Add Sheet1 with data from table1
+      XLSX.utils.book_append_sheet(wb, ws2, 'Sheet2'); // Add Sheet2 with data from table2
+
+      // Save the workbook
+      XLSX.writeFile(wb, 'invoice_Sample.xlsx');
+  }
+</script>
+
+<!-- Table 1 -->
+<table class="table table-hover" id="attendancetablemodel" hidden>
+  <thead>
+      <tr>
+        <th scope="col">Invoice number</th>
+
+        <th scope="col">Customer</th>
+        <th scope="col"> Email</th>
+        <th scope="col">Billing Address</th>
+        <th scope="col"> GST Type</th>
+        <th scope="col">GST Number</th>
+        <th scope="col">Place of Supply</th>
+        <th scope="col">Sales Order Number</th>
+        <th scope="col">Date</th>
+        <th scope="col">Payment Terms </th>
+        <th scope="col">Expiration Date</th>
+        <th scope="col">Reference Number</th>
+        <th scope="col"> Payment Method </th>
+        <th scope="col">Cheque Number</th>
+        <th scope="col">UPI Number</th>
+        <th scope="col">Bank Account Number</th>
+        <th scope="col">Description</th>
+        <th scope="col">Terms & Condition</th>
+        <th scope="col">Document</th>
+        <th scope="col">Sub Total</th>
+        <th scope="col">CGST</th>
+        <th scope="col">SGST</th>
+        <th scope="col">Tax Amount/ IGST</th>
+        <th scope="col">Shipping charge</th>
+        <th scope="col">Adjustment</th>
+        <th scope="col">Grand Total</th>
+        <th scope="col">Advanced/ Paid </th>
+        <th scope="col">Balance </th>
+        <th scope="col">Status (Draft or Save) </th>
+ 
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+      </tr>
+  </tbody>
+</table>
+
+<!-- Table 2 -->
+<table class="table table-hover" id="anotherTable" hidden>
+  <thead>
+    <tr>
+        <th scope="col">Invoice number</th>
+        <th scope="col">  Items (Products/Services)</th>
+        <th scope="col">HSN</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Price</th>
+        <th scope="col">Tax Rate</th>
+        <th scope="col">Discount</th>
+        <th scope="col">Total</th>
+  
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</tbody></table>
+
+
+
+
+<!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+<script>
+  var $rows = $('#invoiceTable tbody tr');
+  $('#search').keyup(function() {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    
+    $rows.show().filter(function() {
+      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return !~text.indexOf(val);
+    }).hide();
+  });
+  
+  document.getElementById("exportBtn").addEventListener("click", function () {
+    const Table = document.getElementById("invoiceTable");
+    const ws = XLSX.utils.table_to_sheet(Table);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, "Invoice.xlsx");
+  });
+  
+
+  jQuery(document).ready(function ($) {
+    $(".clickable-row").click(function () {
+      window.location = $(this).data("href");
+    });
+  });
+
+  function sortTable(columnIndex) {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("invoiceTable");
+    switching = true;
+
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+        y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+
+        if (x > y) {
+            shouldSwitch = true;
+            break;
+        }
+      }
+
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+  }
+
+  function filterTable(row,filterValue) {
+    var table = document.getElementById("invoiceTable");
+    var rows = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < rows.length; i++) {
+      var statusCell = rows[i].getElementsByTagName("td")[row];
+
+      if (filterValue == "all" || statusCell.textContent.toLowerCase() == filterValue) {
+        rows[i].style.display = "";
+      } else {
+        rows[i].style.display = "none";
+      }
+    }
+  }
+
+  function sortBalAsc() {
+    var table = document.getElementById("invoiceTable");
+    var rows = Array.from(table.rows).slice(1);
+
+    rows.sort(function (a, b) {
+      var balA = parseFloat(a.cells[7].textContent);
+      var balB = parseFloat(b.cells[7].textContent);
+      return balA - balB;
+    });
+
+    // Remove existing rows from the table
+    for (var i = table.rows.length - 1; i > 0; i--) {
+        table.deleteRow(i);
+    }
+
+    // Append the sorted rows back to the table
+    rows.forEach(function (row) {
+        table.tBodies[0].appendChild(row);
+    });
+  }
+</script>
+
+{% endblock %}

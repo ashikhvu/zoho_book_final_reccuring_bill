@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if login_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                {% if login_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'loan_listing' %}" class="text-warning-emphasis">Loan Account</a></li>
+                 <li class="breadcrumb-item" aria-current="page">Edit Loan Account Details</li>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                  <div class="row mt-4">
+        <section>
+            <div class="container pl-5" style="color:white;">
+                <div class="header pb-5">
+                    <h2 style="text-align: center;color:white;">EDIT LOAN ACCOUNT DETAILS</h2>
+                    <hr class="text-warning font-weight-bold">
+                    {% for message in messages %}
+                    <h5>
+                        <div class="alert alert-danger message">
+                            {{ message }}
+                        </div>
+                    </h5>
+                    {% endfor %}
+                </div>
+                <form method="POST" action="{% url 'edit_loantable' account.bank_holder.id %}" enctype="multipart/form-data" id="editloan">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="data  col-lg-8 col-md-6 col-sm-16">
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="account_name">Account Name</label>
+                                </div>
+                                <div class="col-6 d-flex">
+                                    
+                                       <!-- <select class="form-control text-dark bg-light" name="account_name" required readonly>
+                                        <option value="" selected hidden>Select</option>
+                                         {% for acc in bank_holder %}
+                                           <option value="{{ acc.id }}" {% if account.bank_holder.id == acc.id %} selected {% endif %}>{{ acc.customer_name }}</option>
+                                        {% endfor %}
+                                        
+                                    </select> -->
+                                    <input type="text" class="form-control text-dark bg-light" name="account_name" value="{{account.bank_holder.customer_name}}" required readonly>
+                                    <!-- <button type="submit" class="btn btn-primary ml-2" data-toggle="modal" data-target="#accountModal">+</button> -->
+                                        
+                                     
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Account Number</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="acc_number" value="{{account.bank_holder.account_number}}" required>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Loan Amount</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="loan_amount" value="{{account.loan_amount}}" required>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Lender Bank</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="lender_bank" value="{{account.lender_bank}}" required>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Date</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="date" class="form-control text-dark bg-light" name="loan_date" value="{{ account.loan_date | date:'Y-m-d' }}" >
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="sdate">Loan Recieved</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <select class="form-control text-dark bg-light" name="payment_method" id="lpayment_method" required>
+                                        <option value="" selected hidden>Select</option>
+                                        <option value="Cash" {% if account.payment_method == 'Cash' %} selected {% endif %}>Cash</option>
+                                        <option value="UPI" {% if account.payment_method == 'UPI' %} selected {% endif %}>UPI</option>
+                                        <option value="Cheque" {% if account.payment_method == 'Cheque' %} selected {% endif %}>Cheque</option>
+                                        {% for bank in banks %}
+                                        {% if bank.status == 'Active' %}
+                                        <option value="{{ bank.id }}" {% if account.payment_method == bank.bnk_name %} selected {% endif %}>{{ bank.bnk_name }}-( {{ bank.bnk_acno|slice:'-4:' }})</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row pb-3" id="cheque_details" style="display: none;" >
+                                <div class="col-6">
+                                    <label for="cheque_number">Cheque Number</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="cheque_number" id="cheque_number" value="{{account.cheque}}">
+                                </div>
+                            </div>
+                            <div class="row pb-3" id="upi_details" style="display: none;" >
+                                <div class="col-6">
+                                    <label for="upi_id">UPI ID</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="upi_id" id="upi_id" value="{{account.upi_id}}">
+                                </div>
+                            </div>
+                            <div class="row pb-3" id="accountnumber" style="display: none;" >
+                                <div class="col-6">
+                                    <label for="account_number">Account Number</label>
+                                </div>
+                                <div class="input-container col-6">
+                                    <input type="text" class="form-control text-dark bg-light" name="account_number" id="accountnum"  value="{{account.payment_accountnumber}}" readonly>
+                                </div>
+                            </div>
+                            
+                            
+                                <div class="row pb-3">
+                                    <div class="col-6">
+                                        <label for="">Terms</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="text" class="form-control text-dark bg-light" name="terms"  value="{{account.term}}" required>
+                                    </div>
+                                </div>
+                           
+                            
+                                <div class="row pb-3">
+                                    <div class="col-6">
+                                        <label for="">Processing Paid from</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <select class="form-control text-dark bg-light" name="processing_method" id="lprocessing_method" >
+                                            <option value="" selected hidden>Select</option>
+                                        <option value="Cash" {% if account.processing_method == 'Cash' %} selected {% endif %}>Cash</option>
+                                        <option value="UPI" {% if account.processing_method == 'UPI' %} selected {% endif %}>UPI</option>
+                                        <option value="Cheque" {% if account.processing_method == 'Cheque' %} selected {% endif %}>Cheque</option>
+                                            {% for bank in banks %}
+                                            {% if bank.status == 'Active' %}
+                                        <option value="{{ bank.id }}"{% if account.processing_method == bank.bnk_name %} selected {% endif %}>{{ bank.bnk_name }}-( {{ bank.bnk_acno|slice:'-4:' }})</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row pb-3" id="cheque_p" style="display: none;">
+                                    <div class="col-6">
+                                        <label for="cheque_number">Cheque Number</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="text" class="form-control text-dark bg-light" name="p_cheque_number" id="cheque" value="{{account.processing_cheque}}">
+                                    </div>
+                                </div>
+                                <div class="row pb-3" id="upi_p" style="display: none;">
+                                    <div class="col-6">
+                                        <label for="upi_id">UPI ID</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="text" class="form-control text-dark bg-light" name="p_upi_id" id="upi" value="{{account.processing_upi}}">
+                                    </div>
+                                </div>
+                                <div class="row pb-3" id="account_number_p" style="display: none;">
+                                    <div class="col-6">
+                                        <label for="account_number">Account Number</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="text" class="form-control text-dark bg-light" name="p_account_number" id="num" value="{{account.processing_acc}}" readonly>
+                                    </div>
+                                </div>
+                                <div class="row pb-3">
+                                    <div class="col-6">
+                                        <label for="">Interest rate</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="number" class="form-control text-dark bg-light" name="interest"  value="{{account.interest}}">
+                                    </div>
+                                </div>
+                                <div class="row pb-3">
+                                    <div class="col-6">
+                                        <label for="">Processing fee</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="number" class="form-control text-dark bg-light" name="processing_fee"  value="{{account.processing_fee}}" >
+                                    </div>
+                                </div>
+                                <div class="row pb-3">
+                                    <div class="col-6">
+                                        <label for="">Description</label>
+                                    </div>
+                                    <div class="input-container col-6">
+                                        <input type="text" class="form-control text-dark bg-light" name="description" value="{{account.description}}">
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <button type="submit"  class="btn btn-outline-warning mt-2" >Save</button>
+                            <a href="{% url 'loan_listing' %}" class="btn btn-outline-warning mt-2">Close</a>
+                        </div>
+                    </div>
+        
+                        </section>
+                        
+
+                        
+                      
+
+
+<script>
+    $(document).ready(function() {
+        // Function to show the appropriate payment method details based on the selected option
+        function showPaymentMethodDetails(selectedOption) {
+            if (selectedOption === 'Cheque') {
+                $('#cheque_details').show();
+                $('#upi_details').hide();
+                $('#accountnumber').hide();
+            } else if (selectedOption === 'UPI') {
+                $('#cheque_details').hide();
+                $('#upi_details').show();
+                $('#accountnumber').hide();
+            } else if (selectedOption === 'Cash') {
+                $('#cheque_details').hide();
+                $('#upi_details').hide();
+                $('#accountnumber').hide();
+            } else {
+                console.log('Bank selected');
+                $('#cheque_details').hide();
+                $('#upi_details').hide();
+                $('#accountnumber').show();
+                var bankId = selectedOption;
+                $.ajax({
+                url: '{% url "full_account_number" 0 %}'.replace('0', bankId),
+                type: 'GET',
+                
+                          
+                success: function(response) {
+                console.log('Success:', response);
+                data=response.bank
+               $('#accountnum').val(data);
+                 },
+                error: function(xhr, status, error) {
+                console.error(error);
+                 }
+                });
+            }
+        }
+        
+        // Event listener for the payment method dropdown change
+        $('#lpayment_method').change(function() {
+            var selectedOption = $(this).val();
+            showPaymentMethodDetails(selectedOption);
+        });
+        
+        // Show payment method details based on the selected option
+        var selectedOption = $('#lpayment_method').val();
+        showPaymentMethodDetails(selectedOption);
+        
+        // Check if UPI ID or Cheque Number fields have values and show respective payment method details
+        var upiIdValue = $('#upi_id').val();
+        var chequeNumberValue = $('#cheque_number').val();
+        var accountNumberValue = $('#accountnum').val();
+        if (upiIdValue) {
+            $('#upi_details').show();
+        }
+        if (chequeNumberValue) {
+            $('#cheque_details').show();
+        }
+        if (accountNumberValue) {
+            $('#accountnumber').show();
+        }
+    });
+    $('#editloan').submit(function (e) {
+        var selectedOption = $('#lpayment_method').val();
+        if (selectedOption === 'UPI') {
+            var pupiId = $('#upi_id').val();
+            if (!pupiId) {
+                e.preventDefault(); // Prevent form submission
+                alert('UPI ID is required.');
+            }
+        }else if(selectedOption === 'Cheque') {
+            var pcheq = $('#cheque_number').val();
+            if (!pcheq) {
+                e.preventDefault(); // Prevent form submission
+                alert('Cheque number is required.');
+            }
+        
+        }
+    });
+
+  </script>
+
+
+<script>
+    $(document).ready(function() {
+        // Function to show the appropriate payment method details based on the selected option
+        function showPaymentMethodDetails(selectedOption) {
+            if (selectedOption === 'Cheque') {
+                $('#cheque_p').show();
+                $('#upi_p').hide();
+                $('#account_number_p').hide();
+            } else if (selectedOption === 'UPI') {
+                $('#cheque_p').hide();
+                $('#upi_p').show();
+                $('#account_number_p').hide();
+            } else if (selectedOption === 'Cash') {
+                $('#cheque_p').hide();
+                $('#upi_p').hide();
+                $('#account_number_p').hide();
+            }else if (selectedOption === '') {
+                $('#cheque_p').hide();
+                $('#upi_p').hide();
+                $('#account_number_p').hide();
+            } else {
+                console.log('Bank selected');
+                $('#cheque_p').hide();
+                $('#upi_p').hide();
+                $('#account_number_p').show();
+                var bankId = selectedOption;
+                $.ajax({
+                url: '{% url "full_account_number" 0 %}'.replace('0', bankId),
+                type: 'GET',
+                
+                          
+                success: function(response) {
+                console.log('Success:', response);
+                data=response.bank
+               $('#num').val(data);
+                 },
+                error: function(xhr, status, error) {
+                console.error(error);
+                 }
+                });
+            }
+        }
+        
+        // Event listener for the payment method dropdown change
+        $('#lprocessing_method').change(function() {
+            var selectedOption = $(this).val();
+            showPaymentMethodDetails(selectedOption);
+        });
+        
+        // Show payment method details based on the selected option
+        var selectedOption = $('#lprocessing_method').val();
+        showPaymentMethodDetails(selectedOption);
+        
+        // Check if UPI ID or Cheque Number fields have values and show respective payment method details
+        var upiIdValue = $('#upi').val();
+        var chequeNumberValue = $('#cheque').val();
+        var accountNumberValue = $('#num').val();
+        if (upiIdValue) {
+            $('#upi_p').show();
+        }
+        if (chequeNumberValue) {
+            $('#cheque_p').show();
+        }
+        if (accountNumberValue) {
+            $('#account_number_p').show();
+        }
+    });
+    $('#editloan').submit(function (e) {
+        var selectedOption = $('#lprocessing_method').val();
+        if (selectedOption === 'UPI') {
+            var upiId = $('#upi').val();
+            if (!upiId) {
+                e.preventDefault(); // Prevent form submission
+                alert('UPI ID is required.');
+            }
+        }else if(selectedOption === 'Cheque') {
+            var cheq = $('#cheque').val();
+            if (!cheq) {
+                e.preventDefault(); // Prevent form submission
+                alert('Cheque number is required.');
+            }
+        
+        }
+    });
+
+  </script>
+
+{% endblock %}

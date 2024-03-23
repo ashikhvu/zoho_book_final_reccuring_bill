@@ -1,0 +1,587 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://kit.fontawesome.com/274ee977b7.js" crossorigin="anonymous"></script>
+
+   
+
+
+<style>
+ 
+ .fc-daygrid-day-top .fc-daygrid-day-number,
+  .fc-daygrid-day-top .fc-daygrid-day-label {
+    color: black !important; /* Change the color to black */
+  }
+ .white-border {
+        border-right: 1px solid white;
+    }
+    .orange-link {
+        display: inline-block;
+        padding: 10px;
+        text-decoration: none;
+        color: orange;
+        border: 2px solid orange;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        margin-left: 10px;
+       
+    }
+
+    .orange-link:hover {
+        background-color: orange;
+        color: white;
+    }
+    .clickable-row {
+        cursor: pointer;
+    }
+
+
+  .btn-add {
+    border: 2px solid orange;
+    border-radius: 10px;
+    width: 80px;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    background-color: orange;
+    color: white;
+    transition: background-color 0.3s ease; /* Add smooth transition effect */
+}
+.search-input {
+        padding: 5px;
+        background-color: white;
+        border: 1px solid white;
+        border-radius: 5px;
+        font-size: 16px;
+        color: black;
+        flex-grow: 1; /* Grow to take remaining space */
+    }
+
+.btn-add:hover {
+    background-color: orange;
+    color: white; /* Add this line to ensure text is visible on hover */
+}
+
+</style>
+<body>
+
+<div class="body-wrapper">
+  <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'company_attendance_list' %}" class="text-warning-emphasis">Attendance list</a></li>
+              <li class="breadcrumb-item"><a href="" >Calendar</a></li>
+          </ol>
+      </nav>
+      <div class="container-fluid bg-black" style="padding: 20px;">
+      <div class="row">
+       
+          <div class="col-md-5 white-border">
+            <div class="row">
+              <div class="col-md-2 ">
+                <div class="input-group mt-5">
+                 
+                  <div class="btn-group">
+                    <button type="button" class="btn orange-link  dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-sort" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" style="background-color: grey;">
+                      <button class="dropdown-item" type="button" id="sortAll" style="color: black;">All</button>
+                      <button class="dropdown-item" type="button" id="sortName" style="color: black;">Employee Name</button>
+                      <button class="dropdown-item" type="button" id="sortMonth" style="color: black;">Month</button>
+                    </div>
+                    <a href="{% url 'company_mark_attendance' %}" class="orange-link">New+</a> 
+                  </div>
+                  
+              </div>
+              
+              </div>
+              <div class="col-md-3 mt-5 " >
+                
+            </div>
+            <div class="col-md-7 mt-5">
+              <input type="text" id="searchInput" style="background-color: white;color: black;" class="form-control" placeholder=" Search here.." >
+          </div>
+            </div>
+            <div class="row mt-5" style="margin-left: 10px;color: white;font-size: 23px;">Attendance</div>
+       
+            
+          
+              <div style="overflow-x:auto;">
+                  <div class="container-fluid bg-black" style="padding: 20px;">
+                      <div class="table-responsive">
+                          <table id="attendanceTable" class="table mt-lg-1 mt-2 rounded" style="background-color: rgb(0, 0, 0);color: white;text-align: center;">
+                              <thead>
+                                  <tr class="border-bottom border-dark">
+                                      <th scope="col"><b>#</b></th>
+                                      <th scope="col"><b>Staff Name</b></th>
+                                      <th scope="col"><b>Month - Year</b></th>
+                                      
+                                      <th scope="col"><b>Total Leave</b></th>
+                                      
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for entry in entries %}
+                                  <tr class="border-bottom border-dark clickable-row"  data-href="{% url 'attendance_calendar' entry.employee.id entry.target_year entry.target_month %}" >
+                                 
+                                 
+                                          <td>{{forloop.counter}}</td>
+                                          <td>{{ entry.employee.first_name }} {{ entry.employee.last_name }}</td>
+                                          <td>{{ entry.target_month_name }} {{ entry.target_year }}</td>
+                                         
+                                          <td>{{ entry.total_leave }}</td> 
+                                         
+                                      </tr>
+                                  {% endfor %}
+                              </tbody>
+
+                              
+                              <script>
+                                $(document).ready(function() {
+                                    $('.comment-link').click(function() {
+                                        var employeeId = $(this).data('employee-id');
+                                        var targetMonth = $(this).data('target-month');
+                                        var targetYear = $(this).data('target-year');
+                                        
+                                        // Set hidden input values in the modal
+                                        $('#commentEmployeeId').val(employeeId);
+                                        $('#commentMonth').val(targetMonth);
+                                        $('#commentYear').val(targetYear);
+                                    });
+                                });
+                            </script>                
+    
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var rows = document.querySelectorAll(".clickable-row");
+    
+            document.getElementById("searchInput").addEventListener("input", function() {
+                var searchValue = this.value.toLowerCase();
+    
+                rows.forEach(function(row) {
+                    var rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(searchValue) ? "" : "none";
+                });
+            });
+    
+            rows.forEach(function(row) {
+                row.addEventListener("click", function() {
+                    var href = this.getAttribute("data-href");
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
+    
+                          </table>
+                          <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                var rows = document.querySelectorAll(".clickable-row");
+                        
+                                document.getElementById("searchInput").addEventListener("input", function() {
+                                    var searchValue = this.value.toLowerCase();
+                        
+                                    rows.forEach(function(row) {
+                                        var rowText = row.textContent.toLowerCase();
+                                        row.style.display = rowText.includes(searchValue) ? "" : "none";
+                                    });
+                                });
+                        
+                                rows.forEach(function(row) {
+                                    row.addEventListener("click", function() {
+                                        var href = this.getAttribute("data-href");
+                                        if (href) {
+                                            window.location.href = href;
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                        
+                        
+                        
+                                            </tbody>
+                                        </table>
+                                        <script>
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                                var table = document.getElementById("attendanceTable");
+                                                var tbody = table.querySelector("tbody");
+                                                var rows = Array.from(tbody.getElementsByTagName("tr"));
+                                                var originalOrder = rows.slice();  // Store the original order
+                                        
+                                                function sortTable(columnIndex, customSort) {
+                                                    rows.sort(function (a, b) {
+                                                        var aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
+                                                        var bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
+                                                        return customSort(aValue, bValue);
+                                                    });
+                                        
+                                                    // Clear the existing tbody content
+                                                    while (tbody.firstChild) {
+                                                        tbody.removeChild(tbody.firstChild);
+                                                    }
+                                        
+                                                    // Reorder the rows in the tbody
+                                                    rows.forEach(function (row) {
+                                                        tbody.appendChild(row);
+                                                    });
+                                                }
+                                        
+                                                function clearSort() {
+                                                    // Restore the original order
+                                                    originalOrder.forEach(function (row, index) {
+                                                        tbody.appendChild(originalOrder[index]);
+                                                    });
+                                        
+                                                    // Update the rows array to the original order
+                                                    rows = originalOrder.slice();
+                                                }
+                                        
+                                                // Custom sorting function for employee names
+                                                function nameSort(a, b) {
+                                                    return a.localeCompare(b);
+                                                }
+                                        
+                                                // Custom sorting function for month and year
+                                                function monthSort(a, b) {
+                                                    var aText = a.split(' ');
+                                                    var bText = b.split(' ');
+                                                    var aMonth = aText[0].toLowerCase();
+                                                    var aYear = parseInt(aText[1]);
+                                                    var bMonth = bText[0].toLowerCase();
+                                                    var bYear = parseInt(bText[1]);
+                                        
+                                                    if (aYear !== bYear) {
+                                                        return aYear - bYear;
+                                                    } else {
+                                                        var monthOrder = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+                                                        return monthOrder.indexOf(aMonth) - monthOrder.indexOf(bMonth);
+                                                    }
+                                                }
+                                        
+                                                // Event listeners for sorting buttons
+                                                document.getElementById("sortAll").addEventListener("click", function () {
+                                                    clearSort();
+                                                });
+                                        
+                                                document.getElementById("sortName").addEventListener("click", function () {
+                                                    sortTable(1, nameSort); // Sorting by Employee Name (column index 1)
+                                                });
+                                        
+                                                document.getElementById("sortMonth").addEventListener("click", function () {
+                                                    sortTable(2, monthSort); // Sorting by Month (column index 2) using custom sorting
+                                                });
+                                            });
+                                        </script>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-7 "  >
+            <div class="row">
+              <div class="col-md-3 mt-5">
+                <a href="{% url 'attendance_overview' calendar_data.employee_id calendar_data.target_month calendar_data.target_year %}" class="orange-link" style="background-color: orange;color: white;"><i class="fas fa-eye"></i> overview</a>
+            </div>
+            <div class="col-md-4"></div>
+
+            <div class="col-md-5 mt-5">
+              <a href="" class="orange-link comment-link" data-toggle="modal" data-target="#commentModal" ><i class="fas fa-comment"></i></a>
+              <a href="" class="orange-link" data-toggle="modal" data-target="#historyModal"><i class="fas fa-history"></i></a>
+              <a href="{% url 'company_attendance_list' %}" class="orange-link"><i class="fas fa-times"></i></a>
+          </div>
+
+           
+            
+          </div>
+
+          <div class="row mt-5" style="margin-left: 10px;color: white;font-size: 23px;">{{ employee.first_name }} {{ employee.last_name }}</div>
+            
+      
+
+            
+           
+           
+           
+           
+           
+              <div id='calendar' style="background-color:white;padding: 18px;"></div>
+            
+          </div>
+      </div> 
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+         
+          events: [
+              // Employee Attendance Events
+              {% for entry in emp_attendance %}
+                  {
+                      title: '{{ entry.status }}',
+                      start: '{{ entry.date|date:"Y-m-d" }}',
+                      allDay: true,
+                      color:'orange',
+                  },
+              {% endfor %}
+              // Holidays
+              {% for holiday in holiday %}
+                  {
+                      title: '{{ holiday.holiday_name }}',
+                      start: '{{ holiday.start_date|date:"Y-m-d" }}',
+                      end: '{{ holiday.end_date|date:"Y-m-d" }}',
+                      allDay: true,
+                      color: 'red', // Color for holidays
+                  },
+                  
+    
+              {% endfor %}
+          ],
+          
+          eventContent: function(arg) {
+              var eventElement = document.createElement('div');
+              eventElement.innerHTML = arg.event.title;
+              eventElement.style.width = '110px';
+              eventElement.style.height = '30px';
+              eventElement.style.fontSize = '20px';
+              eventElement.style.textTransform = 'capitalize';
+              eventElement.style.marginLeft = '0px';
+              return { domNodes: [eventElement] };
+          },
+          eventDidMount: function(info) {
+              var dayNameElements = info.el.querySelectorAll('.fc-daygrid-day-top .fc-daygrid-day-label'); // Find all day name elements
+              dayNameElements.forEach(function(dayNameElement) {
+                  dayNameElement.style.color = 'black'; // Change the color of each day name to black
+              });
+             
+          }
+          
+      });
+
+      // Extract year and month from the first entry in emp_attendance
+      var yearToOpen = null;
+      var monthToOpen = null;
+      {% if emp_attendance %}
+          yearToOpen = new Date('{{ emp_attendance.first.date|date:"Y" }}').getFullYear();
+          monthToOpen = new Date('{{ emp_attendance.first.date|date:"m" }}').getMonth();
+      {% endif %}
+
+      // Open the calendar to the specified year and month
+      if (yearToOpen !== null && monthToOpen !== null) {
+          calendar.gotoDate(new Date(yearToOpen, monthToOpen));
+      }
+
+      calendar.render();
+  });
+</script>
+
+
+
+
+
+<div class="modal fade"  id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commentModalLabel" style="color: white;">Add Comment</h5>
+          
+            
+        </div>
+        <div class="modal-body">
+            <form method="post" action="" id="commentForm">
+                {% csrf_token %}
+                <input type="hidden"  name="employee" value="{{calendar_data.employee_id}}">
+                <input type="hidden" name="target_month" value="{{ calendar_data.target_month }}">
+                <input type="hidden"  name="target_year" value="{{ calendar_data.target_year }}">
+          <textarea id="commentText" name="comment" class="form-control" rows="4" placeholder="Add Comments here" style="color: white;font-size: 16px;" required></textarea>
+         
+          
+          <table class="table mt-3">
+            <thead>
+              <tr>
+                <th scope="col" style="color: white;">Sl No</th>
+                <th scope="col" style="color: white;">Comment</th>
+                <th scope="col" style="color: white;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+             
+              {% for comment in comments %}
+              <tr >
+                <td style="color: white;font-size: 16px;">{{ forloop.counter }}</td>
+                <td style="color: white;font-size: 16px;">{{ comment.comment }}</td>
+                
+                <td>
+                 
+                  <a href="#" class="btn delete-comment" data-id="{{ comment.id }}">
+                    <i class="fa fa-trash" aria-hidden="true" style="color: white;"></i>
+                </a>
+                </td>
+              </tr>
+              {% empty %}
+             
+              <tr>
+                <td colspan="3" class="text-center">No comments found</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          
+          <button type="button" class="btn" data-dismiss="modal" style="background-color: orange;color: white;">Close</button>
+          
+          <button type="submit" class="btn" style="background-color: orange;color: white;" onclick="saveComment()">Save</button>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function saveComment() {
+    const form = document.getElementById('commentForm');
+    const formData = new FormData(form);
+
+    fetch("{% url 'attendance_add_comment' %}", {
+        method: "POST",
+        body: formData,
+        
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); // Parse the response body as JSON
+        } else {
+            throw new Error("Failed to save comment");
+        }
+    })
+    .then(data => {
+        // Check if the response contains a message
+        if (data.message) {
+            alert(data.message); // Display the message from the server
+            // Optionally, you can reload the page or update the comments section here
+        } else {
+            throw new Error("Invalid response from server");
+        }
+    })
+    .catch(error => {
+        console.error("Error saving comment:", error);
+        alert("An error occurred while saving comment. Please try again later.");
+    });    
+    
+    
+}
+
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const deleteLinks = document.querySelectorAll('.delete-comment');
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default link behavior (navigating to a new page)
+
+            // Extract the comment ID from the data-id attribute
+            const commentId = link.dataset.id;
+
+            // Send an AJAX request to delete the comment
+            fetch("{% url 'attendance_delete_comment' 0 %}".replace('0', commentId), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    
+                    link.closest('tr').remove(); 
+                } else {
+                    throw new Error('Failed to delete comment');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting comment:', error);
+                alert('An error occurred while deleting comment. Please try again later.');
+            });
+        });
+    });
+});
+  </script>
+
+
+
+
+
+
+
+
+  <div class="modal fade"  id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commentModalLabel" style="color: white;">Attendance history</h5>
+          
+            
+        </div>
+        <div class="modal-body">
+           
+          <table class="table mt-3 bg-black">
+            <thead>
+              <tr>
+                <th scope="col" style="color: white;">Sl No</th>
+                <th scope="col" style="color: white;">Date</th>
+                <th scope="col" style="color: white;">Action</th>
+                <th scope="col" style="color: white;">By</th>
+              </tr>
+            </thead>
+            <tbody>
+                
+             
+              {% for history in history %}
+              <tr >
+                <td style="color: white;font-size: 16px;">{{ forloop.counter }}</td>
+                <td style="color: white;font-size: 16px;">{{ history.date|date }}</td>
+                <td style="color: white;font-size: 16px;">{{ history.action }}</td>
+                <td style="color: white;font-size: 16px;">{{ history.login_details.first_name }} {{ history.login_details.last_name }}</td>
+                
+                
+              </tr>
+              {% empty %}
+             
+              <tr>
+                <td colspan="3" class="text-center">No history found</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          
+          <button type="button" class="btn" data-dismiss="modal" style="background-color: orange;color: white;">Close</button>
+          
+          
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+</div>
+</body>
+{% endblock %}

@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+ <!-- Pagination Styling -->
+ <style>
+  .g-1
+  {
+    gap: 0.575rem;
+  }
+  #myTable thead tr th{
+    font-size: 0.780rem;
+  }
+  #myTable tbody tr td{
+    font-size: 0.80rem;
+  }
+  .pagination
+  {
+    --bs-pagination-bg: #121210 !important;
+    margin-top: 1rem;
+  }
+  .pagination-box
+  {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+   
+  }
+  .pagination-ul li a
+  {
+      border: none !important;
+      color: #c9c9c9;
+      font-size: 13px;
+  }
+  .pagination-ul li:hover a{
+      background:  #fad106;
+      color: #f8f7f7;
+  }
+  
+
+
+  .top-section
+  {
+      justify-content: space-between;
+      align-items: center;
+  }
+  ul li{
+      list-style: none;
+  }
+  @media(max-width:768px)
+  {
+    .pagination-box
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+   
+  }
+  }
+</style>
+<script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href");
+    });
+  });
+</script>
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                <li class="breadcrumb-item" aria-current="page">Bankholder_list</li>
+            </ol>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12 col-sm-12 col-lg-12 flex-column">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded">
+                    <div class="row mt-4">
+                        <div class="col-7 col-sm-7 col-lg-6">
+                          <a class="text-white" style="font-size: 1.5rem;">All BankHolders</a>
+                        </div>
+                    <div class="row mt-2">
+                        <div class="col-md-4 col-lg-4 col-sm-10">
+                            <input type="text" id="search" class="form-control text-dark"style="border-color: rgb(198, 134, 16);background-color: antiquewhite;" placeholder="Search.." autocomplete="off">
+                        </div>
+                    <div class="col-md-2 col-lg-2 col-sm-2">
+                        <div class="dropdown">
+                            <a class="btn text-center px-4 pt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                            <i  class="fas fa-sort m-1"></i>
+                            </a>
+                                <div class="dropdown-menu m-1">
+                                <a class="dropdown-item" href="{% url 'list_bankholder' %}">All</a>
+                                <a class="dropdown-item" onclick="sortTableName()">Holder Name</a>
+                                <a class="dropdown-item" onclick="sortTableBank()">Bank Name</a>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-lg-6 col-md-6 ">
+                        <div class="d-flex justify-content-end g-1">
+                          <div class="dropdown">
+                            <a class="btn btn btn-outline-warning text-right px-3 py-2 flex-sm-row" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                                <i class="fa fa-filter fs-3 mt-1"></i>
+                            </a>
+
+                            <div class="dropdown-menu m-1 ">
+                                <a class="dropdown-item" onclick="applyFilter('All')">All</a>
+                                <a class="dropdown-item" onclick="applyFilter('Active')">Active</a>
+                                <a class="dropdown-item" onclick="applyFilter('Inactive')">Inactive</a>
+                            </div>
+                          </div>
+                            <a data-toggle="modal" data-target="#importmodal" class="btn btn-outline-warning text-right px-3 py-2 flex-sm-row" onclick="sampleexcel()">
+                                <i class="fas fa-file-import" style='font-size:18px'></i> <span > Import</span>
+                            </a>
+                            <a onclick="ExportToExcel()" class="btn btn-outline-warning text-right px-3 py-2 flex-sm-row" >
+                              <i class='fas fa-file-export' style='font-size:18px'></i> <span > Export</span>
+                            </a>
+                                
+                            <a  class="btn btn-outline-warning text-right px-3 py-2 flex-sm-row" role="button"  href="{% url 'createholder' %}">
+                                <i class="fa fa-plus fs-4" ><span> New</span></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       
+
+       
+            <div class="row mt-2">
+                <style>
+                .example::-webkit-scrollbar {
+                    display: none;
+                }
+
+                /* Hide scrollbar for IE, Edge and Firefox */
+                .example {
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+                }
+                </style>
+            
+                <div class="table-responsive example">
+                    <table class="table  text-white" id="myTable" >
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">#</th>
+                                <th style="text-align: center;">NAME</th>
+                                <th style="text-align: center;">ACCOUNT NUMBER</th>
+                                <th style="text-align: center;">IFSC CODE</th>
+                                <th style="text-align: center;">BANK NAME</th>
+                                <th style="text-align: center;">BANK BRANCH</th>
+                                <th style="text-align: center;">STATUS </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in account_holder %}
+                            <tr id="over" class="clickable-row" style="text-align: center;" data-href="{% url 'overview_bankholder' a.id %}">
+                                <td style="text-align: center;">{{forloop.counter}}</td>
+                                <td>{{a.customer_name}} </td>
+                                <td>{{a.account_number}}</td>
+                                <td>{{a.ifsc_code}}</td>
+                                <td>{{a.bankname}}</td>
+                                <td>{{a.branch_name}}</td>
+                                <td>{{a.status}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+       
+            <div class="row" hidden>
+                <table id="bankmodeltable">
+                    <thead>
+                        <th>Customer Name</th>
+                        <th>Alias</th>
+                        <th>Phone Number</th>
+                        <th>Email</th>
+                        <th>Account Type</th>
+                        <th>Bank</th>
+                        <th>Account Number</th>
+                        <th>IFSC Code</th>
+                        <th>Swift Code</th>
+                        <th>Branch Name</th>
+                        <th>Cheque Book Range</th>
+                        <th>Enable Cheque Printing</th>
+                        <th>Cheque Printing Configuration</th>
+                        <th>Mailing Name</th>
+                        <th>Mailing Address</th>
+                        <th>Country</th>
+                        <th>State</th>
+                        <th>Pin Code</th>
+                        <th>Pan Number</th>
+                        <th>Registration Type</th>
+                        <th>Gst Number</th>
+                        <th>Alter Gst Details</th>
+                        <th>Date</th>
+                        <th>Amount Type</th>
+                        <th>Amount</th>
+                        
+                    </thead>
+                    <tbody>
+                    
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+      
+<div class="modal fade" id="importmodal" style="margin-top: 7vh;">
+  <div class="modal-dialog ">
+    <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="excelModalLabel">Upload File
+        <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background: rgb(32, 35, 37);">
+        <div class="card">
+          <form action="{% url 'import_bankholder_excel' %}" method="post" class="needs-validation" enctype="multipart/form-data"  id="excelForm">
+            {% csrf_token %}
+            <div class="form-group mt-3" style="margin-left: 2vh;">
+              <label for="file" style="font-size: medium;">Choose Excel File for Bankholder - </label> <br><br>
+              <input type="file" class="form-control-file" id="empfile" name="empfile" accept=".xls,.xlsx"><br>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn text-center pt-2 btn-outline-warning" onclick="" >Upload</button>
+              <button type="button" class="btn text-center pt-2 btn-outline-warning" data-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>  
+      
+    
+    
+</div>
+</div>
+
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6" ></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Check if there's a success message and trigger SweetAlert -->
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                swal.fire({  
+                  title: "Success!",  
+                  text: '{{ message }}',  
+                  icon: "success",  
+                  showConfirmButton: false,
+                  timer: 2900
+                });  
+                {% elif message.tags == 'error' %}
+                Swal.fire({
+                    icon: 'error',
+                    title: "Ooops Error !",  
+                    text: '{{ message }}',  
+                    showConfirmButton: false,
+                    timer: 2900
+                });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
+
+
+  <script>
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  </script>
+  <script>
+    function applyFilter(currentFilter) {
+      var rows = $("#myTable tbody tr");
+      rows.show();
+      if (currentFilter === "Active" || currentFilter === "Inactive") {
+        rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+      }
+    }
+  </script>
+
+  <script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        // Get the URL from the "data-href" attribute
+        const url = row.getAttribute('data-href');
+        // Navigate to the URL
+        window.location.href = url;
+      });
+    });
+  </script>
+  
+  <script>
+    
+
+    function sortTableName() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("td")[1];
+        y = rows[i + 1].getElementsByTagName("td")[1];
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+      }
+    }
+  }
+
+  function sortTableBank() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("td")[4];
+        y = rows[i + 1].getElementsByTagName("td")[4];
+        if (x.innerHTML.toLowerCase().localeCompare(y.innerHTML.toLowerCase()) > 0) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+      }
+    }
+  }
+  </script>
+  
+  <script>
+    function ExportToExcel() {
+      console.log("myTable");
+      $('in1').prop
+      const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+      const wb = XLSX.utils.table_to_book(table);
+  
+      XLSX.writeFile(wb, 'bankholder_list.xlsx');
+  }
+  </script>
+  
+  <script>
+    function sampleexcel(){
+      const table1 = document.querySelector('#bankmodeltable');
+      const ws1 = XLSX.utils.table_to_sheet(table1);
+      const wb1 = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb1, ws1, 'Sheet');
+      XLSX.writeFile(wb1, 'bank holder.xlsx');
+    }
+  </script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script>
+      {% for msg in messages %}
+      swal({
+      title: "{{msg}}",
+      text: "{{msg.tags}}",
+      icon: "{{msg.tags}}",
+    });
+      {% endfor %}
+     </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<script>
+  function uploadFile() {
+    const form = document.getElementById('excelForm');
+    const formData = new FormData(form);
+    fetch('import_bankholder_excel', {
+      method: 'POST',
+      body: formData
+    })
+    .then(data => {
+            swal({
+                title: "Imported !",
+                text: "Bankholder Import Successfull!",
+                icon: "success",
+                buttons: false,
+            })
+        })
+        .then(response => {
+            setTimeout(function () {
+                location.reload();
+            }, 1250);
+        })
+        .catch(error => {
+            swal({
+                title: "Error !",
+                text: "Bankholder Import Unuccessfull!",
+                icon: "warning",
+                buttons: false,
+            })
+        });
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous">
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous">
+</script>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,800 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+{% load social_share %}
+
+<!-- Include FullCalendar CSS -->
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<link rel="stylesheet" href="{% static 'assets/plugins/fullcalendar/css/main.min.css' %}">
+
+
+<!-- pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+<!-- Add html2pdf library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+<!-- bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Include jQuery from a CDN -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- FullCalendar CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.css" rel="stylesheet">
+
+<!-- FullCalendar JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.10.1/main.min.js"></script>
+
+
+
+
+
+
+<style>
+
+    @media print {
+    /* Hide the table when printing */
+    #holidayList {
+        display: none;
+        }
+    }
+
+    a{
+        color:white;
+    }
+    a:hover{
+        color:white;
+    }
+
+    .modal-content {
+        background-color: rgb(41, 37, 37);/* Modal content background color */
+        width: 80%; /* Adjust width as needed */
+        max-width: 1000px; /* Maximum width */
+        margin: 20px auto; /* Center modal horizontally */
+        padding: 20px;
+        color: white;
+    }
+
+    #dropdown-menu3  a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    #dropdown-menu3  a:hover {
+        background-color: #ddd;
+    }
+
+    #searchInput {
+        border: 1px solid orange;
+    }
+    #searchInput {
+      background-color: white;
+      color: black;
+  }
+
+    /* CSS for removing border-right style on smaller screens */
+    @media (max-width: 576px) {
+        #verticalLine {
+            border-right: none !important; /* Remove the border-right style */
+        }
+    }
+
+
+    #calendar{
+        height: 650px;
+    }
+
+    .modal-content{
+        color-scheme: black;
+    }
+
+ 
+</style>
+
+<body>
+    <div class="body-wrapper">
+        <div class="container-fluid container-flex">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a {% if dash_status == 0 %} href="{% url 'company_dashboard' %}" {% else %} href="{% url 'staff_dashboard' %}" {% endif %} class="text-warning-emphasis">Dashboard</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'company_holiday' %}" class="text-warning-emphasis">Holiday</a></li>
+                  <li class="breadcrumb-item" aria-current="page">Overview</li>
+                </ol>
+            </nav>
+            <div class="row p-3 m-3" style="background-color: black;border-radius: 10px;">
+                <div class="col-sm-4" id="verticalLine" style="border-right: 1px solid white;">
+                        <div style="overflow-x:auto;" class="section" id="section1">
+                            <h1 class="text-center text-white">All Holidays</h1>
+                            <div class="table-responsive">
+                                <div class="mb-3">
+                                    <input type="text" id="searchInput" class="form-control btn-outline-warning" placeholder="Type to search">
+                                </div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <div class="dropdown me-2">
+                                        <button class="btn btn-outline-warning dropdown-toggle text-grey" type="button" id="sortButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-sort"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" id="dropdown-menu2" aria-labelledby="sortButton2">
+                                            <li><a class="dropdown-item" id="dropdown-itemsort" href="#" data-sort="all">All</a></li>
+                                            <li><a class="dropdown-item" id="dropdown-itemsort" href="#" data-sort="month">Month</a></li>
+                                            <li><a class="dropdown-item" id="dropdown-itemsort" href="#" data-sort="year">Year</a></li>
+                                        </ul>
+                                    </div>
+                                    <a href="{% url 'company_holiday_new' %}?n=1" class="btn btn-outline-warning text-grey ms-auto"><i class="fa fa-plus text-yellow"></i> New </a>
+                                </div>
+                                <table id="holidayTable"  class="table mt-lg-5 mt-2 rounded" style="background-color: rgb(0, 0, 0);color: white;">
+                                    <thead>
+                                        <tr class="border-bottom border-dark">
+                                            <th scope="col"><b>Month</b></th>
+                                            <th scope="col"><b>Year</b></th>
+                                            <th scope="col"><b>Holidays</b></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key, row in holiday_table.items %}
+                                        <tr class="border-bottom border-dark">
+                                            <td><a href="{% url 'company_holiday_overview' %}?month={{ row.1 }}&year={{ row.2}}">{{ row.1 }}</a></td>
+                                            <td><a href="{% url 'company_holiday_overview' %}?month={{ row.1 }}&year={{ row.2}}">{{ row.2 }}</a></td>
+                                            <td><a href="{% url 'company_holiday_overview' %}?month={{ row.1 }}&year={{ row.2}}">{{ row.3 }}</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table> 
+                            </div>     
+                        </div>
+                </div>
+
+
+            
+                <div class="col-sm-8">
+                    <div class="section" id="section2">
+                        <div class="row radius-15">
+                            <div id="calendarDiv" class="col"><h3 class="text-center"><a href="" id="calendarLink" style="padding: 10px 20%;border-top-right-radius: 15px;border-top-left-radius: 15px;background-color:#db6a00;">Calendar</a></h3></div>
+                            <div id="holidayListDiv" class="col"><h3 class="text-center"><a href="" id="holidayListLink" style="padding: 10px 20%;border-top-right-radius: 15px;border-top-left-radius: 15px;">Overview</a></h3></div>
+                        </div>
+                        <div class="card radius-15" style="background-color: rgba(68, 58, 58, 0.2);">
+                            <div class="ml-auto"><a style="cursor: pointer;" title="Close" href="" ><i class="fa-solid fa-circle-xmark fa-2xl"></i></a></div>
+                            <div class="card-body">
+                                
+                                <div class="row" id="cal">
+                                    <div class="col" id="calendar" ></div>
+                                </div>
+                                
+                                <div class="row" id="cal_list">
+                                    
+                                    <div class="table-responsive">
+                                        <div class="row">
+                                            <div class="col text-start"> <!-- Left align -->
+                                                <div class="dropdown me-3">
+                                                    <button class="btn btn-outline-warning dropdown-toggle text-grey" id="shareButton" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fa fa-share"></i> Share
+                                                    </button>
+                                                    <ul class="dropdown-menu" id="dropdown-menu3" aria-labelledby="shareButton">
+                                                        <li><a class="dropdown-item1" href="#">{% post_to_whatsapp object_or_url "WhatsApp" %}</a></li>
+                                                        <li><a class="dropdown-item1" href="#" data-toggle="modal" data-target="#emailModal">Email</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="col text-center"> <!-- Center align -->
+                                                <button class="btn btn-outline-warning text-grey m-2" onclick="PrintTable()"><i class="fa fa-print"></i> Print</button>
+                                            </div>
+                                        
+                                            <div class="col text-end"> <!-- Right align -->
+                                                <button class="btn btn-outline-warning text-grey m-2" onclick="ExportAsPDF()"><i class="fa fa-file-pdf"></i> Pdf</button>
+                                            </div>
+                                        </div>
+                                        
+
+                                        
+
+                                        <!-- Email Modal -->
+                                        <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content" >
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="emailModalLabel" style="color: white;">Share via Email</h5>
+                                                        <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="{% url 'company_holiday_overview_email_send' %}?mn={{month}}&yr={{year}}" method="post">
+                                                            {% csrf_token %}
+                                                            <div class="form-group">
+                                                                <label for="exampleInputEmail1">Email address</label>
+                                                                <input type="email" class="form-control mb-3 text-white" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email" required>
+                                                            </div>
+                                                            <button type="submit" class="btn" style="background-color:#db6a00;color:white">Share</button>
+                                                        </form>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+
+                                        
+                
+                                        <table class="table ml-3" id="holidayList" style="background-color: rgb(0, 0, 0);color: white;">
+                                            <h3 id="headDing" class="text-center text-white"><span id="monthName">{{ month_name }}</span>, {{ year }}</h3><br>
+                                            <thead class="thead"  >
+                                                <tr style="font-size: large; " >
+                                                    <th>Sl No.</th>
+                                                    <th>HOLIDAY NAME</th>
+                                                    <th>START DATE</th>
+                                                    <th>END DATE</th>
+                                                    <th>ACTION</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for key, row in event_table.items %}
+                                                <tr style="font-size: large;">
+                                                    <td>{{ row.0 }}</td>
+                                                    <td style="text-transform: capitalize;">{{ row.1 }}</td>
+                                                    <td>{{ row.2 }}</td>
+                                                    <td>{{ row.3 }}</td>
+                                                    <td><a href="{% url 'company_holiday_overview_delete' row.4 %}?month={{month_name}}&year={{year}}"  class="btn btn-outline-warning text-grey btn-sm m-1" ><i class="fa fa-trash"></i></a> 
+                                                        <a href="{% url 'company_holiday_overview_edit' row.4 %}?month={{month}}&year={{year}}" class="btn btn-outline-warning text-grey btn-sm m-1"><i class="fa fa-edit"></i></a>
+                                                        <a href="#commentModal{{ row.4 }}" data-toggle="modal" title="Comment" class="btn btn-outline-warning text-grey btn-sm m-1"><i class="fa fa-comment"></i></a>
+                                                        <a href="#historyModal{{ row.4 }}" data-toggle="modal" title="history" class="btn btn-outline-warning text-grey btn-sm m-1"><i class="fa fa-history"></i></a>
+
+                                                        <!-- Comment modal -->
+                                                        <div class="modal fade" id="commentModal{{ row.4 }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                <h3 class="modal-title text-white" id="exampleModalLabel">Comments</h3>
+                                                                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                </div>
+                                                                <div class="table-responsive">
+                                                                    <table  class="table mt-lg-5 mt-2 rounded" style="color: white;" id="CommentTable">
+                                                                        <thead>
+                                                                            <tr class="border-bottom border-dark">
+                                                                                <th scope="col"><b>Comment</b></th>
+                                                                                <th scope="col"><b>Action</b></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {% for c in comments %}
+                                                                            {% if c.holiday_details.id == row.4 %}
+                                                                            <tr class="border-bottom border-dark">
+                                                                                <td>{{c.comment}}</td>
+                                                                                <td><a href="{% url 'company_holiday_overview_comment_delete' c.id %}?month={{month}}&year={{year}}" class="btn btn-outline-warning text-grey ms-auto"><i class="fa fa-trash"></i></a></td>
+                                                                            </tr>
+                                                                            {% endif %}
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div> 
+                                                                
+
+                                                                <form action="{% url 'company_holiday_overview_comment' row.4 %}?month={{month}}&year={{year}}" method="post">
+                                                                    {% csrf_token %}
+                                                                <div class="modal-body">
+                                                                    <div><label for="">Leave A Comment : </label> <textarea name="comment" cols="5" rows="3" class="form-control text-white" required></textarea></div><br>
+                                                                
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="submit" class="btn" style="background-color:#db6a00;color:white">Save</button>
+                                                                    <button type="button" class="btn" style="background-color:#db6a00;color:white" data-dismiss="modal">Close</button>
+                                                                </div>
+                                                                </form>
+
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- modal end -->
+
+
+                                                        
+
+                                                        
+
+                                                        <!-- Holiday history modal -->
+                                                        <div class="modal fade" id="historyModal{{ row.4 }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                </div>
+                                                                <div class="table-responsive">
+                                                                    <h2 class="text-center text-white">Holidyay History</h2>
+                                                                    <table  class="table mt-lg-5 mt-2 rounded" style="color: white;" id="CommentTable">
+                                                                        <thead>
+                                                                            <tr class="border-bottom border-dark">
+                                                                                <th scope="col"><b>Date </b></th>
+                                                                                <th scope="col"><b>Action</b></th>
+                                                                                <th scope="col"><b>User</b></th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {% for h in holiday_history %}
+                                                                            {% if h.holiday.id == row.4 %}
+                                                                            <tr class="border-bottom border-dark">
+                                                                                <td>{{h.date}}</td>
+                                                                                <td>{{h.action}}</td>
+                                                                                <td>{{h.user.first_name}}</td>
+                                                                            </tr>
+                                                                            {% endif %}
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div> 
+
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                    
+                                                        <!-- modal end -->
+                                                    </td>
+                                                    
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="togd-value" data-togd="{{ togd }}"></div>
+
+
+
+
+    <script>
+
+        // calendar
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: [
+                // Loop through events passed from Django view and format them appropriately
+                {% for key, row in event_list.items %}
+                {
+                    title: '{{ row.1 }}',
+                    start: '{{ row.2|date:"Y-m-d" }}', // Format start date
+                    backgroundColor: '#FFA500', // Set background color dynamically
+                }
+                {% if not forloop.last %},{% endif %} // Add comma except for the last event
+                {% endfor %}
+            ],
+            headerToolbar: {
+            center: '', // Remove buttons from the center
+            right: '', // Remove buttons from the right side
+            }
+            });
+
+             // Specify the year and month you want to open the calendar to
+             var yearToOpen = {{ year }};
+            var monthToOpen = {{ month }}-1; // (months are 0-indexed in JavaScript)
+
+            // Use gotoDate to open the calendar to the specified year and month
+            calendar.gotoDate(new Date(yearToOpen, monthToOpen));
+
+            
+            calendar.render();
+
+            // CSS styling for calendar header
+            var headerEl = document.querySelector('.fc-toolbar-title');
+            headerEl.style.color = 'white';
+        });
+
+    
+
+
+        // hide or show calendar
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to the links and divs
+            var calendarLink = document.getElementById("calendarLink");
+            var holidayListLink = document.getElementById("holidayListLink");
+            var calendarDiv = document.getElementById("cal");
+            var holidayListDiv = document.getElementById("cal_list");
+
+            // Set initial display based on tog value
+            var togdValue = document.getElementById('togd-value').getAttribute('data-togd');
+            var activeTab = togdValue == 1 ? "holidayList" : "calendar";
+            updateTabView();
+
+            // Function to update tab view
+            function updateTabView() {
+                if (activeTab === "calendar") {
+                    calendarDiv.style.display = "block";
+                    holidayListDiv.style.display = "none";
+                    calendarLink.classList.add("active");
+                    holidayListLink.classList.remove("active");
+                    calendarLink.style.backgroundColor = '#db6a00';
+                    holidayListLink.style.backgroundColor = 'transparent';
+                } else {
+                    calendarDiv.style.display = "none";
+                    holidayListDiv.style.display = "block";
+                    calendarLink.classList.remove("active");
+                    holidayListLink.classList.add("active");
+                    calendarLink.style.backgroundColor = 'transparent';
+                    holidayListLink.style.backgroundColor = '#db6a00';
+                }
+            }
+
+            // Add click event listeners
+            calendarLink.addEventListener("click", function(event) {
+                event.preventDefault();
+                activeTab = "calendar";
+                updateTabView();
+            });
+
+            holidayListLink.addEventListener("click", function(event) {
+                event.preventDefault();
+                activeTab = "holidayList";
+                updateTabView();
+            });
+        });
+
+
+
+
+        // search
+
+        document.addEventListener('DOMContentLoaded', function () {
+                // Get the input element and table
+                var searchInput = document.getElementById('searchInput');
+                var holidayTable = document.getElementById('holidayTable');
+
+                // Add event listener for input changes
+                searchInput.addEventListener('input', function () {
+                    var filter = searchInput.value.toLowerCase();
+                    var rows = holidayTable.getElementsByTagName('tr');
+
+                    // Loop through all table rows and hide/show based on search input
+                    for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                        var row = rows[i];
+                        var columns = row.getElementsByTagName('td');
+                        var shouldShow = false;
+
+                        for (var j = 0; j < columns.length; j++) {
+                            var cellValue = columns[j].textContent.toLowerCase();
+                            if (cellValue.indexOf(filter) > -1) {
+                                shouldShow = true;
+                                break;
+                            }
+                        }
+
+                        // Hide or show the row based on the search result
+                        row.style.display = shouldShow ? '' : 'none';
+                    }
+                });
+            });
+
+
+
+
+        // sort
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the sort button, dropdown menu, and table
+            var sortButton = document.getElementById('sortButton2');
+            var sortDropdown = document.querySelector('dropdown-menu2');
+            var holidayTable = document.getElementById('holidayTable').getElementsByTagName('tbody')[0];
+            var rows = holidayTable.getElementsByTagName('tr');
+
+            // Define an object mapping month names to their numerical order
+            var monthOrder = {
+                'January': 1,
+                'February': 2,
+                'March': 3,
+                'April': 4,
+                'May': 5,
+                'June': 6,
+                'July': 7,
+                'August': 8,
+                'September': 9,
+                'October': 10,
+                'November': 11,
+                'December': 12
+            };
+
+            // Add event listener for sort button click
+            sortButton.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevents the document click event from closing the dropdown
+                // Toggle visibility of the dropdown menu
+                sortDropdown.classList.toggle('show');
+            });
+
+            // Add event listener to close the dropdown when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!sortButton.contains(event.target)) {
+                    sortDropdown.classList.remove('show');
+                }
+            });
+
+            // Add event listener for dropdown item click
+            var dropdownItems = document.querySelectorAll('#dropdown-itemsort');
+            dropdownItems.forEach(function (item) {
+                item.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var sortValue = item.getAttribute('data-sort');
+                    sortTable(sortValue);
+                    // Close the dropdown menu
+                    sortDropdown.classList.remove('show');
+                });
+            });
+
+            // Function to sort table rows based on selected option
+            function sortTable(sortValue) {
+                // Sort the table rows based on the selected option
+                if (sortValue === 'month') {
+                    sortTableByMonth();
+                } else if (sortValue === 'year') {
+                    sortTableByColumn(1); // Sort by year (column index 1)
+                } else if (sortValue === 'all') {
+                    sortTableByYearAndMonth();
+                } else {
+                    // Reset the table to its original order
+                    for (var i = 0; i < rows.length; i++) {
+                        holidayTable.appendChild(rows[i]);
+                    }
+                }
+            }
+
+            // Function to sort table rows by month
+            function sortTableByMonth() {
+                // Convert HTMLCollection to Array for sorting
+                var rowsArray = Array.prototype.slice.call(rows);
+                
+                // Sort the rows based on the numerical order of months
+                rowsArray.sort(function (a, b) {
+                    var monthA = a.getElementsByTagName('td')[0].textContent.trim();
+                    var monthB = b.getElementsByTagName('td')[0].textContent.trim();
+                    return monthOrder[monthA] - monthOrder[monthB];
+                });
+
+                // Re-append sorted rows to the table
+                for (var i = 0; i < rowsArray.length; i++) {
+                    holidayTable.appendChild(rowsArray[i]);
+                }
+            }
+
+            // Function to sort table rows by column index
+            function sortTableByColumn(columnIndex) {
+                var rowsArray = Array.prototype.slice.call(rows);
+
+                rowsArray.sort(function (a, b) {
+                    var yearA = a.getElementsByTagName('td')[columnIndex].textContent.trim();
+                    var yearB = b.getElementsByTagName('td')[columnIndex].textContent.trim();
+                    return yearA - yearB; // Assuming the years are numeric values
+                });
+
+                for (var i = 0; i < rowsArray.length; i++) {
+                    holidayTable.appendChild(rowsArray[i]);
+                }
+            }
+
+            // Function to sort table rows by year and month
+            function sortTableByYearAndMonth() {
+                // Convert HTMLCollection to Array for sorting
+                var rowsArray = Array.prototype.slice.call(rows);
+                
+                // Sort the rows based on year and month
+                rowsArray.sort(function (a, b) {
+                    var yearA = a.getElementsByTagName('td')[1].textContent.trim(); // Assuming year is in the second column
+                    var yearB = b.getElementsByTagName('td')[1].textContent.trim();
+                    if (yearA !== yearB) {
+                        return yearA - yearB; // Sort by year first
+                    } else {
+                        var monthA = a.getElementsByTagName('td')[0].textContent.trim(); // Assuming month is in the first column
+                        var monthB = b.getElementsByTagName('td')[0].textContent.trim();
+                        return monthOrder[monthA] - monthOrder[monthB]; // If years are equal, sort by month
+                    }
+                });
+
+                // Re-append sorted rows to the table
+                for (var i = 0; i < rowsArray.length; i++) {
+                    holidayTable.appendChild(rowsArray[i]);
+                }
+            }
+
+        });
+
+
+
+
+
+
+        // pdf
+
+        function ExportAsPDF() {
+            const container = document.getElementById('holidayList');
+
+            // Extract heading text from the original table
+            const headingText = document.getElementById('headDing').innerText;
+
+            // Save the original styles
+            const originalStyles = {
+                backgroundColor: container.style.backgroundColor,
+                color: container.style.color,
+            };
+
+            // Set the container's background color to white and text color to black for specific columns
+            const headerCells = container.querySelectorAll('thead th');
+            const dataCells = container.querySelectorAll('tbody td');
+
+            headerCells.forEach(cell => {
+                cell.style.backgroundColor = 'white';
+                cell.style.color = 'black';
+            });
+
+            dataCells.forEach(cell => {
+                cell.style.backgroundColor = 'white';
+                cell.style.color = 'black';
+            });
+
+            // Identify and hide the last column from the HTML content
+            const lastColumnIndex = container.rows[0].cells.length - 1; // Assuming the table has a header row
+            Array.from(container.rows).forEach(row => {
+                row.cells[lastColumnIndex].style.display = 'none';
+            });
+
+            // Add margin to the PDF
+            const margin = 10; // Adjust as needed
+            const pdfOptions = {
+                margin: [margin, margin, margin, margin], // top, right, bottom, left
+                filename: "holiday_table.pdf",
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }, // Adjust format and orientation
+            };
+
+            // Generate PDF from the modified container
+            html2pdf().from(container).set(pdfOptions).toPdf().get('pdf').then(function(pdf) {
+                // Get the dimensions of the PDF page
+                const pageSize = pdf.internal.pageSize;
+                const pageWidth = pageSize.getWidth();
+                const pageHeight = pageSize.getHeight();
+
+                // Calculate the position for the heading
+                const headingWidth = pdf.getStringUnitWidth(headingText) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+                const headingX = (pageWidth - headingWidth) / 2;
+                const headingY = margin;
+
+                // Add heading to the PDF with a break after it
+                pdf.setFontSize(16);
+                pdf.setFontStyle('bold');
+                pdf.text(headingText + "\n", headingX, headingY);
+
+                // Adjust the Y position for the content below the heading
+                const contentY = headingY + pdf.internal.getLineHeight();
+
+                // Save the PDF
+                pdf.save();
+
+                // Display the last column again after downloading the PDF
+                Array.from(container.rows).forEach(row => {
+                    row.cells[lastColumnIndex].style.display = '';
+                });
+
+                // Restore the original styles for specific columns
+                headerCells.forEach(cell => {
+                    cell.style.backgroundColor = '';
+                    cell.style.color = originalStyles.color;
+                });
+
+                dataCells.forEach(cell => {
+                    cell.style.backgroundColor = '';
+                    cell.style.color = originalStyles.color;
+                });
+
+                // Restore the original styles for the container
+                container.style.backgroundColor = originalStyles.backgroundColor;
+                container.style.color = originalStyles.color;
+            });
+        }
+
+
+
+
+
+
+
+        // print
+
+
+        function PrintTable() {
+            const container = document.getElementById('holidayList');
+            const heading = document.getElementById('headDing').innerText.trim();
+
+            // Create a new window
+            const printWindow = window.open('', '_blank');
+
+            // Write HTML content to the new window
+            printWindow.document.write('<html><head><title>' + heading + '</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('table { margin: 0 auto; }');
+            printWindow.document.write('table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }');
+            printWindow.document.write('th, td { color: black; }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+
+            // Copy the heading content
+            printWindow.document.write('<h1 style="text-align: center; color: black;">' + heading + '</h1>');
+
+            // Copy the table content, excluding the last column
+            const tableCopy = container.cloneNode(true);
+            const lastColumnIndex = tableCopy.rows[0].cells.length - 1;
+            for (let i = 0; i < tableCopy.rows.length; i++) {
+                tableCopy.rows[i].deleteCell(lastColumnIndex);
+            }
+            printWindow.document.write(tableCopy.outerHTML);
+
+            // Close the HTML content
+            printWindow.document.write('</body></html>');
+
+            printWindow.document.close();
+
+            // Print the new window
+            printWindow.print();
+
+            // Close the new window after a brief delay
+            setTimeout(function() {
+                printWindow.close();
+            }, 100); // Adjust the delay time as needed
+        }
+
+
+
+
+
+
+
+
+        // document.addEventListener("DOMContentLoaded", function() {
+
+        //     // Get the sort button, dropdown menu, and table
+        //     var shareButton = document.getElementById('shareButton');
+        //     var shareDropdown = document.querySelector('dropdown-menu3');
+
+        //     // Add event listener for share button click
+        //     shareButton.addEventListener('click', function (event) {
+        //         event.stopPropagation(); // Prevents the document click event from closing the dropdown
+        //         // Toggle visibility of the dropdown menu
+        //         shareDropdown.classList.toggle('show');
+        //     });
+
+        //     // Add event listener to close the dropdown when clicking outside
+        //     document.addEventListener('click', function (event) {
+        //         if (!shareButton.contains(event.target)) {
+        //             shareDropdown.classList.remove('show');
+        //         }
+        //     });
+
+        // });
+
+
+
+
+    </script>
+</body>
+
+
+{% endblock %}

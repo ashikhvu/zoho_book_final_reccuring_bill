@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link href='https://unpkg.com/css.gg@2.0.0/icons/css/trash.css' rel='stylesheet'>
+<script src="https://cdn.jsdelivr.net/bootstrap.datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+
+<style>
+    .card{
+        background: none;
+    }
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+    tbody tr:hover{
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    thead tr th{
+        border-right: 2px solid transparent;
+    }
+   
+    ul.image-bullets {
+        list-style-type: none;
+        padding-left: 30px;
+    }
+
+    ul.image-bullets li:before {
+        content: "";
+        background-image: url('static/images/bullet.png');
+        background-size: 15px 15px;
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin-right: 5px; 
+        margin-left: 26%;
+    }
+    .recurpoints ul li{
+        margin-bottom: 10px;
+    }
+
+    .btn:hover{
+        color: black;
+        font-weight: bold;
+    }
+
+    a{
+        list-style: none;
+        color: azure;
+    }
+     a:hover{
+        color: rgb(218, 164, 48);
+     }
+     ::-webkit-scrollbar {
+        width: 5px; 
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+
+    .btn-outline-warning:hover {
+        color: black !important;
+    }
+
+    .dropdown-item:hover{
+        cursor: pointer;
+    }
+</style>
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+              <li class="breadcrumb-item" aria-current="page">Banking</li>
+            </ol>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-5 p-5" style="background-color: black; border-radius: 1vh;">
+                    <h1 style="color: white; font-weight: bolder;">All Banking</h1><br>
+                    {% for message in messages %}
+                    <h5>
+                      <div class="alert alert-danger message text-center" style="color: black;" id="alert_danger">
+                        {{ message }}
+                        <a type="button" id="alert_close" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                            <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                        </a>
+                      </div>
+                    </h5>
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-md-4 d-flex justify-content-end align-items-start gap-3">
+                            <input class="form-control text-dark bg-light" type="text" id="search" placeholder="Search..." style="border: 2px solid #ffae1f;">
+                            <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            role="button" style="color: #ffae1f; width: 25%;">
+                            <i class="fa fa-sort mt-1 " style="font-size: small;"></i>
+                            </a>
+                            <div class="dropdown-menu ">
+                                <a class="dropdown-item text-black" href="{% url 'bank_list' %}" >All</a>
+                                <a class="dropdown-item text-black" onclick="sorttable(2)">Name</a>
+                                <a class="dropdown-item text-black" onclick="sorttable(6)">Balance</a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4 d-flex justify-content-end align-items-start gap-3">
+                            <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            role="button" style="color: #ffae1f; width: 22%;">
+                            <i class="fa fa-filter mt-1" style="font-size: small;"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-black" href="{% url 'bank_list' %}" >All</a>
+                                <a class="dropdown-item text-black" onclick="filtertable('Active')">Active</a>
+                                <a class="dropdown-item text-black" onclick="filtertable('Inactive')">Inactive</a>
+                            </div>
+                            <a href="{% url 'load_bank_create' %}" class="btn text-center btn-outline-warning" role="button" style="color: #ffae1f; width: 30%;">
+                                NEW &nbsp; <i class="fa fa-plus mt-1"></i>
+                            </a> 
+                        </div>
+    
+                    </div>
+                    <div class="container-fluid">
+                        <br>
+                        <table class="table table-responsive-md mt-4" id="banktable">
+                            <thead>
+                                <tr class="text-center text-white">
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Name</th>
+                                    <th>Account Number</th>
+                                    <th>IFSC Code</th>
+                                    <th>Opening Balance</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in bnk %}
+                                <tr class='clickable-row text-center' data-href="View/Bank/{{ b.id }}">
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ b.date }}</td>
+                                    <td>{{ b.bnk_name }}</td>
+                                    <td>{{ b.bnk_acno }}</td>
+                                    <td> {{ b.bnk_ifsc }}</td>
+                                    <td>&#8377;{{ b.bnk_opnbal }}</td>
+                                    <td>&#8377;{{ b.bnk_bal }}</td>
+                                    <td>{{ b.status }}</td>
+                                </tr>
+                                {%endfor%}  
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+<script>
+    $('#alert_close').click(function(){
+      $('#alert_danger').hide()
+    })
+</script>
+
+<script>
+  $(document).ready(function() {
+    var $rows = $('#table tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
+    });
+  });
+  $('.dropdown-toggle').dropdown();
+</script>
+
+<script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+      window.location = $(this).data("href");
+    });
+  });
+</script>
+
+<script>
+    function sorttable(col) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("banktable");
+        switching = true;
+        
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+
+                x = rows[i].getElementsByTagName("td")[col].textContent.toLowerCase();
+                y = rows[i + 1].getElementsByTagName("td")[col].textContent.toLowerCase();
+
+                if (x > y) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+</script>
+
+<script>
+    function filtertable(key) {
+        var input, filter, table, tr, td, i, txtValue;
+        table = document.getElementById("banktable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[7];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase() == key.toUpperCase()) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+
+{%endblock%}

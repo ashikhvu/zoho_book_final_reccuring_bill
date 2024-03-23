@@ -1,0 +1,1553 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+                                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+                                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                                                
+                                                <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+                                                <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+                                                <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+                                                <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+                                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-ez8n5b/9F3JpKCEY6zIp+Hg7IbU8d7Q5ST78iEiRaP2mNPjkDps8I+1i0fblDOoh" crossorigin="anonymous">
+                                                <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+                                                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                                                <script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+                                                <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+                                                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+                                                <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+                                                <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+                                                <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+                                                
+                                                <style>
+                                                  .bs{
+                                                      box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+                                                  }
+                                                
+                                                  .bs_sm{
+                                                      box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+                                                  }
+                                                
+                                                  .paiddiv{
+                                                      color: black;
+                                                      height: 10vh;
+                                                      width: 20vh;
+                                                      padding-left: 2vh;
+                                                      padding-top: 1vh;
+                                                      padding-bottom: 1vh;
+                                                      margin-left: 7vh;
+                                                      border-radius: 8px;
+                                                      background-color: rgb(0, 0, 0);
+                                                  }
+                                                
+                                                  .unpaiddiv{
+                                                      color: black;
+                                                      height: 10vh;
+                                                      width: 20vh;
+                                                      padding-left: 2vh;
+                                                      padding-top: 1vh;
+                                                      padding-bottom: 1vh;
+                                                      margin-left: 7vh;
+                                                      border-radius: 8px;
+                                                      background-color: lightsteelblue;
+                                                  }
+                                                
+                                                  .totaldiv{
+                                                      color: black;
+                                                      height: 10vh;
+                                                      width: 20vh;
+                                                      padding-left: 2vh;
+                                                      padding-top: 1vh;
+                                                      padding-bottom: 1vh;
+                                                      margin-left: 7vh;
+                                                      border-radius: 8px;
+                                                      background-color: lightgreen;
+                                                  }
+                                                
+                                                  #billtable tbody{
+                                                      cursor: pointer;
+                                                  }
+                                                
+                                                  #emptyMessage {
+                                                      display: none;
+                                                      font-size: x-large;
+                                                      font-weight: bold;
+                                                      color: red;
+                                                  }
+                                                
+                                                  .dropdown {
+                                                      position: relative;
+                                                      display: inline-block;
+                                                  }
+                                                
+                                                  .dropdown-content {
+                                                      display: none;
+                                                      position: absolute;
+                                                      background-color: #fff;
+                                                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                                                      border-radius: 5px;
+                                                      padding: 10px;
+                                                      z-index: 1;
+                                                      width: 15%;
+                                                  }
+                                                
+                                                  .dropdown-content label {
+                                                      display: block;
+                                                      margin-bottom: 5px;
+                                                  }
+                                                
+                                                  .dropdown-content input {
+                                                      width: 100%;
+                                                      padding: 5px;
+                                                      box-sizing: border-box;
+                                                      margin-bottom: 10px;
+                                                  }
+                                                
+                                                  .tplus{
+                                                      margin-top: 3vh;
+                                                      margin-left: 5vh;
+                                                      margin-right: -2vh;
+                                                  }
+                                                
+                                                  .tequal{
+                                                      margin-top: 3vh;
+                                                      margin-left: 5vh;
+                                                      margin-right: -2vh;
+                                                  }
+                                                
+                                                  .tg{
+                                                      color: rgb(0, 140, 7);
+                                                  }
+                                                
+                                                  .tr{
+                                                      color: rgb(218, 0, 0);
+                                                  }
+                                                
+                                                  .tj{
+                                                      color:#E4A11B;
+                                                  }
+                                                
+                                                  .th{
+                                                      color: rgb(12, 79, 234);
+                                                  }
+                                                
+                                                  @media print{
+                                                      body{
+                                                          visibility: hidden !important; /* hide everything in body when in print mode*/
+                                                      }
+                                                
+                                                      .printContainer {
+                                                          visibility: visible !important; /* Override the rule above to only show the printables*/
+                                                          position: absolute;
+                                                          z-index: 99999;
+                                                          top: 0;
+                                                          left: 0;
+                                                          width: 100%;
+                                                          height: 100%;
+                                                          font-size: large;
+                                                      } 
+                                                
+                                                      #calcdiv{
+                                                          visibility: visible;
+                                                          margin-top: -30vh;
+                                                          margin-left: -9vh;
+                                                          margin-bottom: 30vh;
+                                                      }
+                                                
+                                                      #billtable{
+                                                          margin-top: 20vh;
+                                                          margin-bottom: 20vh;
+                                                      }
+                                                
+                                                      #billtable th{
+                                                          font-size: medium;
+                                                      }
+                                                
+                                                      .extra{
+                                                          display: none;
+                                                      }
+                                                  }
+                                                  
+                                                  ::-webkit-scrollbar{
+                                                      display: none
+                                                  }
+                                                </style>
+                                                
+                                                <style>
+                                                   .modal {
+                                                    z-index: 9999;
+                                                    overflow: scroll;
+                                                  }
+                                                
+                                                  .modal-content {
+                                                    background-color: #fefefe;
+                                                    margin: 15% auto;
+                                                    padding: 20px;
+                                                    border: 1px solid #888;
+                                                    width: 80%;
+                                                  }
+                                                
+                                                  /* Add your CSS styles here */
+                                                  /* Styling for the filter input window */
+                                                /* Styling for the filter input window */
+                                                .filter-window {
+                                                  display: none;
+                                                  position: absolute;
+                                                  padding: 10px;
+                                                  color: aliceblue;
+                                                  width: 10%;
+                                                  background-color: rgb(37, 105, 99);
+                                                  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                                  z-index: 1; /* Ensures the window is on top */
+                                                }
+                                                
+                                                /* Additional styling for the filter input */
+                                                .filter-window label, .filter-window input, .filter-window button {
+                                                  display: block;
+                                                  margin-bottom: 5px;
+                                                }
+                                                .filter-window button {
+                                                    display: inline-block;
+                                                    margin-right: 5px;
+                                                    padding: 5px 10px;
+                                                    background-color: #4CAF50; /* Green background color */
+                                                    color: white; /* White text color */
+                                                    border: none; /* Remove border */
+                                                    border-radius: 3px; /* Optional: Add rounded corners */
+                                                    cursor: pointer; /* Add a pointer cursor on hover */
+                                                }
+                                                
+                                                .filter-window button:hover {
+                                                    background-color: #45a049; /* Darker green on hover */
+                                                }
+                                                
+                                                </style>
+                                                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                                  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> -->
+                                                  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+                                                  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script> -->
+                                                  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+                                                  <style>
+                                                    .scrollable-container {
+                                                      border-right: 1px solid white;
+                                                      overflow-y: scroll;
+                                                      height: 84vh;
+                                                    }
+                                                  
+                                                    .scrollable-container::-webkit-scrollbar {
+                                                      width: 0; /* Set width to 0 to hide the scrollbar */
+                                                    }
+                                                  </style>
+                                                  
+                                                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+                                              
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'items_list' %}" class="text-warning-emphasis">Items</a></li>
+              <li class="breadcrumb-item" aria-current="page">Overview</li>
+            </ol>
+        </nav>
+         <!-- ADD ITEM FORM -->
+         <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
+       
+            
+                                                            
+          <div class="col-md-12" style="width: 120%;">
+           <div class="row">
+             <div class="col-md-3 scrollable-container" style="border-right: 1px solid white; overflow-y: scroll; height: 84vh;width: 25%;">
+               <div class="row">
+             
+                 <a class="text-white" style="font-size: 1.5rem;color: white; padding-left: 20px; padding-top: 20px;">Items</a>
+              
+                 <br>      
+                 <div class="col-md-2">
+                   <div class="dropdown">
+                       <a class="btn text-center mt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button" style="margin-left: 20px; height: 38px;">
+                           <i class="fas fa-sort m-1"></i>
+                       </a>
+                       
+                       <div class="dropdown-menu m-1" style="background-color: black; color: white;">
+                        <a class="dropdown-item text-white" href="{% url 'itemsoverview' selitem.id %}">All</a>
+                        <a class="dropdown-item text-white" href="{% url 'item_view_sort_by_name' selitem.id %}">Item Name</a>
+                        <a class="dropdown-item text-white" href="{% url 'item_view_sort_by_hsn' selitem.id %}">HSN</a>
+                       </div>
+                   </div>
+               </div>
+               
+               <div class="col-md-3" style="padding-left: 40px;">
+                   <div class="col-md-2 mt-2 mx-1">
+                       <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="height: 38px;">
+                           <i class="fa fa-filter"></i>
+                       </a>
+               
+                       <div class="dropdown-menu m-1" style="background-color: #000;">
+                        <a class="dropdown-item text-white" href="{% url 'itemsoverview' selitem.id %}">All</a>
+                        <a class="dropdown-item text-white" href="{% url 'filter_item_view_Active' selitem.id %}">Active</a>
+                        <a class="dropdown-item text-white" href="{% url 'filter_item_view_inActive' selitem.id %}">Inactive</a>
+                       </div>
+                   </div>
+               </div>
+               <script>
+                   function applyFilter(currentFilter) {
+                               var rows = $("#table2 tbody tr");
+                               rows.show();
+                               if (currentFilter === "Active" || currentFilter === "inactive") {
+                                 rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+                               }
+                             }
+               </script>
+               
+               <div class="col-md-3" style="padding-left: 120PX;">
+                   <a class="btn btn btn-outline-warning text-right mt-2" style="height: 38px; padding-top: 12px; padding-left: 17px;" href="{% url 'new_items'%}">
+                       <i class="fa fa-plus"></i>
+                   </a>
+               </div>
+               
+               <div class="col-md-6"></div>
+               
+   
+               </div>
+               <br>
+               <div class="scrollable-table" style="width: 85%;margin-left: 20px;">
+                 <div class="row">
+                   <div class="col-md-12">
+                     <input type="text"  id="searchInput" class="form-control text-black" style="border-color: rgb(201, 200, 199);background-color: #fefefe;" placeholder="Search...">
+ 
+ 
+                   </div>
+               </div>
+   
+          
+             
+             <br>
+             <!-- Table 2: Billable Projects -->
+             <table class="table  text-white" id="table2">
+               <tbody>
+                 {% for i in items %}
+                   <tr class="clickable" id="{{i.id}}">
+                     <td class="justify-content-between align-items-center ">
+                       <!-- <b ><a class="text-white"  href="">{{i.item_name}} </a></b>
+                       <br>
+                       <a class="text-white"  href="">{{i.hsn_code}}</a><br> -->
+                       <label class="text-left d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.item_name}} </a></label>
+                       <br>
+                       <label class="text-left d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.hsn_code}}</a></label>
+                  
+                     </td>
+                     
+                     <td>
+                       <label class="text-end d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.activation_tag}}</a></label>
+                       <br>
+                       <label class="text-end d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.current_stock}}</a></label>
+                     </td>
+                   </tr></a>
+                 {% endfor %}
+               </tbody>
+             </table>
+             <!-- <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;color: #d19d0d;">
+               <tbody>
+                 {% for i in acc %} -->
+                        <!-- <td>
+                     <a class="text-white"  href="{% url 'itemsoverview'  i.id%}"><b>{{i.item_name}}</b> <span class="d-flex justify-content-end text-warning align-items-start" > {{i.current_stock}}</span> <br>
+                         <span class="d-flex  align-items-start text-warning"> {{i.hsn_code}}</span> <span class="d-flex justify-content-end align-items-start"> {{i.activation_tag}}</span>
+                     </a>   
+                 </td> -->
+                 
+                 <!-- <style>
+                   .reduce-gap {
+                     margin-top: -0px; /* Adjust the value as needed */
+                   }
+                 </style> -->
+                 
+                 <!-- Your HTML code -->
+                 
+                 <!-- <tr class="account-row" data-account-type="{{ i.account_type }}">
+                   <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 254, 252);"><b>{{i.account_name}}</b></a></td>
+                   <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 255, 253);">{{ i.Create_status }}</a></td>
+                 </tr> 
+                 
+                 <tr class="account-row reduce-gap" data-account-type="{{ i.account_type }}">
+                   <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(245, 245, 245);">{{i.account_type}}</a></td>
+                   <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 255, 254);">{{ i.account_code }}</a><hr style="width: 500%;margin-left: -220px;color: #ffffff;"></td>
+                 </tr>
+                 
+             
+                 {% endfor %}
+               </tbody>
+             </table> -->
+ <!--               
+             <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;">
+ 
+               <tbody>
+                 {%for i in acc %}
+                 <tr class="account-row" data-account-type="{{ i.account_type }}">
+                   <td>
+                     <a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}"><b>{{i.account_name}}</b> <span class="d-flex justify-content-end text-warning align-items-start" > {{i.account_type}}</span> <br>
+                         <span class="d-flex  align-items-start text-warning"> {{i.account_code}}</span> <span class="d-flex justify-content-end align-items-start"> {{i.Create_status}}</span>
+                     </a> 
+                 </td>
+                 </tr>
+                 {%endfor%}
+               </tbody>
+             </table> -->
+ 
+   </div>
+ </div>
+ 
+ 
+  
+  <div class="col" style="width: 300%;" id="overviewdiv" style="display: block;">
+      <div class="row">
+        <div class="col-md-7">
+          <a class="text-white" style="font-size: 1.5rem;">
+            <br>
+            <h2 style="color: aliceblue;">{{selitem.item_name}}</h2>
+          </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;"><i class="fas fa-eye"></i>
+            Overview</a>
+            <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
+              Transaction</a>
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Get the elements by ID
+                    var overviewDiv = document.getElementById('overviewdiv');
+                    var transactionDiv = document.getElementById('Transaction');
+            
+                    // Set the initial display state
+                    overviewDiv.style.display = 'block';
+                    transactionDiv.style.display = 'none';
+                });
+            
+                function totemplate() {
+                    // Get the elements by ID
+                    var overviewDiv = document.getElementById('overviewdiv');
+                    var transactionDiv = document.getElementById('Transaction');
+            
+                    // Toggle the display property
+                    if (overviewDiv.style.display === 'block' || overviewDiv.style.display === '') {
+                        overviewDiv.style.display = 'none';
+                        transactionDiv.style.display = 'block';
+                    } else {
+                        overviewDiv.style.display = 'block';
+                        transactionDiv.style.display = 'none';
+                    }
+                }
+                function totemplate2() {
+          // Get the elements by ID
+          var overviewDiv = document.getElementById('overviewdiv');
+          var transactionDiv = document.getElementById('Transaction');
+  
+          // Show the overviewDiv and hide the transactionDiv
+          overviewDiv.style.display = 'block';
+          transactionDiv.style.display = 'none';
+      }
+            </script>
+            
+  
+  
+        </div>
+  
+        <div class="col-sm-1 " style="margin-left: -9%;">
+          <div class="col-md-6 d-flex justify-content-between align-items-center">
+      
+              <!-- Edit Button -->
+              <a href="{% url 'edititems'  selitem.id%}" class="btn btn-outline-warning py-2 text-warning" title="Save this draft">
+                  <i class="fas fa-pencil-alt"></i>
+              </a>
+      
+              <!-- Item Status Edit Button -->
+              <a href="{% url 'item_status_edit' selitem.id %}" class="btn btn-outline-warning py-2" title="Save this draft" style="margin-left: 4px;">
+                  {{selitem.activation_tag}}
+              </a>
+      
+              <!-- Delete Button -->
+              <a href="{% url 'deleteitem'  selitem.id%}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2"
+                  data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Item?');" style="margin-left: 4px;"></a>
+      
+              <!-- Share Button -->
+              <!-- <div class="dropdown px-2 py-4">
+                  <a class="btn text-center  btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button" style="margin-left: 4px;">
+                      <i class="fas fa-share"></i>
+                  </a>
+                  <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;margin-left: 4px;">
+                      <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
+                  </div>
+              </div>
+      
+              <a class="text-dark" onclick="exportToPDF3()">
+                  <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;margin-left: 4px;"><i class="fas fa-file-pdf" ></i></button>
+              </a>
+      
+              <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" onclick="exportToExcel()" style="width: 50px;margin-left: 4px;">XLS</a>
+      
+              <a class="text-dark" onclick="printSelectedArea2()">
+                  <button class="btn btn-outline-warning" title="Print" style="width: 50px;margin-left: 4px;"><i class="fas fa-print" ></i></button>
+              </a>
+       -->
+              <!-- Comment Button -->
+              <!-- <div class="dropdown">
+                  <a href=" " class="btn btn-outline-warning py-2 fas fa-comment-dots dropdown-toggle text-warning"
+                      data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 4px;"></a>
+                  <div class="dropdown-menu" aria-labelledby="attachmentDropdown" style="background-color: rgb(46, 45, 45); color: white;margin-left: 4px;">
+                      <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i
+                              class="fa-solid fa fa-plus"></i>Add</a>
+                      <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i
+                              class="fas fa-list"></i>&nbsp;View List</a>
+                  </div>
+              </div> -->
+              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip" title="comment">
+                <i class="far fa-comment"></i>
+              </a>
+              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal2" data-toggle="tooltip" title="history">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </a>
+              <a href="{% url 'items_list'%}" class="delete fa fa-times  btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="back" ></a>
+          
+              <!-- History Button -->
+              <!-- <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" data-toggle="modal" data-target="#history" >History</a> -->
+          </div>
+      </div><br>
+      </div><br>
+  
+      <div class="row" id="div-to-pdf"
+        style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem; width: 75%;  ">
+  
+        <div class="row text-center">
+          <h2 style="color: #000000;"><br>ITEM DETAILS  
+            <hr>
+          </h2>
+        </div>    
+        <div class="row" id="div-to-pdf"
+        style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem;width: 100%; ">
+  
+        
+        <div class="gen-info col-6 " style="padding-left: 3rem; ">
+          <div class="row mt-1">
+            <div class="col-5"><label class="text-black" for="">Item Type:</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;"> :&nbsp;{{selitem.item_type}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">HSN Code:</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">   {{selitem.hsn_code}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Unit :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
+                {{selitem.unit.unit_name}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Tax Preference :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
+                {{selitem.tax_reference}}</p>
+            </div>
+          </div>
+          {% if selitem.tax_reference == "taxable" %}
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Intrastate Tax :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
+                GST{{selitem.intrastate_tax}}%</p>
+            </div>
+          </div>
+    
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Interstate Tax :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">  CGST{{selitem.interstate_tax}}%</p>
+            </div>
+          </div>
+          {% endif %}
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Status :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">         {{selitem.activation_tag}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for=""> Minimum Stock To Maintain :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">        {{selitem.minimum_stock_to_maintain}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Inventory Account : </label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">{{selitem.inventory_account}}</p>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Opening stock :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">{{selitem.opening_stock}}</p>
+            </div>
+          </div>
+        
+          <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Current Stock :</label></div>
+            <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">  {{selitem.current_stock}}</p>
+            </div>
+          </div>
+        </div>
+       
+        
+        <div class="p-info col-6 text-white" style="height: 100%; margin-bottom: 1vh;">
+          <div class="card text-white" style="background-color: rgb(30, 30, 30); padding-left: 2rem; padding-top: 1rem;">
+            <div class="row text-center">
+              <h2 class="text-white">PURCHASE DETAILS {{latest_item_id.action}}
+                <hr>
+              </h2>
+            </div>
+  
+  
+            <div class="row mt-2 text-white" >
+              <div class="col-5"><label class="text-white" for="">Purchase Price </label></div>
+              <div class="col-7">
+                <p class="bold text-white"> : &nbsp;{{selitem.purchase_price}}</p>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-5"><label class="text-white" for="">Purchase Account </label></div>
+              <div class="col-7">
+                <p class="bold text-white" >  : &nbsp;{{selitem.purchase_account}}  </p>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-5"><label class="text-white" for=""> Purchase Description </label></div>
+              <div class="col-7">
+                <p class="bold text-white"> : &nbsp; {{selitem.purchase_description}} </p>
+              </div>
+            </div>
+  
+  <br>
+              
+              
+  
+     
+      <div class="row text-center">
+        <h2 class="text-white">SELLING DETAILS
+          <hr>
+        </h2>
+      </div>
+  
+  
+  
+        <div class="row mt-2">
+          <div class="col-5"><label class="text-white" for=""> Selling Price </label></div>
+          <div class="col-7">
+            <p class="bold text-white">  : &nbsp;{{selitem.selling_price}} </p>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-5"><label class="text-white" for=""> Sales Account </label></div>
+          <div class="col-7">
+            <p class="bold text-white">  : &nbsp;{{selitem.sales_account}} </p>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-5"><label class="text-white" for=""> Sales Description </label></div>
+          <div class="col-7">
+            <p class="bold text-white">  : &nbsp;{{selitem.sales_description}} </p>
+          </div>
+        </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  
+      <div class="col" style="width: 300%;" id="Transaction" style="display: none;">
+        <div class="row">
+          <div class="col-md-7">
+            <a class="text-white" style="font-size: 1.5rem;">
+              <br>
+              <h2 style="color: aliceblue;">{{selitem.item_name}}</h2>
+            </a>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate2()"><i class="fas fa-eye"></i>
+              Overview</a>
+              <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
+                Transaction</a>
+     
+    
+    
+          </div>
+          <div class="col-sm-1 " style="margin-left:-5%;">
+            <div class="col-md-6 d-flex justify-content-between align-items-center">
+        
+                <!-- Edit Button -->
+                <!-- <a href="{% url 'edititems'  selitem.id%}" class="btn btn-outline-warning py-2 text-warning" title="Save this draft">
+                    <i class="fas fa-pencil-alt"></i>
+                </a> -->
+        
+                <!-- Item Status Edit Button -->
+                <!-- <a href="{% url 'item_status_edit' selitem.id %}" class="btn btn-outline-warning py-2" title="Save this draft" style="margin-left: 4px;">
+                    {{selitem.activation_tag}}
+                </a> -->
+        
+                <!-- Delete Button -->
+                <!-- <a href="{% url 'deleteitem'  selitem.id%}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2"
+                    data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this creditnote?');" style="margin-left: 4px;"></a>
+         -->
+                <!-- Share Button -->
+                <div class="dropdown px-2 py-4">
+                    <a class="btn text-center  btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button" style="margin-left: 4px;">
+                        <i class="fas fa-share"></i>
+                    </a>
+                    <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;margin-left: 4px;">
+                        <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+                        <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
+                    </div>
+                </div>
+        
+                <a class="text-dark" onclick="exportToPDF3()">
+                    <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;margin-left: 4px;"><i class="fas fa-file-pdf" ></i></button>
+                </a>
+        
+                <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" onclick="exportToExcel()" style="width: 50px;margin-left: 4px;">XLS</a>
+        
+                <a class="text-dark" onclick="printSelectedArea2()">
+                    <button class="btn btn-outline-warning" title="Print" style="width: 50px;margin-left: 4px;"><i class="fas fa-print" ></i></button>
+                </a>
+        
+                <!-- Comment Button -->
+                <!-- <div class="dropdown">
+                    <a href=" " class="btn btn-outline-warning py-2 fas fa-comment-dots dropdown-toggle text-warning"
+                        data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 4px;"></a>
+                    <div class="dropdown-menu" aria-labelledby="attachmentDropdown" style="background-color: rgb(46, 45, 45); color: white;margin-left: 4px;">
+                        <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i
+                                class="fa-solid fa fa-plus"></i>Add</a>
+                        <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i
+                                class="fas fa-list"></i>&nbsp;View List</a>
+                    </div>
+                </div> -->
+        
+                <!-- History Button -->
+                <!-- <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" data-toggle="modal" data-target="#history" >History</a> -->
+            </div>
+        </div><br>
+        
+    
+        <div class="row" id="div-to-pdf"
+          style="background-color: #c4c1c1fd;  height: auto; margin-left:20px; margin-right: 1rem; width: 75%; ">
+    
+          <div class="row text-center">
+            <h2 style="color: #000000;"><br>{{selitem.item_name}}
+              <hr>
+            </h2>
+          </div>    
+          <div class="row" id="div-to-print"
+          style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem;width: 100%; ">
+          <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="text-dark bold" for="">Item Name:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.item_name}}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="text-dark bold text-dark" for="">Selling Price:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.selling_price}}</p>
+            </div>
+        </div>
+        
+        <div class="row mt-3" >
+            <div class="col-md-6">
+                <label class="text-dark" for="">Purchase Price:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.purchase_price}}</p>
+            </div>
+            <div class="col-md-6" id="mini">
+                <label class="text-dark" for="">Minimum Stock To Maintain:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.minimum_stock_to_maintain}}</p>
+            </div>
+        </div>
+        
+        <div class="row mt-3" id="stock">
+            <div class="col-md-6">
+                <label class="text-dark" for="">Stock Quantity:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.opening_stock}}</p>
+            </div>
+            <div class="col-md-6" id="value">
+                <label class="text-dark" for="">Stock Value:</label>
+                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{stock_value}}</p>
+            </div>
+        </div>
+        
+    
+    <style>
+      .dashed-line {
+        border-top: 1px dashed #000; /* Set color and style */
+        margin: 20px 0; /* Adjust margin for spacing */
+      }
+    </style>
+    
+    <div class="dashed-line"></div>
+  
+    <input type="text" id="searchInput2" class="form-control text-black" style="border-color: rgb(198, 134, 16);background-color: antiquewhite;width: 20%;" placeholder="Search...">
+    <br><br>
+    
+    <table class="table table-hover table-bordered" id="table1" style="border-color: #000000;color: rgb(0, 0, 0);">
+      <thead>
+        <tr>
+          <th id="th" style="text-align: center;">Transactions     
+             <a class="extra text-white" id="fil" style="display: block;" onclick="toggleDropdown(0)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent0">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput0"  />
+                <a class="btn btn-info" onclick="cleardropdown(0)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(0)">Apply</a>
+            </div>
+          </th>
+          <th id="th" style="text-align: center;">Type
+            <a class="extra text-white" id="fil2" style="display: block;"  onclick="toggleDropdown(1)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent1">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput1"  />
+                <a class="btn btn-info" onclick="cleardropdown(1)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(1)">Apply</a>
+            </div>
+          </th>
+          <th id="th" style="text-align: center;">Name 
+            <a class="extra text-white"  id="fil3" style="display: block;"  onclick="toggleDropdown(2)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent2">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput2"  />
+                <a class="btn btn-info" onclick="cleardropdown(2)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(2)">Apply</a>
+            </div></th>
+          <th id="th" style="text-align: center;">Date 
+            <a class="extra text-white" id="fil4" style="display: block;"  onclick="toggleDropdown(3)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent3">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="date" id="filterInput3"  />
+                <a class="btn btn-info" onclick="cleardropdown(3)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(3)">Apply</a>
+            </div>
+          </th>
+          <th id="th" style="text-align: center;">Quantity
+            
+            <a class="extra text-white" id="fil5" style="display: block;"  onclick="toggleDropdown(4)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"> </i></a>
+            <div class="dropdown-content" id="dropdownContent4">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput4"  />
+                <a class="btn btn-info" onclick="cleardropdown(4)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(4)">Apply</a>
+            </div>
+          </th>
+          <th id="th" style="text-align: center;">Price 
+            <a class="extra text-white" id="fil6" style="display: block;"  onclick="toggleDropdown(5)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent5">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput5"  />
+                <a class="btn btn-info" onclick="cleardropdown(5)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(5)">Apply</a>
+            </div>
+          </th>
+          <th id="th" style="text-align: center;">Status   
+            <a class="extra text-white" id="fil7" style="display: block;"  onclick="toggleDropdown(6)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
+            <div class="dropdown-content" id="dropdownContent6">
+                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                <input type="text" id="filterInput6"  />
+                <a class="btn btn-info" onclick="cleardropdown(6)">Clear</a> 
+                &nbsp;<a class="btn btn-info" onclick="filterTable(6)">Apply</a>
+            </div>  
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+  
+        <tr style="color: black;">  
+          <td style="text-align: center;">{{forloop.counter}}1</td>
+          <td style="text-align: center;">{{selitem.type}}</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center;">{{ selitem.date|date:"Y-m-d" }}</td>
+  
+          <td style="text-align: center;">{{selitem.opening_stock}}</td>
+          <td style="text-align: center;">{{selitem.opening_stock_per_unit}}</td>
+          <td style="text-align: center;"></td>
+        </tr>
+  
+        
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+    
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </body>
+    <style>
+      @media print {
+          .text-right-print {
+              text-align: right !important;
+          }
+      }
+  </style>
+    <script>
+    function searchTable() {
+      // Declare variables
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("searchInput2");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("table1");
+      tr = table.getElementsByTagName("tr");
+    
+      // Loop through all table rows, and hide those that don't match the search query
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0]; // Adjust index based on the column you want to search
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+    </script>
+  <div id="filterWindow" class="filter-window">
+    <!-- <label for="filterInput">Enter filter text:</label> -->
+    <input type="text" id="filterInput">
+    <button onclick="applyFilter()">Apply</button>
+    <button onclick="clearFilter()">Clear</button>
+  </div>
+    <script>
+      function clearFilter() {
+      document.getElementById('filterInput').value = '';
+      // Implement your logic to clear the filter and update the table accordingly
+      // For simplicity, you can just log the action to the console
+      console.log('Filter Cleared');
+      // Close the filter window
+      document.getElementById('filterWindow').style.display = 'none';
+  }
+  
+      // JavaScript functions
+      function showFilter(columnName, thElement) {
+      var filterWindow = document.getElementById('filterWindow');
+      filterWindow.style.display = 'block';
+      
+      // Set the position of the filter window near the th element
+      var thRect = thElement.getBoundingClientRect();
+      filterWindow.style.top = thRect.bottom + 'px';
+      filterWindow.style.left = thRect.left + 'px';
+  
+      // You can customize the filter window based on the column clicked
+      // For simplicity, I'm setting the label text to the column name
+      filterWindow.querySelector('label').innerText = 'Enter filter text for ' + columnName + ':';
+  }
+  
+  </script>
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""> </label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">  </p>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""> </label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">  </p>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""> </label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;">  </p>
+        </div>
+      </div>
+    </div>
+    </div>
+        </div>
+        </div>
+    </div>  </div>
+  
+           
+  <!-- SORT  AND FILTER SCRIPT -->
+  <script>
+      $(document).ready(function() {
+          // Event listener for dropdown menu links
+          $('.dropdown-item-filter-account-type').click(function() {
+              // Get the selected account type
+              var selectedType = $(this).text().toLowerCase();
+      
+              // Show/hide table rows based on the selected account type
+              $('.account-row').each(function() {
+                  var accountType = $(this).data('account-type').toLowerCase();
+                  if (selectedType === 'all' || accountType === selectedType) {
+                      $(this).show();
+                  } else {
+                      $(this).hide();
+                  }
+              });
+          });
+      });
+  
+      $(document).ready(function() {
+      // Initialize DataTable
+      var table = $('#table2').DataTable({
+          "paging": false, // Disable pagination if not needed
+          "order": [[0, "asc"]], // Initial sorting by the first column (change as needed)
+      });
+  
+      // Event listener for dropdown menu links
+      $('.dropdown-item-filter-account-type').click(function() {
+          // ... (your existing filtering logic)
+  
+          // Refresh DataTable after filtering
+          table.draw();
+      });
+  
+      // Event listener for sorting dropdown menu link
+      $('.dropdown-item-sort').click(function() {
+          var columnIndex = $(this).data('column-index');
+  
+          // Toggle between ascending and descending order
+          var order = table.order()[0];
+          if (order[0] === columnIndex) {
+              order[1] = order[1] === 'asc' ? 'desc' : 'asc';
+          } else {
+              order = [columnIndex, 'asc'];
+          }
+  
+          // Apply sorting
+          table.order(order).draw();
+      });
+  });
+      </script>
+      
+    <!-- share sccripts -->
+  <script>
+     function shareOnWhatsApp() {
+      var url = window.location.href;
+      var text = url;
+      text = encodeURIComponent(text);
+      var whatsappUrl = "whatsapp://send?text=" + text;
+      window.location.href = whatsappUrl;
+    }
+  
+  </script>
+  
+  <!-- print and pdf  and xcel scripts -->
+  
+  
+  <script>
+  function printSelectedArea2(area) {
+    var printContents = document.getElementById("table1").innerHTML;
+  var searchInput = document.getElementById('searchInput2');
+  var mini = document.getElementById('mini');
+  var stock = document.getElementById('stock');
+  var value = document.getElementById('value');
+  
+  // Open a new window
+  var printWindow = window.open('', '_blank');
+  
+  // Add styles to hide specific elements during printingox
+  printWindow.document.write('<style>@media print { #searchInput2, #dropdownContent0,#dropdownContent1,#dropdownContent2,#dropdownContent3,#dropdownContent4,#dropdownContent5,#dropdownContent6 { display: none; } }</style>');
+  printWindow.document.write('<style>@media print { #mini,#stock{ margin-left:70% ; } }</style>');
+  printWindow.document.write('<style>@media print { #stock{ margin-top:-12% ; } }</style>');
+  printWindow.document.write('<style>@media print { #mini{ margin-top:-28% ; } }</style>');
+  printWindow.document.write('<style>@media print { #value,{ margin-left:50% } }</style>');
+  // Add additional styles for the table layout
+  printWindow.document.write('<style>table { border-collapse: collapse; width: 100%; }</style>');
+  printWindow.document.write('<style>table, th, td { border: 1px solid black; }</style>');
+  
+  // Write the HTML content to the new window
+  printWindow.document.write('<html><head><title>Print Data</title></head><body>');
+  printWindow.document.write(document.getElementById('div-to-print').innerHTML);
+  printWindow.document.write('</body></html>');
+  
+  // Print the new window
+  printWindow.print();
+  
+  
+  }
+  
+  
+  
+  function exportToPDF3() {
+    // Get references to the elements
+    var content = document.getElementById('div-to-print');
+    var searchInput = document.getElementById('searchInput2');
+    var fil = document.getElementById('fil');
+    // var fil1 = document.getElementById('fil1');
+    var fil2 = document.getElementById('fil2');
+    var fil3 = document.getElementById('fil3');
+    var fil4 = document.getElementById('fil4');
+    var fil5 = document.getElementById('fil5');
+    var fil6 = document.getElementById('fil6');
+    var fil7 = document.getElementById('fil7');
+    // Create a clone of the search input and hide it in the clone
+    // var searchClone = searchInput.cloneNode(true);
+    // searchClone.style.display = 'none';
+    // content.appendChild(searchClone);
+  
+    // Apply styles to the content
+    fil.style.display = 'none';
+    // fil1.style.display = 'none';
+    fil2.style.display = 'none';
+    fil3.style.display = 'none';
+    fil4.style.display = 'none';
+    fil5.style.display = 'none';
+    fil6.style.display = 'none';
+    fil7.style.display = 'none';
+  
+    searchInput.style.display = 'none';
+    content.style.backgroundColor = 'white';
+    content.style.color = 'black';
+  
+    var heading = document.createElement('h1');
+    // heading.textContent = '{{selitem.item_name}}' + '  ' + 'Transactions';
+    heading.style.textAlign = 'center';
+    heading.style.marginTop = '50px';
+    heading.style.marginBottom = '20px';
+    content.insertBefore(heading, content.firstChild);
+  
+    // Apply styles to h1 elements within the content
+    var h1Elements = content.getElementsByTagName('h1');
+    for (var i = 0; i < h1Elements.length; i++) {
+      h1Elements[i].style.color = 'black';
+    }
+  
+    // Generate PDF using html2pdf
+    html2pdf()
+      .from(content)
+      .save('{{selitem.item_name}}' + '.pdf');
+  
+    // Remove the cloned search input after generating PDF
+    content.removeChild(searchClone);
+  }
+  
+  
+  function exportToExcel() {
+      var table = document.querySelector('#table1'); // Add # to select by ID
+      var cellsToHide = [
+          { id: 'dropdownContent0', content: 'HideThis' },
+          { id: 'dropdownContent1', content: 'AnotherHiddenValue' },
+          { id: 'dropdownContent2', content: 'HideThis' },
+          { id: 'dropdownContent3', content: 'AnotherHiddenValue' },
+          { id: 'dropdownContent4', content: 'HideThis' },
+          { id: 'dropdownContent5', content: 'AnotherHiddenValue' },
+          { id: 'dropdownContent6', content: 'HideThis' },
+          { id: 'dropdownContent7', content: 'AnotherHiddenValue' },
+          // Add more cell IDs and content as needed
+      ];
+  
+      // Hide the specified content in cells
+      for (var i = 0; i < cellsToHide.length; i++) {
+          var cellInfo = cellsToHide[i];
+          var cell = document.getElementById(cellInfo.id);
+          
+          if (cell) {
+              cell.textContent = '';
+          }
+      }
+      var ws = XLSX.utils.table_to_sheet(table);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'item.xlsx');
+  }
+  
+  </script>
+  
+  <!-- MOdal EMAIL -->
+  
+  <div class="modal fade" id="shareBillEmail">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header" style="background: rgb(32, 35, 37);">
+          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
+          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37);">
+          <div class="card p-3 m-3">
+            <form action="{% url 'shareItemToEmail' selitem.id %}" method="post" class="needs-validation"
+              id="share_to_email_form" autocomplete="off">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="emailIds" style="color: #000;">Email IDs</label>
+                <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+                  placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+              </div>
+              <div class="form-group mt-2">
+                <label for="item_unitname"  style="color: #000;">Message(optional)</label>
+                <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
+                  rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+              </div>
+       
+          </div>
+          <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+            <!-- <button type="submit">submit</button> -->
+            <input type="submit" id="share_with_email"
+              class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- history modal -->
+  
+  
+  <div class="modal fade" id="history" >
+    <div class="modal-dialog modal-xl" >
+      <div class="modal-content" style="background: #1f1f1ffd;border-radius: 20px;">
+        <div class="modal-header" style="background: #1f1f1ffd;">
+          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #e1e1e1;">Transaction History</h5>
+          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body" style="background: #1f1f1ffd;;">
+          <div class="card p-3 m-3" style="background-color: #000;">
+          
+            <table style="background-color: #000; margin-right: 10px; border-radius: 5px;">
+              <thead class="text-white">
+                  <tr>
+                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Action</b></th>
+                      <th style="color: rgb(244, 244, 244); padding-bottom: 10px;"><b>Date</b></th>
+                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Name</b></th>
+                  </tr>
+                  <tr>
+                      <td colspan="3" style="border-bottom: 2px solid white; margin-bottom: 10px;"></td>
+                  </tr>
+              </thead>
+          
+              <tbody style="background-color: black; padding-top: 20px;"> <!-- Adjusted padding-top for spacing -->
+                  {% for i in latest_item_id %}
+                      <tr style="background-color: black;height: 40px;">
+                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.action }}</td>            
+                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.Date }}</td>
+                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.logindetails.first_name }}&nbsp;{{ i.logindetails.last_name }}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          
+          </div>
+      </div>
+      
+  </div>
+  </div></div>
+  <!-- comment modal -->
+  <div class="modal fade" id="cmnts">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header" style="background: rgb(32, 35, 37);">
+          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #fefefe;">Comments</h5>
+          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37);">
+          <div class="card p-3 m-3">
+            <form action="{% url 'add_item_comment' selitem.id %}" method="post" class="needs-validation"
+              id="share_to_email_form" autocomplete="off">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="emailIds" style="color: #000;">Enter Comment</label>
+                <textarea class="form-control text-dark"  style="color: #000;" name="comment" id="comment" rows="5"
+                  placeholder="MEnter your comment here" required></textarea>
+              </div>
+             
+       
+          </div>
+          <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+            <!-- <button type="submit">submit</button> -->
+            <input type="submit" id="share_with_email"
+              class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3"  style="background-color: #222121; color: #e1e1e1;" value="Save">
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="modal fade" id="cmt_list">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+        <div class="modal-header" style="background: rgb(32, 35, 37);">
+          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #eeeaea;">Comments</h5>
+          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body" style="background: rgb(32, 35, 37);">
+          <div class="card p-3 m-3" style="background-color: #000;">
+          
+            <table style="background-color: #000; margin-right: 10px; border-radius: 5px;">
+              <thead class="text-white">
+                  <tr>
+                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Comments</b></th>
+                      <th style="color: rgb(244, 244, 244); padding-bottom: 10px;"><b></b></th>
+                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Delete</b></th>
+                  </tr>
+                  <tr>
+                      <td colspan="3" style="border-bottom: 2px solid white; margin-bottom: 10px;"></td>
+                  </tr>
+              </thead>
+          
+              <tbody style="background-color: black; padding-top: 20px;"> <!-- Adjusted padding-top for spacing -->
+                {% for i in est_comments %}
+                      <tr style="background-color: black;height: 40px;">
+                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.comments }}</td>            
+                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;"></td>
+                         
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+   
+  
+  
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+  <script>
+    function sortTable(columnIndex) {
+       const table = document.getElementById("table2");
+       const tbody = table.getElementsByTagName('tbody')[0];
+       const rows = Array.from(tbody.rows);
+   
+       rows.sort((row1, row2) => {
+           const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+           const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+   
+           if (cellValue1 < cellValue2) {
+               return -1;
+           } else if (cellValue1 > cellValue2) {
+               return 1;
+           } else {
+               return 0;
+           }
+       });
+   
+       while (tbody.firstChild) {
+           tbody.removeChild(tbody.firstChild);
+       }
+   
+       rows.forEach(row => tbody.appendChild(row));
+   }
+   
+   
+   </script>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      $('#searchInput').on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        $('#table2 tbody tr').each(function() {
+          var itemData = $(this).text().toLowerCase();
+          if (itemData.indexOf(searchText) === -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      });
+    });
+  </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      $('#searchInput2').on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        $('#table1 tbody tr').each(function() {
+          var itemData = $(this).text().toLowerCase();
+          if (itemData.indexOf(searchText) === -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      });
+    });
+  </script>
+  
+  
+  <script>
+    function cleardropdown(index) {
+      document.getElementById('filterInput' + index).value = '';
+    }
+  
+    function toggleDropdown(index) {
+      var dropdownContent = document.getElementById('dropdownContent' + index);
+      var isVisible = dropdownContent.style.display === 'block';
+      var allDropdowns = document.querySelectorAll('.dropdown-content');
+      allDropdowns.forEach(function (dropdown) {
+        dropdown.style.display = 'none';
+      });
+      dropdownContent.style.display = isVisible ? 'none' : 'block';
+    }
+  
+    function filterTable(index) {
+      var input;
+      document.getElementById('dropdownContent' + index).style.display = 'none';
+  
+      if (index === 3) {
+        input = document.getElementById('filterInput' + index).valueAsDate;
+      } else {
+        input = document.getElementById('filterInput' + index).value.toUpperCase();
+      }
+  
+      var table = document.getElementById('table1');
+      var rows = table.getElementsByTagName('tr');
+      var emptyMessage = document.getElementById('emptyMessage');
+      var isEmpty = true;
+  
+      for (var i = 1; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName('td');
+        var cell = cells[index];
+  
+        if (cell) {
+          var textValue = cell.textContent || cell.innerText;
+  
+          if (index === 3) {
+            var dateVal = new Date(textValue);
+            var inputDate = new Date(input);
+  
+            if (dateVal.toISOString().split('T')[0] === inputDate.toISOString().split('T')[0]) {
+              rows[i].style.display = 'table-row';
+              isEmpty = false;
+            } else {
+              rows[i].style.display = 'none';
+            }
+          } else {
+            if (textValue.toUpperCase().includes(input)) {
+              rows[i].style.display = 'table-row';
+              isEmpty = false;
+            } else {
+              rows[i].style.display = 'none';
+            }
+          }
+        }
+      }
+  
+      emptyMessage.style.display = isEmpty ? 'block' : 'none';
+      // You can add any additional logic or calculations here
+    }
+  </script>
+  
+  <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+          <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+          </button>
+        </div>
+        <form action="{% url 'add_item_comment' selitem.id %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <textarea type="text" class="form-control text-light" name="comment"></textarea>
+            <div class="container-fluid">
+              <table class="table  text-white">
+                <thead>
+                  <tr>
+                    <th style="text-align: center; font-size: large;">sl no.</th>
+                    <th style="text-align: center; font-size: large;">Comments</th>
+                    <th style="text-align: center; font-size: large;">Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in est_comments %}
+                    <tr class="table-row">
+                      <td style="text-align: center;">{{forloop.counter }}</td>
+                      <td style="text-align: center;">{{c.comments}}</td>
+                      <td style="text-align: center;">
+                        <a class="text-danger" href="{% url 'delete_item_comment' c.id selitem.id %}"><i class="fa fa-trash" style="font-size:20px;"></i></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-outline-warning">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;width: 100%;">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+          <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <div class="container " >
+          <table class="table text-light table-borderless " style="margin:3px; background-color: #000000;width: 100%;">
+            <thead>
+              <tr>
+                <th>
+                  sl
+                </th>
+                <th>
+                  Date
+                </th>
+                <th>
+                  Action
+                </th>
+                <th>
+                  By
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in latest_item_id %}
+              <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.Date}}</td>
+                <td>{{i.action}}</td>
+                <td>{{ i.logindetails.first_name }}&nbsp;{{ i.logindetails.last_name }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>  
+          </table>
+        </div>
+      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}

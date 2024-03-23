@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            background-color: rgb(61, 61, 61);
+        }
+
+        th,
+        td {
+            border: 0.5vh solid black;
+            padding: 1.5vh;
+            text-align: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .details-container {
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .inner-container {
+            background-color: #ffffff;
+            border-radius: 1vh;
+            padding: 3vh;
+            margin-top: 2vh;
+        }
+
+        .table-container {
+            background-color: rgb(61, 61, 61);
+            border-radius: 1vh;
+            padding: 3vh;
+        }
+        
+        h2 {
+            padding: 3vh;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 0; 
+        }
+
+        .text-light {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="details-container">
+        <div class="inner-container">
+            <h2>Price List Details: <b>{{ price_list.name }}</b> </h2>
+
+            <div class="details row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label "><b>Type:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.type }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Description:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.description }}</p>
+                        </div>
+                    </div>
+
+                    {% if price_list.item_rate_type == 'Percentage' %}
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Details:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">{{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                            </div>
+                        </div>
+                    {% elif price_list.item_rate_type == 'Each Item' %}
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Details:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">Each Item</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Rounding:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.round_off }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Currency:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.currency }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h2 class="text-light">Items in Price List</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Standard Rate</th>
+                            <th>Custom Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in price_list_item %}
+                            <tr>
+                                <td>{{ item.item.item_name }}</td>
+                                <td>{{ item.standard_rate }}</td>
+                                <td>{{ item.custom_rate }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

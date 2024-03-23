@@ -1,0 +1,1032 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+   @media print{
+    body{
+      visibility: hidden !important;  
+    }
+
+    .printContainer {
+      visibility: visible !important;  
+      position: absolute;
+      z-index: 99999;
+      top: 0;
+      bottom: 0;
+      width: 70vh;
+      height: 10%;
+    } 
+  }
+  
+</style>
+<div class="body-wrapper">
+  <div class="container-fluid text-light">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+           {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+           {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+            <li class="breadcrumb-item"><a href=" " class="text-warning-emphasis">Payroll</a></li>
+            <li class="breadcrumb-item" aria-current="page">Over view</li>
+          </ol>
+      </nav>
+      <div class="row mt-5">
+          <div class="col-sm-12 col-lg-12 flex-column">
+              <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                <div class="row mt-4">
+                  <div class="col-sm flex-column">
+                    <div class="row">
+                      <div class="row">
+                        <a class="text-white" style="font-size: 1.5rem;">Employees</a>
+                      </div>
+                    
+                      <div class="row mt-3">
+                        <div class="col-sm-3 col-lg-7">
+                          <input type="text" id="search" class="form-control bg-light text-dark " placeholder="Search.." autocomplete="off">
+                        </div>
+                        <div class="col-sm-4    col-lg-5 " style="text-align: right; float: right;" >
+                          <a class="btn text-center  btn-outline-warning btn-sm" id="sortbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                            <i  class="fas fa-sort "></i>
+                          </a>
+                          <div class="dropdown-menu m-2  ">
+                            <a class="dropdown-item" href="#">All</a>
+                            <a class="dropdown-item" href="#" onclick="sortTableByName()">Employee Name</a>
+                            <a class="dropdown-item" href="#" onclick="sortTableBySalary()">Employee Salary</a>
+                          </div>
+                          <a class="btn text-center btn-outline-warning btn-sm" id="filterbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                            <i  class="fas fa-filter "></i>
+                          </a>
+                          <div class="dropdown-menu m-2">
+                            <a class="dropdown-item" onclick="applyFilter('All')">All</a>
+                            <a class="dropdown-item" onclick="applyFilter('Active')">Active</a>
+                            <a class="dropdown-item" onclick="applyFilter('Inactive')">Inactive</a>
+                          </div>
+                          <a class="btn btn btn-outline-warning btn-sm " style="text-align: right;" href="{% url 'CreateSalaryDetails' %}"><i class="fa fa-plus "></i></a>
+                        </div>
+                      </div> 
+                      </div>
+                      
+                  
+                    <div class="row">
+                      <div class="table-responsive scrollable-table" >
+                        <table class="table text-white" id="myTable">
+                          <thead>
+                              <th>Name</th>
+                              <th>Salary</th>
+                          </thead>
+                          <tbody>
+                              {% for employee in employees %}
+                              <tr class="clickable-row" data-href="{{ employee.id }}">
+                                  <td>{{ employee.employee.first_name|upper }} {{ employee.employee.last_name|upper }}</td>
+                                  <td>₹{{ employee.employee.salary }}</td>
+                               
+                                <td style="display: none;">    {{employee.status}} </td >
+                              </tr>
+                        
+                              {% endfor %}
+                          </tbody>
+                      </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-8">
+                    <div  id="overviewdiv">
+                      <div class="row ">
+                        <div class="col-md-7">
+                          <a class="text-white" style="font-size: 1.5rem;;">
+                            <h2 class="text-white">{{p.first_name}} {{p.last_name}}</h2>
+                          </a>
+                        </div>
+                      
+                      
+                      </div>
+
+
+                      <div style="display: flex;">
+                      
+                        <div style="display: flex;  " class="col-md-2">
+                          <div >
+                            
+                            <a id="toggleButton1" style="display: flex; align-items: center;" class="btn bg-warning text-light btn-sm"><i class="fas fa-eye"></i> &nbsp; <span>Overview</span></a>
+                          </div>
+                          &nbsp;&nbsp;  
+                          
+                          <div><a id="toggleButton2" class="btn bg-warning text-light btn-sm">Payslip</a></div>
+                      
+                        </div>
+                        <div id="overviewSection" class="col-md-10 col-lg-10 col-sm-12" style="text-align: right; ">
+                          <a href="{% url 'EditSalaryDetails' employee.id %}" class="text-dark"  >
+                            <button class="btn btn-outline-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></button>
+                          </a>
+                      
+                          <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal"
+                            data-toggle="tooltip" title="comment">
+                            <i class="far fa-comment"></i>
+                            <a href="{% url 'SalaryDetailsDelete' employee.id %}" class="  text-dark">
+                              <button class="btn btn-outline-warning btn-sm" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                            </a>
+
+                            <a href="{% url 'SalaryDetailsConvert' employee.id %}" class="text-dark">
+                              {% if employee.DraftorSave == "Draft" %} 
+                                  <button class="btn btn-outline-warning btn-sm" title="Convert">Convert</button>
+                              {% else %}
+                              {% endif %}
+                          </a>
+                          
+                       
+                            <a class="btn btn-outline-warning btn-sm" href="{% url 'SalaryDetailsActiveAndInnactive' employee.id  %}" >{{employee.status}}</a>
+                   
+                            <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal2"
+                              data-toggle="tooltip" title="history">
+                              <i class="fa-solid fa-clock-rotate-left"></i>
+                            </a>
+                          </a>
+                        </div>
+
+                        <div id="payslipSection" class="col-md-10 col-lg-10 col-sm-12" style="text-align: right; ">
+                           
+ 
+                        
+                  
+                           
+
+                          <button class="btn btn-outline-warning btn-sm" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-share"></i> 
+                        </button>
+                        <ul   class="dropdown-menu dropdown-menu-dark  " aria-labelledby="dropdownMenuButton1">
+                            <li><a onclick="shareViaWhatsApp()" class="dropdown-item text-light" href="">WhatsApp</a></li>  
+                            <li><a class="dropdown-item text-light" data-target="#shareBillEmail " data-toggle="modal">Mail</a></li>  
+                        </ul>
+                        
+                            &nbsp;
+
+                          <a href=" " class=" text-dark">
+                            <button class="btn btn-outline-warning btn-sm" onclick="printfun()" title=""><i class="fa fa-file-pdf "  ></i> </button>
+                          </a>
+
+                          &nbsp;
+
+                          <a href=" " class=" text-dark">
+                            <button id="pdflink" class="btn btn-outline-warning btn-sm" title="pdf"><i class="fa fa-file-pdf " aria-hidden="true"></i></button>
+                          </a>
+                      
+                          
+                        </div>
+
+                      </div>
+                      
+                      <br>
+             
+                      
+                      
+            
+                      <div id="printdiv1" style="color:black; ">
+                        <div class="row " style="background-color: #acaaaafd; margin-left:1px; margin-right: 1rem; ">
+                      
+                          <div class="row mt-3">
+                      
+                            <h2 class="text-center">Employee Details</h2>
+                      
+                          </div>
+                          <div class="row text-center">
+                            <h2>
+                              <hr>
+                            </h2>
+                          </div>
+                          <div class="gen-info col-sm " style="padding-left: 3rem;  ">
+                      
+                      
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Employee ID:</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.emp_number}}</p>
+                              </div>
+                            </div>
+                      
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for=""> Email :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.email}}</p>
+                              </div>
+                            </div>
+                      
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Location :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.location}}</p>
+                              </div>
+                            </div>
+                      
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Join Date :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.joindate}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Salary :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.salary}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Designation :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.employee.designation}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Salary Date :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.salary_date}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Leave :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{attendance}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Casual Leave :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.casual_leave}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Holiday :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{holyday}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Working Day :</p>
+                              </div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{employee.total_working_days}}</p>
+                              </div>
+                            </div>
+                      
+                          </div>
+                          <div class="p-info col-sm ">
+                            <div class="card " style="background-color:#383838 ; color:white; padding-left: 1rem; padding-top: 1rem;">
+                              <div class="h3 mt-4 " style="margin-right: 2vh; color:white">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Salary Details
+                                <hr style="color: orange;">
+                              </div>
+                      
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">Basic Salary :</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{employee.employee.salary}}</p>
+                                </div>
+                              </div>
+                      
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">Conveyance Allowance :</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{allowance_amounts.Conveyance_Allowance}}</p>
+                                </div>
+                              </div>
+                      
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">HRA :</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{allowance_amounts.HRA}}</p>
+                                </div>
+                              </div>
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">Other Allowance :</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{allowance_amounts.Other_Allowance}}</p>
+                                </div>
+                              </div>
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">Other Cuttings :</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{employee.other_cuttings }}</p>
+                                </div>
+                              </div>
+                              <div class="row mt-2">
+                                <div class="col-1"></div>
+                                <div class="col-5">
+                                  <p for="">Add bonus:</p>
+                                </div>
+                                <div class="col-6">
+                                  <p class="bold">{{employee.add_bonus}}</p>
+                                </div>
+                              </div>
+                      
+                      
+                      
+                      
+                      
+                      
+                            </div><br>
+                          </div>
+                        </div>
+                      </div>
+                      <div id="slipdiv" style="border-radius: 2vh; display: none;">
+                        <div class="my-5 page" size="A4">
+                            <div class="row" style="margin-top: 20%;" id="printslip">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6 ml-3">
+                                    <div class="card bg-white"
+                                        style="border: 1px dotted black; box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);">
+                                        <div class="mt-2" style="text-align: center;">
+                                            <div class="text-center" style="font-size: 3vh; color: black;">
+                                                <b>{{data.company.company_name}} </b>
+                                            </div>
+                                            <span style="font-size: x-small; color: black;">
+                                                {{ data.company.address }} <br>
+                                                {{data.company.city}},
+                                                {{data.company.state}}
+                                                {{data.company.pincode}} <br>
+                                                {{ data.company.user.email }} <br>
+                                                {{ data.company.contact }}
+                                            </span>
+                                        </div>
+                                        <div class="ml-4 mt-2" style="color: black;">
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Bill No:</div>
+                                                <div class="col-md-5 text-right">{{pbill.billno}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Customer Name:</div>
+                                                <div class="col-md-5 text-right">{{pbill.party.party_name}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Bill Date :</div>
+                                                <div class="col-md-5 text-right">{{pbill.billdate | date:'d-m-Y'}}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="whatToPrint">
+                      <div id="printpdf">
+                        <div id="printdiv2" style="color:black; display: none;">
+                          <div class="row " style="background-color: #acaaaafd; margin-left:1px; margin-right: 1rem; ">
+                    
+                            <div class="row mt-3">
+                    
+                              <h2 class="text-center">PAYSLIP</h2>
+                    
+                            </div>
+                            <div class="row text-center">
+                              <h2>
+                                <hr>
+                              </h2>
+                            </div>
+                            <div class="gen-info col-sm " style="  display: flex;justify-content: space-between;">
+                    
+                              <div>
+                                <p>Employee Name: {{employee.employee.first_name | upper}} {{employee.employee.last_name | upper}}</p>
+                                <p>Employee Code: {{employee.employee.emp_number}}</p>
+                                <p>Month-Year: {{employee.month}}-{{employee.year}}</p>
+                                <p>Designation: {{employee.employee.designation}}</p>
+                    
+                    
+                              </div>
+                    
+                              <div>
+                                <p>Location: {{employee.employee.company.city}}</p>
+                                <p>Date of joining: {{employee.employee.joindate |date:"d-m-Y"}}</p>
+                                <p> No of working days: {{employee.total_working_days}}</p>
+                                <p>leave: {{attendance}}</p>
+                    
+                              </div>
+                    
+                    
+                            </div>
+                    
+                          </div>
+                          <div class="row " style="background-color: #acaaaafd; margin-left:1px; margin-right: 1rem; ">
+                    
+                            <div class="row text-center">
+                              <h4>
+                                <hr>
+                                CONFIRMED SALARY
+                    
+                                </h5>
+                            </div>
+                    
+                            <div class="  table-responsive">
+                    
+                              <table style="border-color: #000000; color: #000000;" class="table table-bordered   ">
+                    
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Particulars</th>
+                                    <th scope="col">Gross Amount (RS)</th>
+                                    <th scope="col">Deduction</th>
+                                    <th scope="col">Amount (Rs)</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>Basic Salary</td>
+                                    <td>{{allowance_amounts.Basic_Salary}}</td>
+                                    
+                                    <td>
+                                      {% if attendance > 0 %}
+                                        Leave Deduction
+                                      {% else %}
+                                           
+                                      {% endif %}
+                                  </td>
+                                  
+                                   
+
+                                    <td>{{ allowance_amounts.basic_salary_deduction}} </td>
+                                  </tr>
+                                  <tr>
+                                    <td>Conveyance Allowance</td>
+                                    <td>{{allowance_amounts.Conveyance_Allowance}}</td>
+                                    <td> </td>
+                                    <td></td>
+                                  </tr>
+                                  <tr>
+                                    <td>HRA</td>
+                                    <td>{{allowance_amounts.HRA}}</td>
+                                    <td></td>
+                                    <td></td>
+                                  </tr>
+                    
+                                  <tr>
+                                    <td>Other Allowance</td>
+                                    <td>{{allowance_amounts.Other_Allowance}}</td>
+                                    <td></td>
+                                    <td></td>
+                                  </tr>
+                                  <tr>
+                                    <td> </td>
+                              
+                                    <td> </td>
+                                    <td>Total Deduction</td>
+                                    <td>{{ allowance_amounts.basic_salary_deduction}} </td>
+                                  </tr>
+                                  
+
+                                  <tr>
+                                    <td style="height: 100px;"></td>
+                                    <td style="height: 100px;"></td>
+                                    <td style="height: 100px;"></td>
+                                    <td style="height: 100px;"></td>
+                                </tr>
+                    
+                                </tbody>
+                              </table>
+                    
+                            </div>
+                          </div>
+                          </div>
+                        </div>
+               
+                    </div>
+                    </div>
+                    </div>
+                    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="background-color: #3b3b3b;">
+                          <div class="modal-header">
+                            <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+                            <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                            </button>
+                          </div>
+                          <form action="{% url 'addCommentSalaryDetails' employee.id %}" method="POST"  >
+                            {% csrf_token %}
+                            <div class="modal-body" style="background-color: #3b3b3b;">
+                           
+                              <div class="container-fluid w-100">
+                                <textarea type="text" class="form-control text-light" name="comments"></textarea>
+                                <table class="table  text-white" style="margin:3px;  ">
+                                  <thead>
+                                    <tr>
+                                      <th style="text-align: center; font-size: large;">sl no.</th>
+                                      <th style="text-align: center; font-size: large;">Comments</th>
+                                      <th style="text-align: center; font-size: large;">By</th>
+                                      <th style="text-align: center; font-size: large;">Delete</th>
+                                    </tr>
+                             
+                                  <tbody >
+                                    {% for c in comment %}
+                                      <tr class="table-row">
+                                        <td style="text-align: center;">{{forloop.counter }}</td>
+                                        <td style="text-align: center;">{{c.comment}}</td>
+                                        <td style="text-align: center;">{{c.company.company_name}} {{c.login_details.last_name}}</td>
+                                        <td style="text-align: center;">
+                                          <a class="text-danger" href="{% url 'DeleteCommentSalaryDetails' c.id %}"><i class="fa fa-trash" style="font-size:20px;"></i></a>
+                                        </td>
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-outline-warning">Save</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    <!--------------------------------------------------------------------->
+                    <div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="background-color: #3b3b3b;">
+                          <div class="modal-header">
+                            <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+                            <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                          <div class="container " >
+                            <table class="table text-light  " style="margin:3px; background-color: #000000;">
+                              <thead>
+                                <tr>
+                                  <th>
+                                    sl
+                                  </th>
+                                  <th>
+                                    Date
+                                  </th>
+                                  <th>
+                                    Action
+                                  </th>
+                                  <th>
+                                    By
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for i in history %}
+                                <tr class="table-row">
+                                  <td>{{forloop.counter}}</td>
+                                  <td>{{ i.date|date:"m/d/Y" }}</td>
+
+
+                                  <td>{{i.action}}</td>
+                                  <td>{{i.login_details.first_name}} {{i.login_details.Last_name}}</td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+  
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--------------------------------------------------------------------------------------->
+                  <div class="modal fade" id="commentModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content" style="background-color: #3b3b3b;">
+                        <div class="modal-header">
+                          <h3 class="modal-title text-light" id="exampleModalLabel">Add FILE</h3>
+                          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                          </button>
+                        </div>
+                        <form action="" method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="modal-body">
+                            <input type="file" name="file" required class="form-control">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-outline-warning">Save</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <!-------------------------------------------------------------------------------------------------------->
+                  <div class="modal fade" id="commentModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content" style="background-color: #3b3b3b;">
+                        <div class="modal-header">
+                          <h3 class="modal-title text-light" id="exampleModalLabel">Share details</h3>
+                          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                          </button>
+                        </div>
+                        <form action="" method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="modal-body">
+                            <input type="email" name="email" required style="color:white;" class="form-control">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-outline-warning">Share</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+</div>
+
+<div class="modal fade" id="shareBillEmail">
+  <div class="modal-dialog">
+      <div class="modal-content"  style="background-color: #3b3b3b;">
+          <div class="modal-header">
+              <h2 class="  text-uppercase text-light" id="shareBillEmailLabel">Payslip</h2>
+              <button type="button" class="btn btn-close" data-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" >
+
+
+              <form action="{% url 'SharePayslipMail' employee.id %}" method="post" class="needs-validation"
+                  id="share_to_email_form" autocomplete="off">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <label class="text-light" for="emailIds">Email IDs</label>
+                      <textarea class="form-control text-light" name="email_ids" id="emailIds" rows="5"
+                          placeholder="Multiple emails can be added by separating with a comma(,)."
+                          required></textarea>
+                  </div>
+                  <div class="form-group mt-2">
+                      <label class="text-light" for="item_unitname">Message(optional)</label>
+                      <textarea name="email_message" id="email_message" class="text-light form-control" cols=""
+                          rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                  </div>
+                  <div class="modal-footer d-flex justify-content-center" >
+                      <button type="submit" id="share_with_email" class="btn btn-outline-warning  submitShareEmailBtn "
+                          value="SEND MAIL">SEND
+                          MAIL</button>
+
+                  </div>
+              </form>
+
+          </div>
+
+      </div>
+  </div>
+</div>   
+<script>
+  $(document).ready(function() {
+    $('.clickable-row').on('click', function() {
+        var url = $(this).data('href');
+        if (url) {
+            window.location.href = url;
+        }
+    });
+});
+
+</script>
+<script>
+  function shareViaWhatsApp() {
+    var message = encodeURIComponent(window.location.href);
+    var whatsappLink = 'https://wa.me/?text=' + message;
+    window.open(whatsappLink, '_blank');
+  }
+</script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+ 
+
+<script>
+  function printSelectedArea(){
+    var printContents = $("#printdiv").clone();  
+    printContents.find('.hideon-print').remove(); 
+
+    var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
+    $printerDiv.html(printContents.html());
+    $('body').append($printerDiv).addClass("printingContent");
+    var h1Element = document.createElement("h1");
+    var head = document.getElementById("printContainer");
+    head.insertBefore(h1Element, head.firstChild);
+    window.print();
+    $printerDiv.remove();
+    $('body').removeClass("printingContent");
+
+    
+  }
+</script>
+
+<script>
+  const rows = document.querySelectorAll('.clickable');
+  rows.forEach(row => {
+      row.addEventListener('click', () => {
+        var currentURL = window.location.href
+        const rowId = row.id;
+        var newURL = currentURL.replace(/\d+$/, rowId);
+        window.location.href = newURL;
+      });
+  });
+</script>
+
+<script>
+ 
+  function applyFilter(status) {
+    var rows = document.querySelectorAll('#myTable tbody tr');
+    rows.forEach(function(row) {
+      var rowStatus = row.querySelector('td:last-child').innerText.trim();
+      if (status === 'All' || rowStatus === status) {
+        row.style.display = 'table-row';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+ 
+  function sortTableByName() {
+    var table = document.getElementById("myTable");
+    var switching = true;
+    while (switching) {
+      switching = false;
+      var rows = table.rows;
+      for (var i = 1; i < (rows.length - 1); i++) {
+        var shouldSwitch = false;
+        var x = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+        var y = rows[i + 1].getElementsByTagName("td")[0].textContent.toLowerCase();
+        if (x > y) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+  }
+
+ 
+  function sortTableBySalary() {
+    var table = document.getElementById("myTable");
+    var switching = true;
+    while (switching) {
+      switching = false;
+      var rows = table.rows;
+      for (var i = 1; i < (rows.length - 1); i++) {
+        var shouldSwitch = false;
+        var x = parseFloat(rows[i].getElementsByTagName("td")[1].textContent.replace('₹', '').trim());
+        var y = parseFloat(rows[i + 1].getElementsByTagName("td")[1].textContent.replace('₹', '').trim());
+        if (x > y) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+  }
+</script>
+
+ 
+
+
+<!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% for msg in messages %}
+    swal({
+    title: "{{msg}}",
+    text: "{{msg.tags}}",
+    icon: "{{msg.tags}}",
+  });
+    {% endfor %}
+   </script> -->
+
+   <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var div1 = document.getElementById("printdiv1");
+        var div2 = document.getElementById("printdiv2");
+
+        console.log("DOMContentLoaded event triggered");
+
+    
+        var state = localStorage.getItem("divState");
+        console.log("Stored state:", state);
+        
+        if (state === "div2") {
+            console.log("State is div2");
+            div1.style.display = "none";
+            div2.style.display = "block";
+        } else {
+            console.log("State is div1 or null");
+            div1.style.display = "block";
+            div2.style.display = "none";
+        }
+
+        document.getElementById("toggleButton1").addEventListener("click", function() {
+            console.log("Toggle button 1 clicked");
+            div1.style.display = "block";
+            div2.style.display = "none";
+          
+            localStorage.setItem("divState", "div1");
+            console.log("State stored as div1");
+        });
+
+        document.getElementById("toggleButton2").addEventListener("click", function() {
+            console.log("Toggle button 2 clicked");
+            div1.style.display = "none";
+            div2.style.display = "block";
+         
+            localStorage.setItem("divState", "div2");
+            console.log("State stored as div2");
+        });
+    });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var div1 = document.getElementById("printdiv1");
+    var div2 = document.getElementById("printdiv2");
+
+    console.log("printdiv1 element:", div1);
+    console.log("printdiv2 element:", div2);
+
+ 
+    var state = localStorage.getItem("divState");
+    console.log("Stored state:", state);
+
+    if (state === "div2") {
+        console.log("State is div2");
+        div1.style.display = "none";
+        div2.style.display = "block";
+    } else {
+        console.log("State is div1 or null");
+        div1.style.display = "block";
+        div2.style.display = "none";
+    }
+
+    document.getElementById("toggleButton1").addEventListener("click", function() {
+        console.log("Toggle button 1 clicked");
+        div1.style.display = "block";
+        div2.style.display = "none";
+        // Store the state
+        localStorage.setItem("divState", "div1");
+        console.log("State stored as div1");
+    });
+
+    document.getElementById("toggleButton2").addEventListener("click", function() {
+        console.log("Toggle button 2 clicked");
+        div1.style.display = "none";
+        div2.style.display = "block";
+        // Store the state
+        localStorage.setItem("divState", "div2");
+        console.log("State stored as div2");
+    });
+});
+
+
+
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var overviewSection = document.getElementById("overviewSection");
+      var payslipSection = document.getElementById("payslipSection");
+
+      // Function to show the overview section and hide the payslip section
+      function showOverview() {
+          overviewSection.style.display = "block";
+          payslipSection.style.display = "none";
+          // Store the state in localStorage
+          localStorage.setItem("sectionState", "overview");
+      }
+
+      // Function to show the payslip section and hide the overview section
+      function showPayslip() {
+          overviewSection.style.display = "none";
+          payslipSection.style.display = "block";
+          // Store the state in localStorage
+          localStorage.setItem("sectionState", "payslip");
+      }
+
+      // Retrieve the state from localStorage and show the corresponding section
+      var storedState = localStorage.getItem("sectionState");
+      if (storedState === "payslip") {
+          showPayslip();
+      } else {
+          showOverview();
+      }
+
+      // Add event listeners to the buttons
+      document.getElementById("toggleButton1").addEventListener("click", showOverview);
+      document.getElementById("toggleButton2").addEventListener("click", showPayslip);
+  });
+</script>
+ 
+<script>
+  function printfun() {
+      print4 = document.getElementById('slipdiv');
+      var printContents = print4 && print4.style.display !== 'none'
+          ? document.getElementById('slipdiv').innerHTML
+          : document.getElementById('whatToPrint').innerHTML;
+
+      var $printerDiv = $('<div class="printContainer"></div>');
+      $printerDiv.html(printContents);
+      $('body').append($printerDiv).addClass('printingContent');
+      window.print();
+      $printerDiv.remove();
+      $('body').removeClass('printingContent');
+  }
+</script>
+<script>
+  $(document).ready(function () {
+      $(document).on('click', '#pdflink', function (event) {
+          event.preventDefault();
+          print1 = document.getElementById('whatToPrint');
+          print2 = document.getElementById('whatToPrint2');
+          print3 = document.getElementById('whatToPrint3');
+          print4 = document.getElementById('slipdiv');
+
+          var element;
+
+          if (print1 && print1.style.display !== 'none') {
+              element = document.getElementById('printpdf');
+          }
+
+          if (print2 && print2.style.display !== 'none') {
+              element = document.getElementById('printdiv2');
+          }
+
+          if (print3 && print3.style.display !== 'none') {
+              element = document.getElementById('printdiv3');
+          }
+
+          if (print4 && print4.style.display !== 'none') {
+              element = document.getElementById('printslip');
+          }
+
+          if (element) {
+              var opt = {
+                  margin: 1,
+                  filename: 'Payslip' + '{{data.id}}' + '.pdf',
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas: { scale: 2 },
+                  jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+              };
+              html2pdf().set(opt).from(element).save();
+          } else {
+              console.error('No element found to print');
+          }
+      });
+  });
+</script>
+ 
+
+
+
+
+
+{% endblock %}

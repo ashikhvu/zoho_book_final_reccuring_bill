@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-...your-integrity-code-here..." crossorigin="anonymous" />
+
+<!-- Include DataTables -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<style>
+    .bg-dark {
+      --bs-bg-opacity: 0;
+      background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  }
+  .table-striped>tbody>tr:nth-of-type(odd)>* {
+      --bs-table-accent-bg: rgb(0, 0, 0);
+      color: var(--bs-table-striped-color);
+  }
+  a {
+    color: rgb(255, 251, 251); /* You can use any color you prefer */
+    text-decoration: none; /* Optional: Remove underline if you don't want it */
+  }
+  </style>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Items</a></li>
+              <li class="breadcrumb-item" aria-current="page">Items</li>
+            </ol>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
+                  <div style="margin-top: 90px;">
+                    <h4 id="selected_customer_heading" class="text" style="color: white; margin-left: 2%; padding-top: 20px;"><b>ALL ITEMES</b></h4>
+                  </div>
+               <br>
+               <div class="row container-fluid mb-3">
+                <div class="col-md-3">
+                    <input type="text" id="searchInput" class="form-control text-black" style="border-color: rgb(198, 134, 16);background-color: antiquewhite;" placeholder="Search...">
+                </div>
+                <div class="col-md-2">
+                    <div class="dropdown">
+                        <a class="btn text-center px-4 pt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false" role="button" style="margin-left: 10px;">
+                            <i class="fas fa-sort m-1"></i>
+                        </a>
+                        <div class="dropdown-menu m-1" style="background-color: black; color: white;">
+                          <a class="dropdown-item" href="" style="color: azure;">All</a>
+                          <a class="dropdown-item" href="javascript:sortTable(1)" style="color: azure;">Item Name </a>
+                          <a class="dropdown-item" href="javascript:sortTable(2)" style="color: azure;">HSN  </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+                <div class="col-md-3">
+                    <div class="d-flex justify-content-end">
+                        <div class="dropdown">
+                            <a class="btn text-center px-4 pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false" role="button">
+                                <i class="fa fa-filter mt-1"></i>
+                            </a>
+                            <div class="dropdown-menu m-1" style="background-color: black; color: white;">
+                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">All</a>
+                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Active</a>
+                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Inactive</a>
+                            </div>
+                        </div>
+              
+                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="reduce_dash()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning"  href="">
+                          <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
+                          <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Import</span>
+                      </a>
+                      <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="exportToExcel()" class="btn btn-outline-warning" >
+                        <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
+                        <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Export</span>
+                    </a>
+        
+                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center; margin-left: 10px;" class="btn btn-outline-warning"  href="{% url 'new_items' %}">
+                            NEW <i class="fa fa-plus" style="font-size: large;"></i>
+                            <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center"></span>
+                        </a>
+                    </div>
+                </div>
+         
+        
+        <div class="container-fluid" id="container-to-print" style="width: 100%;"> 
+            <section id="selected-area">
+          <div class="row pt-5">
+              <center>
+                <h2 class="text" style="color: white;">{{ company.company_name }}</h2>
+               
+        
+              </center>
+              <div class="table-responsive"> 
+                <table class="table table-bordered table-striped mt-4" id="data-table">
+                  <thead class="text-white">
+                    
+                      <tr style="background-color: rgb(0, 0, 0);border-color:rgba(0, 0, 0, 0.549) rgb(0, 0, 0) rgb(173, 166, 166) rgb(0, 0, 0);text-align: center;">
+                          <th style="color: rgb(247, 247, 247);">No.</th>
+                          <th style="color: rgb(250, 247, 242);">Name</th>
+                          <th style="color: rgb(244, 244, 244);">HSN</th>
+                          <th style="color: rgb(255, 255, 255);">Sales Rate</th>
+                          <th style="color: rgb(252, 252, 252);">Purchase Rate </th>
+                          <th style="color: rgb(237, 237, 236);">Stock on Inventory </th>
+                          <th style="color: rgb(247, 245, 240);">Balance Stock</th>
+                          <th style="color: rgb(251, 251, 251);">STATUS</th>
+                          
+                      </tr>
+                  </thead>
+                <tbody style="background-color: black;">
+                  
+                  {% for i in item %}
+                <tr style="background-color: rgb(0, 0, 0);border-color:rgba(0, 0, 0, 0.549) rgb(0, 0, 0) rgb(173, 166, 166) rgb(0, 0, 0);text-align: center;" class='clickable-row' data-href="{% url 'itemsoverview' i.id%}">             
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;">{{forloop.counter}}</td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id%}">{{ i.item_name }}</td>
+                  <!-- <td style="color: rgb(0, 0, 0); background-color: black;">{{ i.type }}</td> -->
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.hsn_code }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.selling_price }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.purchase_price }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.opening_stock }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.current_stock }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'itemsoverview'  i.id %}">{{ i.activation_tag }}</a></td>
+              </tr>
+            {% endfor %}
+            
+              
+                </tbody>
+                                          
+                </table> 
+              {% comment %} <div id="total-bill-amount" class="mt-3" style="color: white;"></div> {% endcomment %}
+              <div>
+                  <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
+                  <br><br><br><br><br>
+              </div>
+          </div>
+        </div>
+        </section>
+        
+        
+        </div>
+                </div>
+            </div>
+        </section>
+        </div>
+        <!-- TABLE SORT SCCCRIPT -->
+        <!-- Include jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        
+        <!-- Your existing HTML code -->
+        
+        <script>
+          // Function to sort the table based on the selected column
+          function sortTable(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("data-table");
+            switching = true;
+        
+            while (switching) {
+              switching = false;
+              rows = table.getElementsByTagName("tr");
+        
+              for (i = 1; i < rows.length - 1; i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("td")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+        
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                  shouldSwitch = true;
+                  break;
+                }
+              }
+        
+              if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+              }
+            }
+          }
+        
+          // Function to handle dropdown item click
+          function handleDropdownItemClick(index) {
+            sortTable(index);
+          }
+        
+          // Attach click event listeners for sorting Name and HSN columns
+          $(document).ready(function () {
+            $(".dropdown-item").click(function () {
+              // Get the index of the clicked dropdown item
+              var index = $(this).index();
+              
+              // Call the handleDropdownItemClick function with the index
+              handleDropdownItemClick(index);
+            });
+          });
+        </script>
+        
+        <!-- END SORT SCRIPT -->
+        
+        
+        <!-- filter script -->
+        
+        <script>
+          // Function to filter the table based on the selected status
+          function filterTable(status) {
+            var table, rows, i;
+            table = document.getElementById("data-table");
+            rows = table.getElementsByTagName("tr");
+        
+            for (i = 1; i < rows.length; i++) {
+              var rowStatus = rows[i].lastElementChild.textContent.trim(); // Assuming status is in the last column
+        
+              if (status === "All" || rowStatus === status) {
+                rows[i].style.display = "";
+              } else {
+                rows[i].style.display = "none";
+              }
+            }
+          }
+        
+          // Function to handle dropdown item click for filtering
+          function handleFilterDropdownItemClick(status) {
+            filterTable(status);
+          }
+        
+          // Attach click event listeners for filtering
+          $(document).ready(function () {
+            $(".dropdown-item-filter").click(function () {
+              var status = $(this).text().trim();
+              // Call the handleFilterDropdownItemClick function with the selected status
+              handleFilterDropdownItemClick(status);
+            });
+          });
+        </script>
+        <script>
+        function exportToExcel() {
+            var table = document.querySelector('#data-table'); // Add # to select by ID
+            var ws = XLSX.utils.table_to_sheet(table);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, 'items.xlsx');
+        }
+        
+        </script>
+        <!-- filter End -->
+        
+        
+        
+        <!-- ................................... import modal ................. -->
+        
+        
+        <div class="modal fade" id="import_modal">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+              <div class="modal-header " style="background: rgb(32, 35, 37);">
+                <h1 class="text-light">Import Item</h1>
+              </div>
+              <div class="modal-body" style="background: rgb(32, 35, 37);">
+                <div class="card p-3 m-3" style="background-color: black;">        
+                  <div class="row" style="background-color: black;">
+                    <div class="col-md-12 col-lg-12 col-sm-12" style="background-color: black;">
+                      <h5 class="text-danger">IMPORTANT:</h5>
+                      <p class="text-light">File should have  sheet named 'Sheet1' and column name & order should be in the given format(Uppercase)</p><br>
+                      
+                      <p class="text-light">Status should be given in one of the following format <br>
+                          Active  <br>
+                          inactive
+                      </p><br>
+                      <p class="text-light">If Taxble ,then fill Intra-State TAX and Inter-State TAX  <br>
+                          If not have CGST and SGST Tax  then filled with 0
+                          
+                      </p>
+        
+        
+                    </div>
+                  </div>
+                </div>
+                <a href="{% url 'downloadItemSampleImportFile' %}" class="text-primary" style="font-size:medium;">Download Sample File here</a> <br>
+        
+                <form action="{% url 'import_item' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <h6 class="text-light"></h6>
+                  <input type="file" name="excel_file" class="form-control text-dark" style="width: 50%;"><br>
+                  <button class="btn btn-outline-warning mt-3">IMPORT</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+         function sortTable(columnIndex) {
+            const table = document.getElementById("data-table");
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.rows);
+        
+            rows.sort((row1, row2) => {
+                const cellValue1 = row1.cells[columnIndex].textContent.toLowerCase();
+                const cellValue2 = row2.cells[columnIndex].textContent.toLowerCase();
+        
+                if (cellValue1 < cellValue2) {
+                    return -1;
+                } else if (cellValue1 > cellValue2) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+        
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        
+        </script>
+        <!-- ..........................................import modal end  ........................... -->
+        
+        <!-- Include jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
+        <script>
+          $(document).ready(function() {
+            $('#searchInput').on('keyup', function() {
+              var searchText = $(this).val().toLowerCase();
+              $('#data-table tbody tr').each(function() {
+                var itemData = $(this).text().toLowerCase();
+                if (itemData.indexOf(searchText) === -1) {
+                  $(this).hide();
+                } else {
+                  $(this).show();
+                }
+              });
+            });
+          });
+        </script>
+        </div>
+        </div>
+
+{% endblock %}

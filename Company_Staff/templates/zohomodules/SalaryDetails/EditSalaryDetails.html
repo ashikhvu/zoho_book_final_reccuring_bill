@@ -1,0 +1,711 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+ 
+<link  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-rREOIYZlzO5qDlVWz5zLPZp9hYYy1NTmC1LGpA2zLq5i0+6imhIoJDddFiOj0EkB" crossorigin="anonymous">
+    
+    
+
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                 <li class="breadcrumb-item"><a href="" class="text-warning-emphasis">Payroll_list</a></li>
+                 <li class="breadcrumb-item" aria-current="page">EDIT SALARY DETAILS</li>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                  <div class="row mt-4">
+        <section>
+            <div class="container pl-5" style="color:white;">
+                <div class="header pb-5">
+                    <h2 style="text-align: center;color:white;">EDIT SALARY DETAILS</h2>
+                    <hr class="text-warning font-weight-bold">
+                    {% for message in messages %}
+                    <h5>
+                        <div class="alert alert-danger message">
+                            {{ message }}
+                        </div>
+                    </h5>
+                    {% endfor %}
+                </div>
+                <form method="POST" action="{% url 'EditSalaryDetailsFunction' salary.id %}" enctype="multipart/form-data" id="myForm" >
+                    {% csrf_token %}
+                    <div class="row">
+                     
+                    <div class="gen-info row  ">
+                       
+                            <div class="left col-lg-6 col-sm-6">
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Employee *</label>
+                                </div>
+                                <div class=" col-6">
+                                    <div style="display: flex;">
+                                        
+                                        <select class="form-control text-dark bg-light" name="title" id="title" required>
+                                            <option value="" {% if not salary.employee %} selected {% endif %} hidden>Select</option>
+                                            {% for employee in employees %}
+                                                <option value="{{ e.id }} " {% if salary.employee and salary.employee.first_name|upper == employee.first_name|upper and salary.employee.last_name|upper == employee.last_name|upper %} selected {% endif %}>
+                                                    {{ employee.first_name|upper }} {{ employee.last_name|upper }}
+                                                </option> 
+                                            {% endfor %}
+                                        </select>   
+
+                                           
+                                        &nbsp;&nbsp;
+                                     
+                                    </div>
+                                    
+                                </div>
+                             
+                              
+                            </div>
+                         
+
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Email</label>
+                                </div>
+                                <div class="col-6">
+                                    
+                                    <input id="email" type="text" value="{{ salary.employee.email }}" class="form-control text-dark bg-light" name="email" readonly>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="joinDate">Join Date</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="date" id="joinDate" value="{{ formatted_join_date }}" name="joinDate" class="form-control text-dark bg-light">
+                                </div>
+                            </div>
+                            
+                            <br><br>
+                    
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Salary Date</label>
+                                </div>
+                                <div class="col-6">
+                    
+                                    <input type="date" name="salary_date" value="{{ formatted_salary_date }}" class="form-control text-dark bg-light" required>
+
+                                </div>
+                            </div>
+                      
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Year</label>
+                                </div>
+                                <div class="col-6">
+                                    <select id="year" name="year" class="form-control text-dark bg-light" required onchange="updateDays()">
+                                        {% for y in range_year_list %}
+                                            <option value="{{ salary.year }}" {% if y == salary.year %}selected{% endif %}>
+                                                {% if y == current_year %}Current Year{% else %}{{ y }}{% endif %}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+<br>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Leave</label>
+                                </div>
+                                <div class="col-6">
+                                    <input   value="{{ total_rows }}" id="leave"  type="number" class="form-control text-dark bg-light"   readonly>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Holiday</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" id="holyday" name="Holiday" value="{{ holyday_rows }}" class="form-control text-dark bg-light"   readonly >
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Basic Salary</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" value="{{salary.basic_salary}}"  name="Basic_Salary" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Conveyance Allowance</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" value="{{salary.conveyance_allowance}}" name="Conveyance_Allowance" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Other Cuttings</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" id="OtherCuttings" value="{{salary.other_cuttings}}" name="other_cuttings" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Calculate</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" id="calculatedSalary" name="calculated_salary" class="form-control text-dark bg-light" readonly>
+                                    <button id="calculateButton" class="btn text-light mt-2" type="button" style="background-color: chocolate; width: 150px; font-size: medium;" onclick="calculateSalary()">Calculate Salary</button>
+                                </div>
+                            </div>
+
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Description</label>
+                                </div>
+                                <div class="col-6">
+                                    <textarea name="Description" class="form-control text-dark bg-light" required>{{ salary.description }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">agree to terms and conditions</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="checkbox"    required >
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="col-lg-5 col-sm-5">
+
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Employee id</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" id="employee_id" name="employee_id" value="{{salary.employee_id}}" class="form-control text-dark bg-light" name="designation" readonly >
+                                </div>
+                            </div>
+                           
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Salary</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" value="{{salary.employee.salary}}" id="salary_id" name="salary_id" class="form-control text-dark bg-light" name="designation" readonly >
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="">Designation</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" value="{{salary.employee.designation}}"  name="" id="Designation_id" class="form-control text-dark bg-light" name="designation" readonly >
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label >Month</label>
+                                </div>
+                                <div class="col-6">
+                                    <select   name="month" class="form-control text-dark bg-light" required onchange="updateDays()">
+                                        <option value="01" {% if salary.month == "01" %} selected {% endif %}>January</option>
+                                        <option value="02" {% if salary.month == "02" %} selected {% endif %}>February</option>
+                                        <option value="03" {% if salary.month == "03" %} selected {% endif %}>March</option>
+                                        <option value="04" {% if salary.month == "04" %} selected {% endif %}>April</option>
+                                        <option value="05" {% if salary.month == "05" %} selected {% endif %}>May</option>
+                                        <option value="06" {% if salary.month == "06" %} selected {% endif %}>June</option>
+                                        <option value="07" {% if salary.month == "07" %} selected {% endif %}>July</option>
+                                        <option value="08" {% if salary.month == "08" %} selected {% endif %}>August</option>
+                                        <option value="09" {% if salary.month == "09" %} selected {% endif %}>September</option>
+                                        <option value="10" {% if salary.month == "10" %} selected {% endif %}>October</option>
+                                        <option value="11" {% if salary.month == "11" %} selected {% endif %}>November</option>
+                                        <option value="12" {% if salary.month == "12" %} selected {% endif %}>December</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            
+                             
+                            
+                            
+                            
+                            
+                            <br><br><br><br>
+                            <div class="row  pb-3">
+                                <div class="col-6">
+                                    <label for="">Casual Leave</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" id="CasualLeave" name="Casual_leave" value="{{ salary.casual_leave }}" class="form-control text-dark bg-light" name="designation" required >
+                                </div>
+                            </div>
+
+                        
+                        
+                            <div class="row  pb-3">
+                                <div class="col-6">
+                                    <label for="">Working Day</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" value="{{ salary.total_working_days}}" name="working_day" id="totalDays" class="form-control text-dark bg-light" name="designation" readonly >
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">HRA</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" value="{{salary.hra}}"  name="HRA" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col-6">
+                                    <label for="year">Other Allowance</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" value="{{salary.other_allowance}}" name="Other_Allowance" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row  pb-3">
+                                <div class="col-6">
+                                    <label for="">Add bonus</label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" value="{{ salary.add_bonus }}" name="bonus" class="form-control text-dark bg-light"   required >
+                                </div>
+                            </div>
+
+
+                    </div>
+                    <hr>
+                    <div class="action-button modal-footer">
+                        <button class="btn text-light " type="submit" style="background-color: chocolate; width: 150px; font-size: medium;" name="draft" onclick="validateform()">Save </button>
+                        <!-- <button class="btn btn-danger ms-lg-2 mt-2 mt-md-0" type="reset" style="background-color: chocolate; width: 150px; font-size: medium;" name="save" onclick="goToTop()">Save</button> -->
+                    </div>
+           
+
+                        </div>
+                    </form>
+        </section>
+        </div>
+        </div>
+        </div>
+
+
+ 
+
+
+  
+<script>
+    var defaultDate = new Date();
+
+// Formatting the date to YYYY-MM-DD
+var formattedDate = defaultDate.toISOString().split('T')[0];
+
+// Setting the value of the input field
+document.getElementById("joindate").value = formattedDate;
+          </script>
+        <script>
+            async function uploadBlood() {
+                const form = document.getElementById('blood1'); // Adjust the form ID if needed
+                const formData = new FormData(form);
+        
+        
+                
+               var response = await fetch('add_blood', {
+                    method: 'POST',
+                    body: formData
+                })
+                if(response.ok){
+                    var result=await response.json()
+                    console.log(result.message)
+                    alert(result.message)
+                    document.getElementById('blood1').reset();
+                    var newOption = document.createElement("option");
+        
+                // Set the value and text for the new option
+                    newOption.value = result.blood;
+                    newOption.text = result.blood;
+
+                    // Add the new option to the select dropdown
+                    document.getElementById("blood").appendChild(newOption);
+                }
+            }
+        </script>
+       
+        
+        
+        <script>
+            function validateform() {
+                var sal = document.getElementById('sal').value;
+                var amnthr = document.getElementById('amnthr').value;
+                var hours = document.getElementById('hours').value;
+                var fsalary = document.getElementById('fsalary').value;
+        
+                var dropId = document.getElementById('dropId').value;
+                var acc_no = document.getElementById('acc_no').value;
+                var ifsc = document.getElementById('ifsc').value;
+                var b_name = document.getElementById('b_name').value;
+                var branch = document.getElementById('branch').value;
+                var ttype = document.getElementById('ttype').value;
+        
+                var tds = document.getElementById('tds').value;
+                var pora = document.getElementById('pora').value;
+                var pcnt = document.getElementById('pcnt').value;
+                var amnt = document.getElementById('amnt').value;
+        
+                if (sal === 'Variable'){
+                    if (amnthr === ''){
+                        alert('Add Amount per Hour');
+                        return false;
+                    }
+                    if (hours === ''){
+                        alert('Add Total Amount Worked');
+                        return false;
+                    }
+                }else{
+                    if (fsalary === ''){
+                        alert('Add Salary');
+                        return false;
+                    }
+                }
+        
+                if (dropId === '1'){
+                    if (acc_no === ''){
+                        alert('Add an Account Number');
+                        return false;
+                    }
+                    if (ifsc === ''){
+                        alert('Add IFSC code');
+                        return false;
+                    }
+                    if (b_name === ''){
+                        alert('Add Bank Name');
+                        return false;
+                    }
+                    if (branch === ''){
+                        alert('Add Branch Name');
+                        return false;
+                    }
+                    if (ttype === ''){
+                        alert('Select a Transaction Type');
+                        return false;
+                    }
+                }
+        
+                if (tds === '1'){
+                    if (pora === ''){
+                        alert('Select TDS Amount Type');
+                        return false;
+                    }else if(pora === 'Percentage'){
+                        if (pcnt === ''){
+                            alert('Add Percentage of TDS');
+                            return false;
+                        }
+                    }else if(pora === 'Amount'){
+                        if (amnt === ''){
+                            alert('Add TDS Amount');
+                            return false;
+                        }
+                    }
+                }
+        
+                return true; 
+            }
+        </script>
+        
+        <script>
+            const input = document.getElementById("an");
+            input.addEventListener("input", () => input.value = formatNumber(input.value.replaceAll(" ", "")));
+            const formatNumber = (number) => number.split("").reduce((seed, next, index) => {
+                if (index !== 0 && !(index % 4)) seed += " ";
+                return seed + next;
+            }, "");
+        </script>
+        
+        <script>
+            var loadFile = function (event) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var output = document.getElementById('img');
+                    output.src = reader.result;
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            };
+        </script>
+        
+        <script>
+            function goToTop() {
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE, and Opera
+            }
+        
+            function bankdisplay() {
+                var e = document.getElementById("dropId").value;
+                if (e == 0) {
+                    document.getElementById("bank").style.display = 'none'
+                    document.getElementById("acc_no").value = ''
+                    document.getElementById("ifsc").value = ''
+                    document.getElementById("b_name").value = ''
+                    document.getElementById("branch").value = ''
+                    document.getElementById("ttype").value = ''
+                }
+                else {
+                    document.getElementById("bank").style.display = 'block'
+                }
+            }
+        
+            function salFunction() {
+                var e = document.getElementById("sal");
+                var sal = e.value;
+                if (sal == 'Fixed' || sal == 'Temporary') {
+                    document.getElementById("fixed").style.display = 'block'
+                    document.getElementById("variable").style.display = 'none'
+                    document.getElementById("amnthr").value = 0
+                    document.getElementById("hours").value = 0
+                    document.getElementById("vsalary").value = 0
+                }
+                else if (sal == 'Variable') {
+                    document.getElementById("variable").style.display = 'block'
+                    document.getElementById("fixed").style.display = 'none'
+                    document.getElementById("fsalary").value = 0
+                }
+            }
+        
+            function calculateAmount() {
+                var a = document.getElementById("amnthr").value;
+                var h = document.getElementById("hours").value;
+                var tot = h * a;
+                document.getElementById('vsalary').value = tot;
+            }
+        
+            function tdsFunction() {
+                var e = document.getElementById("tds");
+                var sal = e.value;
+                if (sal == '1') {
+                    document.getElementById("tds-div").style.display = 'block'
+                }
+                else {
+                    document.getElementById("tds-div").style.display = 'none'
+                    document.getElementById("pora").value = 0
+                    document.getElementById("pcnt").value = 0
+                    document.getElementById("amnt").value = 0
+                }
+            }
+        
+            function tdsFunction2() {
+                var e = document.getElementById("pora");
+                var sal = e.value;
+                if (sal == 'Percentage') {
+                    document.getElementById("p").style.display = 'block';
+                    document.getElementById("a").style.display = 'none';
+                    document.getElementById("amnt").value = 0
+                }
+                else if (sal == 'Amount') {
+                    document.getElementById("a").style.display = 'block';
+                    document.getElementById("p").style.display = 'none'
+                    document.getElementById("pcnt").value = 0
+                }
+            }
+        
+            function emailvalidate() {
+                var email = document.getElementById('email')
+                var error = document.getElementById('error')
+                if (!email.value.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                    error.style.fontSize = ".8rem"
+                    error.innerHTML = "*Please enter a valid email"
+                    return false;
+                }
+                error.innerHTML = ""
+                return true;
+            }
+        
+            function phoneValidate(phn, pherror) {
+                if (!phn.value.match(/^[6-9]\d{9}$/)) {
+                    pherror.style.display = "block"
+                    pherror.style.fontSize = ".8rem"
+                    pherror.innerHTML = "*Please enter a valid phone number"
+                    return false;
+                }
+                pherror.style.display = "none"
+                pherror.innerHTML = ""
+                return true;
+            }
+        
+            function empValidation(emp) {
+                emp.addEventListener("input", function () {
+                    emp.value = emp.value.toUpperCase();
+                });
+            }
+        
+            inputvalue = document.getElementById('ifsc')
+            inputvalue.addEventListener("input", function () {
+                inputvalue.value = inputvalue.value.toUpperCase();
+            });
+            const inputFields = document.querySelectorAll("input[type='text']");
+            inputFields.forEach(function (input) {
+                input.addEventListener("input", function () {
+                    const inputValue = input.value;
+                    input.value = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                });
+            });
+        
+            document.getElementById("an").addEventListener("input", function () {
+                const input = this.value;
+                if (input.length > 14) {
+                    this.value = input.slice(0, 14);
+                }
+            });
+        
+            document.getElementById("acc_no").addEventListener("input", function () {
+                const input = this.value;
+                if (input.length > 15) {
+                    this.value = input.slice(0, 15);
+                }
+            });
+        
+            $(document).ready(function () {
+                $("#filladdress").on("click", function () {
+                    if (this.checked) {
+                        $("#adrs1").val($("#padrs1").val());
+                        $("#adrs2").val($("#padrs2").val());
+                    }
+                    else {
+                        $("#adrs1").val('');
+                        $("#adrs2").val('');
+                    }
+                });
+            });
+        
+            function calculateAge() {
+                const dobInput = document.getElementById("dob");
+                const selectedDateOfBirth = new Date(dobInput.value);
+                const currentDate = new Date();
+                const age = currentDate.getFullYear() - selectedDateOfBirth.getFullYear();
+                const ageInput = document.getElementById("age");
+                ageInput.value = age;
+            }
+            function clearaddreass(id){
+                document.getElementById('filladdress').checked = false
+                if(id == 'padrs1' || id == 'padrs2'){
+                    $("#adrs1").val('');
+                    $("#adrs2").val('');
+                }
+            }
+        </script>
+        
+
+    </div>
+</div>
+
+
+
+<script>
+    // Function to make the alert blink
+    function blink() {
+        $('#alertMessage').fadeOut(1000).fadeIn(1000, blink);
+    }
+
+    // Call the blink function when the page loads
+    $(document).ready(function() {
+        blink();
+    });
+</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<!-- <script>
+    {% for msg in messages %}
+    swal({
+    title: "{{msg}}",
+    text: "{{msg.tags}}",
+    icon: "{{msg.tags}}",
+  });
+    {% endfor %}
+   </script> -->
+
+
+<script>
+    function redirectToURL(selectElement) {
+        var selectedOption = selectElement.options[selectElement.selectedIndex];
+        var url = selectedOption.getAttribute('data-url');
+        if (url) {
+            window.location.href = url;
+        }
+    }
+</script>
+ 
+ 
+
+ 
+<script>
+    function calculateSalary() {
+        var salary = parseFloat(document.getElementById("salary_id").value) || 0;
+        var workingDays = parseInt(document.getElementById("totalDays").value) || 0;
+        var leaveDays = parseInt(document.getElementById("leave").value) || 0;
+        var bonus = parseFloat(document.getElementsByName("bonus")[0].value) || 0;
+        var CasualLeave = parseFloat(document.getElementById("CasualLeave").value) || 0;
+        var OtherCuttings = parseFloat(document.getElementById("OtherCuttings").value) || 0;
+
+
+
+        var totalWorkedDays = workingDays - leaveDays + CasualLeave;
+
+        if (totalWorkedDays < 0) {
+            alert("Invalid input: Total worked days cannot be negative.");
+            return;
+        }
+
+        var calculatedSalary = (salary / workingDays) * totalWorkedDays + bonus - OtherCuttings ;
+
+        document.getElementById("calculatedSalary").value = calculatedSalary.toFixed(2);
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+<script>
+    function submitForm() {
+        // Serialize form data
+        var formData = new FormData(document.getElementById('myForm'));
+        
+        // Send AJAX request
+        $.ajax({
+            url: "{% url 'addEmployeeFromSalaryDetails' %}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log(response);
+                alert('Employee added successfully!');
+                // Optionally, clear the form fields
+                $('#myForm')[0].reset();
+                // Close the modal
+                $('#exampleModal').modal('hide');
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                alert('Error adding employee. Please try again.');
+            }
+        });
+    }
+</script>
+
+
+
+{% endblock %}

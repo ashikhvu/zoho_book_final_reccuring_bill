@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6" integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<div class="body-wrapper">
+  <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+            {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+             <li class="breadcrumb-item"><a href="{% url 'view_vendor_list' %}" class="text-warning-emphasis">Vendor_list</a></li>
+             <li class="breadcrumb-item" aria-current="page">Over view</li>
+          </ol>
+      </nav>
+      <div class="row mt-5">
+          <div class="col-md-12 col-sm-12 col-lg-12 flex-column">
+              <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                <div class="row mt-4">
+                  <div class="col-7 col-sm-7 col-lg-7"><a class="text-white" style="font-size: 2rem;">All Vendors</a></div>
+                  <div class="row">
+                    <div class="col-md-3 col-sm-3"><input type="text" id="search" class="form-control bg-light text-dark" placeholder="Search.." autocomplete="off"></div>
+                    <div class="col-md-4 col-sm-2">
+                      <div class="dropdown">
+                        <a class="btn text-center px-4 pt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                          <i  class="fas fa-sort m-1"></i>
+                        </a>
+                       
+                        <div class="dropdown-menu m-1">
+                          <a class="dropdown-item" href="{% url 'view_vendor_list' %}">All</a>
+                          <a class="dropdown-item" href="{% url 'sort_vendor_by_name' %}">Name</a>
+                          <a class="dropdown-item" href="{% url 'sort_vendor_by_amount' %}">Amount</a>
+                        </div>
+                      </div>
+                    </div>
+                  <div class="col-sm-10 col-lg-5 ml-5 flex-column" id="marginid">
+                    <div class="flex-column justify-content-center " >
+                      <a onclick="ExportToExcel()" class="btn text-center pt-2 btn-outline-warning " >
+                        <i class='fas fa-file-export' style='font-size:20px'></i> <span style="margin-top: 3px;">Export</span>
+                      </a>
+                      <a data-toggle="modal" data-target="#importmodal" class="btn text-center pt-2 btn-outline-warning" onclick="sampleexcel()">
+                        <i class="fas fa-file-import" style='font-size:20px'></i> <span style="margin-top: 3px;">Import</span>
+                      </a>
+                      <a class="btn text-center  pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                        <i class="fa fa-filter mt-1"></i>
+                      </a>
+                     
+                      <div class="dropdown-menu m-1 ">
+                        <a class="dropdown-item" href="{% url 'view_vendor_list' %}">All</a>
+                        <a class="dropdown-item" href="{% url 'view_vendor_active' %}">Active</a>
+                        <a class="dropdown-item" href="{% url 'view_vendor_inactive' %}">Inactive</a>
+                      </div>
+                      <a  class="btn btn-outline-warning text-right px-3 py-2 flex-sm-row" role="button"  href="{% url 'vendor' %}">
+                        <i class="fa fa-plus fs-4" ><span>New</span></i>
+                      </a>
+                    </div>
+                  </div>
+      </div>
+        <br>
+        <div class="row mt-2">
+          <div class="table-responsive">
+            <table class="table  text-white" id="myTable" >
+              <thead>
+                <tr>
+                  <th style="text-align: center;">#</th>
+
+                  <th style="text-align: center;">NAME</th>
+                  
+                  <th style="text-align: center;">PHONE</th>
+                  <th style="text-align: center;">EMAIL</th>
+                  <th style="text-align: center;">GST TREATMENT</th>
+                  <th style="text-align: center;">GST NUMBER</th>
+                  <th style="text-align: center;">OPENING BALANCE</th>
+                  <th style="text-align: center;">STATUS</th>
+
+                  <th style="text-align: center;">BALANCE</th>
+                  <th style="text-align: center;">DELETE</th>
+
+                </tr>
+               
+              </thead>
+             
+              <tbody>
+                {% for v in data %}
+       
+                <tr id="over" class="clickable-row" data-href="{% url 'view_vendor_details' v.id %}">
+                  <td style="text-align: center;">{{forloop.counter}}</td>
+
+                  <td>{{v.first_name}} {{v.last_name}}</td>
+                  <td>{{v.phone}}</td>
+
+                  <td>{{v.vendor_email}}</td>
+
+                  <td ><textarea class="bg-transparent text-white border-0" name="" id="" cols="45" rows="2">{{v.gst_treatment}}</textarea></td>
+                  <td>{{v.gst_number}}</td>
+                 
+                  <td> {% if v.opening_balance_type == 'credit' %}-{{v.opening_balance}}
+                      {% else %}
+                      {{v.opening_balance}}
+                      {% endif %}
+
+                  </td>
+                  
+                  <td>{{v.vendor_status}}</td>
+                 
+                  <td>{{v.current_balance}}</td>
+                  <td><a href="{% url 'delete_vendor' v.id %}" onclick="alert('Do You Want to Delete?')"><i class="fas fa-trash text-danger text-center"></i></a></td>
+
+  
+                 
+                </tr>
+                {% endfor %}
+              </tbody>
+
+            </table>
+          </div>
+        </div>
+       
+        <div class="row" hidden>
+          <table id="employeemodeltable">
+            <thead>
+              <th>Title</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Company Name</th>
+             <th>Email</th>
+             <th>Phone</th>
+             <th>Mobile</th>
+             <th>Skype name/Number</th>
+             <th>Designation</th>
+             <th>Department</th>
+              <th>Website</th>
+              <th>GST TREATMENT</th>
+              <th>Source of supply</th>
+              <th>Currency</th>
+              <th>opening balance type</th>
+              <th>opening balance</th>
+              <th>payment term</th>
+              <th>billing attention</th>
+              <th>billing address</th>
+              <th>billing city</th>
+              <th>billing state</th>
+              <th>billing country</th>
+              <th>billing pin code</th>
+              <th>billing phone</th>
+              <th>billing fax</th>
+              <th>shipping attention</th>
+              <th>shipping address</th>
+              <th>shipping city</th>
+              <th>shipping state</th>
+              <th>shipping country</th>
+              <th>shipping pin code</th>
+              <th>shipping phone</th>
+              <th>shipping fax</th>
+              <th>Remarks</th>
+             
+            </thead>
+            <tbody>
+              
+             
+            </tbody>
+          </table>
+        </div>
+
+
+      </div>
+</div>
+      </div>
+      </div>
+
+      
+      <div class="modal fade" id="importmodal" style="margin-top: 7vh;">
+        <div class="modal-dialog ">
+          <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header">
+              <h5 class="modal-title" id="excelModalLabel">Upload File
+              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37);">
+              <div class="card">
+                <form action="{% url 'import_vendor_excel' %}" method="post" class="needs-validation" enctype="multipart/form-data"  id="excelForm">
+                  {% csrf_token %}
+                  <div class="form-group mt-3" style="margin-left: 2vh;">
+                    <label for="file" style="font-size: medium;">Choose Excel File for Employees - </label> <br><br>
+                    <input type="file" class="form-control-file" id="empfile" name="empfile" accept=".xls,.xlsx"><br>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn text-center pt-2 btn-outline-warning" onclick="" >Upload</button>
+                    <button type="button" class="btn text-center pt-2 btn-outline-warning" data-dismiss="modal">Close</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div> 
+      
+    
+    
+</div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#myTable tr").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  </script>
+  
+  <script>
+    // Add click event listener to all rows with class "clickable-row"
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        // Get the URL from the "data-href" attribute
+        const url = row.getAttribute('data-href');
+        // Navigate to the URL
+        window.location.href = url;
+      });
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+  <script>
+    function ExportToExcel() {
+      console.log("myTable");
+      $('in1').prop
+      const table = document.getElementById('myTable'); // Replace 'myTable' with your table's ID
+      const wb = XLSX.utils.table_to_book(table);
+  
+      XLSX.writeFile(wb, 'vendor_list.xlsx');
+  }
+  </script>
+  
+  <script>
+    function sampleexcel(){
+      const table1 = document.querySelector('#employeemodeltable');
+      const ws1 = XLSX.utils.table_to_sheet(table1);
+      const wb1 = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb1, ws1, 'Sheet1');
+      XLSX.writeFile(wb1, 'vendor list.xlsx');
+    }
+  </script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous">
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous">
+</script>
+{% endblock %}

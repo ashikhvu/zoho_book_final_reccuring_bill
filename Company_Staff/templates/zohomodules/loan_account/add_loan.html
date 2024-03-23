@@ -1,0 +1,982 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
+    crossorigin="anonymous"></script>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a
+                        href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a
+                        href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'loan_listing' %}" class="text-warning-emphasis">Loan
+                        Account</a></li>
+                <li class="breadcrumb-item" aria-current="page">Add Loan</li>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                    <div class="row mt-4">
+                        <section>
+                            <div class="container pl-5" style="color:white;">
+                                <div class="header pb-5">
+                                    <h2 style="text-align: center;color:white;">ADD LOAN</h2>
+                                    <hr class="text-warning font-weight-bold">
+                                    {% for message in messages %}
+                                    <h5>
+                                        <div class="alert alert-danger message">
+                                            {{ message }}
+                                        </div>
+                                    </h5>
+                                    {% endfor %}
+                                </div>
+                                <form method="POST" action="{% url 'add_loan' %}" enctype="multipart/form-data"
+                                    id="addloan">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="data  col-lg-8 col-md-6 col-sm-16">
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="account_name">Account Name</label>
+                                                </div>
+                                                <div class="col-6 d-flex">
+
+                                                    <select class="form-control text-dark bg-light" name="account_name"
+                                                        id="account_name" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        {% for acc in bank_holder %}
+                                                        {% if acc.status == 'Active' %}
+
+                                                        <!-- <option value="" selected hidden>Select</option> -->
+                                                        <option value="{{ acc.id }}">{{ acc.customer_name }}</option>
+                                                        {% endif %}
+
+                                                        {% endfor %}
+
+                                                    </select>
+                                                    <!-- <button type="submit" class="btn btn-primary ml-2" data-toggle="modal" data-target="#accountModal">+</button> -->
+                                                    <a class="btn btn-outline-warning ml-3" data-toggle="modal"
+                                                        data-target="#accountModal">+</a>
+
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Account Number</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="account_number" id="account_num">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Loan Amount</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="number" class="form-control text-dark bg-light"
+                                                        name="loan_amount" required>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Lender Bank</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="lender_bank" required>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Date</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="date" class="form-control text-dark bg-light"
+                                                        name="loan_date" value="{{today_date|date:'Y-m-d'}}">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="sdate">Loan Recieved</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <select class="form-control text-dark bg-light"
+                                                        name="payment_method" id="payment_method" required>
+                                                        <option value="" selected hidden>Select</option>
+
+                                                        <option value="Cash">Cash</option>
+                                                        <option value="UPI">UPI</option>
+                                                        <option value="Cheque">Cheque</option>
+                                                        {% for bank in banks %}
+                                                        {% if bank.status == 'Active' %}
+                                                        <!-- <option value="{{ bank.bnk_name }}">{{ bank.bnk_name }}-(
+                                                            {{bank.bnk_acno|slice:'-4:' }})</option> -->
+                                                        <option value="{{ bank.id }}">{{ bank.bnk_name }}-(
+                                                            {{bank.bnk_acno|slice:'-4:' }})</option>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="cheque_details" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="cheque_number">Cheque Number</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="cheque_number" id="cheque_number">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="upi_details" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="upi_id">UPI ID</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="upi_id" id="upi_id">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="accountnumber" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="account_number">Account Number</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="laccount_number" id="accountnum" readonly>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Terms</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="terms" required>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Processing fee</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="number" class="form-control text-dark bg-light"
+                                                        name="processing_fee" value="0">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Processing Paid from</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <select class="form-control text-dark bg-light"
+                                                        name="processing_method" id="processing_method">
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="Cash">Cash</option>
+                                                        <option value="UPI">UPI</option>
+                                                        <option value="Cheque">Cheque</option>
+                                                        {% for bank in banks %}
+                                                        {% if bank.status == 'Active' %}
+                                                        <option value="{{ bank.id }}">{{ bank.bnk_name }}-(
+                                                            {{bank.bnk_acno|slice:'-4:' }})</option>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="cheque_p" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="cheque_number">Cheque Number</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="pcheque_number" id="cheque">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="upi_p" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="upi_id">UPI ID</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="pupi_id" id="upi">
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3" id="account_number_p" style="display: none;">
+                                                <div class="col-6">
+                                                    <label for="account_number">Account Number</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="paccount_number" id="account_number" readonly>
+                                                </div>
+                                            </div>
+
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Interest </label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="number" class="form-control text-dark bg-light"
+                                                        name="interest" value="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Description</label>
+                                                </div>
+                                                <div class="input-container col-6">
+                                                    <input type="text" class="form-control text-dark bg-light"
+                                                        name="description">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-outline-warning mt-2">Save</button>
+                                    <a href="{% url 'loan_listing' %}" class="btn btn-outline-warning mt-2">Close</a>
+                                </form>
+                            </div>
+                    </div>
+
+                    </section>
+                    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+                        integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+KEk3Iv57OpFwtrc8DbEEn1N5VDDlP5sl8xvZao"
+                        crossorigin="anonymous"></script>
+                    <script>
+                        $(document).ready(function () {
+                            $('#payment_method').change(function () {
+                                console.log('Dropdown changed');
+                                var selectedOption = $(this).val();
+                                console.log('Selected option:', selectedOption);
+                                if (selectedOption === 'Cheque') {
+                                    console.log('Cheque selected');
+                                    $('#cheque_details').show();
+                                    $('#upi_details').hide();
+                                    $('#accountnumber').hide()
+                                } else if (selectedOption === 'UPI') {
+                                    console.log('UPI selected');
+                                    $('#cheque_details').hide();
+                                    $('#upi_details').show();
+                                    $('#accountnumber').hide()
+                                } else if (selectedOption === 'Cash') {
+                                    $('#cheque_details').hide();
+                                    $('#upi_details').hide();
+                                    $('#accountnumber').hide()
+                                } else {
+                                    console.log('Bank selected');
+                                    $('#cheque_details').hide();
+                                    $('#upi_details').hide();
+                                    $('#accountnumber').show()
+
+                                    var bankId = $(this).val();
+                                    // alert(bankId)
+                                    $.ajax({
+                                        url: '{% url "full_account_number" 0 %}'.replace('0', bankId),
+                                        type: 'GET',
+                                        // data: {
+                                        //     data: {'bank_id': bankId},
+                                        // },
+
+                                        success: function (response) {
+
+
+                                            $('#accountnum').val(response.bank);
+
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.error(error);
+                                        }
+                                    });
+                                }
+                            });
+                            $('#addloan').submit(function (e) {
+                                var selectedOption = $('#payment_method').val();
+                                if (selectedOption === 'UPI') {
+                                    var upiId = $('#upi_id').val();
+                                    if (!upiId) {
+                                        e.preventDefault(); // Prevent form submission
+                                        alert('UPI ID is required.');
+                                    }
+                                } else if (selectedOption === 'Cheque') {
+                                    var cheq = $('#cheque_number').val();
+                                    if (!cheq) {
+                                        e.preventDefault(); // Prevent form submission
+                                        alert('Cheque number is required.');
+                                    }
+                                }
+
+                            });
+                        });
+
+                    </script>
+                    <script>
+                        $(document).ready(function () {
+                            $('#processing_method').change(function () {
+                                console.log('Dropdown changed');
+                                var selectedOption = $(this).val();
+                                console.log('Selected option:', selectedOption);
+                                if (selectedOption === 'Cheque') {
+                                    console.log('Cheque selected');
+                                    $('#cheque_p').show();
+                                    $('#upi_p').hide();
+                                    $('#account_number_p').hide();
+                                } else if (selectedOption === 'UPI') {
+                                    console.log('UPI selected');
+                                    $('#cheque_p').hide();
+                                    $('#upi_p').show();
+                                    $('#account_number_p').hide()
+                                } else if (selectedOption === 'Cash') {
+                                    $('#cheque_p').hide();
+                                    $('#upi_p').hide();
+                                    $('#account_number_p').hide()
+                                } else {
+                                    console.log('Bank selected');
+                                    $('#cheque_p').hide();
+                                    $('#upi_p').hide();
+                                    $('#account_number_p').show()
+                                    console.log('selectedOption');
+                                    var bankId = $(this).val();
+                                    $.ajax({
+                                        url: '{% url "full_account_number" 0 %}'.replace('0', bankId),
+                                        type: 'GET',
+
+
+                                        success: function (response) {
+                                            console.log('Success:', response);
+                                            console.log('Success:');
+
+                                            $('#account_number').val(response.bank);
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.error(error);
+                                        }
+                                    });
+                                }
+                            });
+                            $('#addloan').submit(function (e) {
+                                var selectedOption = $('#processing_method').val();
+                                if (selectedOption === 'UPI') {
+                                    var pupiId = $('#upi').val();
+                                    if (!pupiId) {
+                                        e.preventDefault(); // Prevent form submission
+                                        alert('UPI ID is required.');
+                                    }
+                                } else if (selectedOption === 'Cheque') {
+                                    var pcheq = $('#cheque').val();
+                                    if (!pcheq) {
+                                        e.preventDefault(); // Prevent form submission
+                                        alert('Cheque number is required.');
+                                    }
+
+                                }
+                            });
+                        });
+
+                    </script>
+
+                    <script>
+                        $(document).ready(function () {
+                            $('#account_name').change(function () {
+                                var accountId = $(this).val();
+                                // AJAX request to fetch the account number corresponding to the selected account name
+                                $.ajax({
+                                    url: '{% url "get_account_number" 0 %}'.replace('0', accountId), // Replace this with your endpoint URL to fetch account number
+                                    type: 'GET',
+                                    beforeSend: function (xhr, settings) {
+                                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                                    },
+                                    success: function (response) {
+                                        // Populate the account number input field with the fetched account number
+                                        $('#account_num').val(response.account_number);
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error(error);
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+
+                    <div class="modal fade" id="accountModal" tabindex="-1" role="dialog"
+                        aria-labelledby="accountModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content" style="background-color: #3b3b3b;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-light" id="accountModalLabel">Account Details</h5>
+                                    <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
+                                    <!-- <span aria-hidden="true">&times;</span> -->
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="" id="modalaccount" enctype="multipart/form-data"
+                                        class="needs-validation" autocomplete="off">
+
+                                        {% csrf_token %}
+                                        <div class="row mt-2 mx-2 mb-2 pb-4">
+                                            <div class="col-6">
+                                                <h4 class="text-light">Bank Account Holder Form</h4>
+                                                <h6 class="text-light mt-3"> Name</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="customer_name" id="customer_name" required>
+                                                <h6 class="text-light mt-3"> Alias</h6>
+                                                <input type="text" class="form-control text-dark bg-light" name="alias"
+                                                    id="al">
+                                                <h6 class="text-light mt-3">Phone Number</h6>
+                                                <input type="tel" class="form-control text-dark bg-light"
+                                                    name="phone_number" id="phone" required
+                                                    onkeyup="phoneValidate(document.getElementById('phone'),document.getElementById('pherror'))">
+                                                <!-- <small class="text-danger error-message" id="phone-error"></small> -->
+
+                                                <div id="pherror" class="text-danger"></div>
+
+                                                <h6 class="text-light mt-3">Email</h6>
+                                                <input type="email" class="form-control text-dark bg-light" name="email"
+                                                    id="email_id" required onkeyup="emailvalidate()">
+                                                <div id="error" class="text-danger"></div>
+                                                <small class="text-danger error-message" id="email-error"></small>
+                                                <h6 class="text-light mt-3">Account Type</h6>
+                                                <select class="form-control text-dark bg-light" name="account_type"
+                                                    id="acc_type" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Bank Account">Bank Account</option>
+
+
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 class="text-light">Bank Account Form</h4>
+                                                <h6 class="text-light mt-3">Bank Name</h6>
+                                                <select class="form-control text-dark bg-light" name="bankname"
+                                                    id="bank_name" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    {% for bank in banks %}
+                                                    {% if bank.status == 'Active' %}
+                                                    <option value="{{ bank.bnk_name}} "
+                                                        data-account="{{ bank.bnk_acno }}"
+                                                        data-ifsc="{{ bank.bnk_ifsc }}">{{ bank.bnk_name }}-(
+                                                        {{bank.bnk_acno|slice:'-4:' }})</option>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                                <!-- <input type="text" class="form-control text-dark bg-light"
+                                                        name="bankname" id="bank_name"> -->
+                                                <h6 class="text-light mt-3">Account Number</h6>
+                                                <input type="number" class="form-control text-dark bg-light"
+                                                    name="baccount_no" id="baccount_num" required>
+                                                <h6 class="text-light mt-3">IFSC Code</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="ifsc_code" id="bifsc" required>
+                                                <h6 class="text-light mt-3">Swift Code</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="swift_code" id="swift" required>
+                                                <h6 class="text-light mt-3">Branch Name</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="branch_name" id="branchname" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- </div> -->
+
+                                        <div class="row mt-2 mx-2 mb-2 pb-4">
+                                            <div class="col-6">
+                                                <h4 class="text-light">Bank Configuration Form</h4>
+                                                <h6 class="text-light mt-3"> Select cheque book range</h6>
+                                                <select class="form-control text-dark bg-light" name="cheque_book_range"
+                                                    id="cheque_book" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+
+                                                </select>
+                                                <h6 class="text-light mt-3"> Enable cheque printing</h6>
+                                                <select class="form-control text-dark bg-light"
+                                                    name="enable_cheque_printing" id="cheque_printing" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+
+                                                </select>
+                                                <h6 class="text-light mt-3"> Set cheque printing configuration</h6>
+                                                <!-- <input type="number" class="form-control text-dark bg-light" name="cheque_printing_configuration"  required> -->
+                                                <select class="form-control text-dark bg-light"
+                                                    name="cheque_printing_configuration" id="confi_cheque_printing"
+                                                    required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 class="text-light">Mailing Address Form</h4>
+                                                <h6 class="text-light mt-3">Mailing Name</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="mailing_name" id="mailingname" required>
+                                                <h6 class="text-light mt-3">Address</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="address" id="m_address" required>
+                                                <h6 class="text-light mt-3">Country</h6>
+                                                <!-- <input type="text" class="form-control text-dark bg-light" name="country"
+                                                id="m_country" required> -->
+                                                <select class="form-control text-dark bg-light" name="country"
+                                                    id="m_country" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="India">India</option>
+                                                </select>
+                                                <h6 class="text-light mt-3">State</h6>
+                                                <select class="form-control text-dark bg-light" name="state"
+                                                    id="m_state" required>
+                                                    <option value="" hidden>Select State</option>
+                                                    <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And
+                                                        Nicobar Islands</option>
+                                                    <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
+                                                    <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh
+                                                    </option>
+                                                    <option value="volvo">[AS]-Assam</option>
+                                                    <option value="[BR]-Bihar">[BR]-Bihar</option>
+                                                    <option value="volvo">[CH]- Chandhigarh</option>
+                                                    <option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
+                                                    <option value="[DD]-Daman Diu">[DD]-Daman Diu</option>
+                                                    <option value="volvo">[DL]- Delhi</option>
+                                                    <option value="[GA]-Goa">[GA]-Goa</option>
+                                                    <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
+                                                    <option value="[HR]-Haryana">[HR]-Haryana</option>
+                                                    <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
+                                                    <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir
+                                                    </option>
+                                                    <option value="[JH]-Jharkand">[JH]-Jharkand</option>
+                                                    <option value="[KA]-Karnataka">[KA]-Karnataka</option>
+                                                    <option value="[KL]-Kerala">[KL]-Kerala</option>
+                                                    <option value="[LA]-Ladakh">[LA]-Ladakh</option>
+                                                    <option value="[LD]-Lakshadweep">[LD]-Lakshadweep</option>
+                                                    <option value="[MP]-Madhyapradesh">[MP]-Madhyapradesh</option>
+                                                    <option value="[MH]-Maharashtra">[MH]-Maharashtra</option>
+                                                    <option value="[MN]-Manipur">[MN]-Manipur</option>
+                                                    <option value="[ML]-Meghalaya">[ML]-Meghalaya</option>
+                                                    <option value="[MZ]-Mizoram">[MZ]-Mizoram</option>
+                                                    <option value="[NL]-Nagaland">[NL]-Nagaland</option>
+                                                    <option value="[NL]-Nagaland">[NL]-Nagaland</option>
+                                                    <option value="[OD]-Odisha">[OD]-Odisha</option>
+                                                    <option value="[PY]-Puducherry">[PY]-Puducherry</option>
+                                                    <option value="[PB]-Punjab">[PB]-Punjab.</option>
+                                                    <option value="[RL]-Rajasthan">[RL]-Rajasthan</option>
+                                                    <option value="[SK]-Sikkim">[SK]-Sikkim</option>
+                                                    <option value="[TN]-Tamilnadu">[TN]-Tamilnadu</option>
+                                                    <option value="[TS]-Telenghana">[TS]-Telenghana</option>
+                                                    <option value="[TR]-Tripura">[TR]-Tripura</option>
+                                                    <option value="[UP]-Uttar Pradesh">[UP]-Uttar Pradesh</option>
+                                                    <option value="[UK]-Utharakhand">[UK]-Utharakhand</option>
+                                                    <option value="[WB]-West Bengal">[WB]-West Bengal</option>
+                                                    <option value="[OT]-Other Territory">[OT]-Other Territory</option>
+                                                </select>
+                                                <h6 class="text-light mt-3">Pin</h6>
+                                                <input type="number" class="form-control text-dark bg-light" name="pin"
+                                                    id="m_pin" required>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2 mx-2 mb-2 pb-5">
+                                            <div class="col-6">
+                                                <h4 class="text-light">Tax Registration Form</h4>
+                                                <h6 class="text-light mt-3">PAN number</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="pan_number" id="pannumber" required onkeyup="panvalidate()">
+                                                <div id="error_pan" class="text-danger"></div>
+                                                <!-- <small class="text-danger error-message" id="pan-error"></small> -->
+
+                                                <h6 class="text-light mt-3"> Registration type</h6>
+                                                <select class="form-control text-dark bg-light" name="registration_type"
+                                                    id="registrationtype" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Regular">Regular</option>
+                                                    <option value="Composition">Composition</option>
+                                                    <option value="Consumer">Consumer</option>
+                                                    <option value="Unregister">Unregister</option>
+
+                                                </select>
+                                                <h6 class="text-light mt-3" id="gstNumberLabel" style="display: none;">
+                                                    GST Number</h6>
+                                                <input type="text" class="form-control text-dark bg-light"
+                                                    name="gst_num" id="gst_number" style="display: none;"
+                                                    onkeyup="gstvalidate()">
+                                                <div id="gst_error" class="text-danger"></div>
+
+                                                <h6 class="text-light mt-3"> Set Alter GST Details </h6>
+                                                <select class="form-control text-dark bg-light" name="gst_alter_details"
+                                                    id="gst_alter" required>
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="True">Yes</option>
+                                                    <option value="False">No</option>
+                                                </select><br>
+                                                <div class="form-check mt-3">
+                                                    <input class="form-check-input" type="checkbox" value=""
+                                                        id="agreeTerms" required>
+                                                    <label class="form-check-label" for="agreeTerms"
+                                                        style="color: white; ">
+
+                                                        I agree to the terms and conditions.
+                                                    </label>
+                                                    <div id="agreeTermsContainer"></div>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 class="text-light">Opening Balance Form</h4>
+                                                <h6 class="text-light mt-3">Date</h6>
+                                                <input type="date" class="form-control text-dark bg-light" name="date"
+                                                    id="l_date">
+                                                <h6 class="text-light mt-3">Amount</h6>
+                                                <!-- <input type="number" class="form-control text-dark bg-light" name="amount"
+                                                id="l_amount"> -->
+                                                <div class="input-group mb-3">
+                                                    <select class="form-select text-dark bg-light" id="amount_type"
+                                                        name="amount_type">
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="debit">Debit</option>
+                                                        <option value="credit">Credit</option>
+                                                    </select>
+                                                    <input type="number" class="form-control text-dark bg-light"
+                                                        name="amount" id="l_amount">
+
+                                                </div>
+
+                                            </div>
+
+                                            <!-- </div> -->
+
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-warning"
+                                                    data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-outline-warning" id="submitFormBtn"
+                                                    data-dismiss="modal">Save</button>
+                                            </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                             function phoneValidate(phn, pherror) {
+                                var phnum = phn.value;
+                                //alert(phnum);
+                                if (!phn.value.match(/^[6-9]\d{9}$/)) {
+                                    pherror.style.display = "block"
+                                    pherror.style.fontSize = ".8rem"
+                                    pherror.innerHTML = "*Please enter a valid phone number"
+                                    return false;
+                                }
+                                pherror.style.display = "none"
+                                pherror.innerHTML = ""
+                                return true;
+                            }
+
+
+                            function emailvalidate() {
+                                var email = document.getElementById('email_id');
+                                var error = document.getElementById('error');
+
+                                // Regular expression for basic email validation
+                                if (!email.value.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                                    error.style.fontSize = ".8rem";
+                                    error.innerHTML = "*Please enter a valid email";
+                                    return false;
+                                }
+
+                                // Clear the error message if the email is valid
+                                error.innerHTML = "";
+                                return true;
+                            }
+
+
+
+                            function panvalidate() {
+                                var pan = document.getElementById('pannumber');
+                                var error_pan = document.getElementById('error_pan');
+
+                                // Regular expression for basic email validation
+                                if (!pan.value.match(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/)) {
+                                    error_pan.style.fontSize = ".8rem";
+                                    error_pan.innerHTML = "Please enter a valid PAN number (e.g., ABCDE1234F)";
+                                    return false;
+                                }
+
+                                // Clear the error message if the email is valid
+                                error_pan.innerHTML = "";
+                                return true;
+                            }
+
+
+
+
+                            function gstvalidate() {
+                                var gstInput = document.getElementById('gst_number');
+                                // var gstInput = this.value.toUpperCase(); // Convert to uppercase to match GST format
+                                var gst_error = document.getElementById('gst_error');
+
+                                // Regular expression for basic email validation
+                                if (gstInput && gstInput.style.display !== 'none') {
+                                if (!gstInput.value.match(/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d{1}[A-Z1-9]{1}\d{1}$/)) {
+                                    gst_error.style.fontSize = ".8rem";
+                                    gst_error.innerHTML = "Please enter a valid GST number (e.g., 22AAAAA0000A1Z5)";
+                                    return false;
+                                }
+                            }
+
+                                // Clear the error message if the email is valid
+                                gst_error.innerHTML = "";
+                                return true;
+                            }
+
+                            // $(document).on("click", "#submitFormBtn", function (event) {
+                            $(document).ready(function () {
+                                document.getElementById('submitFormBtn').addEventListener('click', function (event) {
+
+                                    var form = document.getElementById('modalaccount');
+                                    var valid = true;
+
+                                    // Reset previous validation messages
+                                    $('#modalaccount .error-message').remove();
+
+                                    // Check each required field individually
+                                    $('#modalaccount .form-control[required]').each(function () {
+                                        if (!$(this).val()) {
+                                            valid = false;
+                                            $(this).after('<small class="text-danger error-message">This field is required.</small>');
+                                        }
+                                    });
+                                    if (!$('#agreeTerms').prop('checked')) {
+                                        valid = false;
+                                        $('#agreeTermsContainer').append('<small class="text-danger error-message">Please agree to the terms and conditions.</small>');
+                                    } else {
+                                        $('#agreeTermsContainer .error-message').remove();
+                                    }
+                                    
+                                    if (!phoneValidate(document.getElementById('phone'),document.getElementById('pherror'))) {
+                                        valid = false;
+                                       // alert('Phone number invalid')
+                                    }
+                                    if (!emailvalidate()) {
+                                        valid = false;
+                                       // alert('Email id invalid')
+                                    }
+                                    if (!panvalidate()) {
+                                        valid = false;
+                                        //alert('Pan number invalid')
+                                    }
+                                    if (!gstvalidate()) {
+                                        valid = false;
+                                        //alert('GST number invalid')
+                                    }
+
+
+
+                                    if (!valid) {
+                                        alert('Please fill the required fields correctly');
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        form.classList.add('was-validated');
+                                        return false;
+                                    } else {
+                                        var formData = new FormData(form);
+                                        $.ajax({
+                                            url: "{% url 'save_account_details' %}",
+                                            type: "POST",
+                                            data: formData,
+                                            processData: false,
+                                            contentType: false,
+                                            headers: {
+                                                "X-CSRFToken": "{{ csrf_token }}"
+                                            },
+                                            success: function (response) {
+                                                if (response.status === 'success') {
+                                                    // Do something if the submission was successful
+                                                    alert('Account details saved successfully');
+                                                } else if (response.status === 'error') {
+                                                    // Handle errors
+                                                    if (response.message === 'phone_number') {
+                                                        alert('Phone number exists');
+                                                    } else if (response.message === 'gst_num') {
+                                                        alert('GST number exists');
+                                                    } else if (response.message === 'pan_number') {
+                                                        alert('PAN number exists');
+                                                    } else if (response.message === 'account_number') {
+                                                        alert('Account number exists');
+                                                    } else {
+                                                        alert('Error in saving form');
+                                                    }
+                                                    return false;
+                                                }
+                                                form.reset();
+                                                form.classList.remove('was-validated');
+                                                reloadholder();
+                                            },
+                                            error: function (xhr, status, error) {
+                                                console.error("Error occurred:", error);
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                            function reloadholder() {
+
+                                $.ajax({
+                                    url: "{% url 'holder_dropdown' %}",
+                                    type: "GET",
+                                    dataType: "json",
+
+
+                                    success: function (data) {
+
+                                        var dropdown = $('#account_name');
+                                        dropdown.empty();
+                                        dropdown.append($('<option></option>').text('Select'));
+                                        $.each(data, function (key, value) {
+
+                                            dropdown.append($('<option></option>').attr('value', key).text(value));
+                                        });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        // alert("error");
+                                        console.error(xhr.responseText);
+                                    }
+                                });
+                            }
+                        </script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const bankNameSelect = document.getElementById('bank_name');
+                                const accountNumberInput = document.getElementById('baccount_num');
+                                const ifscCodeInput = document.getElementById('bifsc');
+
+                                bankNameSelect.addEventListener('change', function () {
+                                    const selectedOption = bankNameSelect.options[bankNameSelect.selectedIndex];
+                                    const accountNumber = selectedOption.getAttribute('data-account');
+                                    //window.alert(accountNumber)
+                                    const ifscCode = selectedOption.getAttribute('data-ifsc');
+                                    // window.alert(ifscCode)
+
+                                    accountNumberInput.value = accountNumber;
+                                    ifscCodeInput.value = ifscCode;
+                                });
+                            });
+                        </script>
+                        <!-- <script>
+
+                            function phoneValidate(phn, pherror) {
+                                if (!phn.value.match(/^[6-9]\d{9}$/)) {
+                                    pherror.style.display = "block"
+                                    pherror.style.fontSize = ".8rem"
+                                    pherror.innerHTML = "*Please enter a valid phone number"
+                                    alert("Incorrent phone number");
+                                    return false;
+                                }
+                                pherror.style.display = "none"
+                                pherror.innerHTML = ""
+                                return true;
+                            }
+
+
+                            function emailvalidate() {
+                                var email = document.getElementById('email_id');
+                                var error = document.getElementById('error');
+
+                                // Regular expression for basic email validation
+                                if (!email.value.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                                    error.style.fontSize = ".8rem";
+                                    error.innerHTML = "*Please enter a valid email";
+                                    alert("Incorrent email");
+                                    return false;
+                                }
+
+                                // Clear the error message if the email is valid
+                                error.innerHTML = "";
+                                return true;
+                            }
+
+
+
+                            function panvalidate() {
+                                var pan = document.getElementById('pannumber');
+                                var error_pan = document.getElementById('error_pan');
+
+                                // Regular expression for basic email validation
+                                if (!pan.value.match(/^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/)) {
+                                    error_pan.style.fontSize = ".8rem";
+                                    error_pan.innerHTML = "Please enter a valid PAN number (e.g., ABCDE1234F)";
+                                    alert("Incorrent pan number");
+                                    return false;
+                                }
+
+                                // Clear the error message if the email is valid
+                                error_pan.innerHTML = "";
+                                return true;
+                            }
+
+
+
+
+                            function gstvalidate() {
+                                var gstInput = document.getElementById('gst_number');
+                                // var gstInput = this.value.toUpperCase(); // Convert to uppercase to match GST format
+                                var gst_error = document.getElementById('gst_error');
+
+                                // Regular expression for basic email validation
+                                if (!gstInput.value.match(/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}\d{1}[A-Z1-9]{1}\d{1}$/)) {
+                                    gst_error.style.fontSize = ".8rem";
+                                    gst_error.innerHTML = "Please enter a valid GST number (e.g., 22AAAAA0000A1Z5)";
+                                    alert("Incorrent gst number");
+                                    return false;
+                                }
+
+                                // Clear the error message if the email is valid
+                                gst_error.innerHTML = "";
+                                return true;
+                            }
+
+
+                        </script> -->
+                        <script>
+
+                            var defaultDate = new Date();
+
+                            // Formatting the date to YYYY-MM-DD
+                            var formattedDate = defaultDate.toISOString().split('T')[0];
+
+                            // Setting the value of the input field
+                            document.getElementById("l_date").value = formattedDate;
+                        </script>
+
+                        <script>
+                            document.getElementById("registrationtype").addEventListener("change", function () {
+                                var registrationType = this.value;
+                                var gstNumberLabel = document.getElementById("gstNumberLabel");
+                                var gstNumberInput = document.getElementById("gst_number");
+
+                                if (registrationType === "Regular" || registrationType === "Composition") {
+                                    gstNumberLabel.style.display = "block";
+                                    gstNumberInput.style.display = "block";
+                                    gstNumberInput.required = true;
+                                } else {
+                                    gstNumberLabel.style.display = "none";
+                                    gstNumberInput.style.display = "none";
+                                    gstNumberInput.required = false;
+                                }
+                            });
+                        </script>
+
+
+                        {% endblock %}

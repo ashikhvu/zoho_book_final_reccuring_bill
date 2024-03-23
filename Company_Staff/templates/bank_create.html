@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<style>
+  .modal{
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .form-group{
+    width: 40%;
+  }
+
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .col-25, .col-75, input[type=submit] {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    input[type=text], select, textarea {
+      width: 100%;
+    }
+  }
+
+  .dropdown input,
+  .dropdown button {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+
+  .dropdown.open input,
+  .dropdown.open button {
+    display: block;
+  }
+
+  .row a{
+    color: rgb(218, 164, 48);
+    font-size: 12px;
+  }
+
+  .table th a{
+    color:rgb(218, 164, 48);
+    font-size: 11px;
+    margin-left: 100px;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
+
+  .item{
+    height: auto;
+  }
+
+  .labels{
+    color: white; 
+    font-size:2.5vh; 
+    font-weight: bolder;
+  }
+
+  .btn-outline-warning:hover {
+    color: black !important;
+    font-weight: bold;
+  }
+</style>
+
+<div class="body-wrapper">
+  <div class="container-fluid">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+        <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'bank_list' %}" class="text-warning-emphasis">Banking</a></li>
+        <li class="breadcrumb-item" aria-current="page">Create</li>
+      </ol>
+    </nav>
+      <div class="row mt-5">
+          <div class="col-md-12">
+            <div class="card mb-5 p-5" style="background-color: black; border-radius: 1vh;">
+              <h1 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">CREATE &nbsp; BANK</h1><br>
+              <hr class="text-warning">
+              <form action="{% url 'bank_create' %}" method="post" enctype="multipart/form-data"id="myForm">
+                {% csrf_token %}
+                <div class="row">
+                  <label for="date" class="col-md-3 p-3 labels">Date</label>
+                  <div class="col-md-6 p-3">
+                    <input type="date" class="form-control text-white bg-black" id="date" name="date" value="{{ tod }}" required>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <label for="name" class="col-md-3 p-3 labels">Bank Name</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="name" name="name">
+                  </div>
+                </div>
+          
+                <div class="row">
+                  <label for="ac_no" class="col-md-3 p-3 labels">Account Number</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="ac_no" name="ac_no">
+                  </div>
+                </div>
+          
+                <div class="row">
+                  <label for="opn_bal" class="col-md-3 p-3 labels">Opening Balance</label>
+                  <div class="col-md-6 p-3">
+                    <div class="input-group">
+                      <div class="input-group-append">
+                        <select class="form-control form-select text-white bg-black" id="bal_type" name="bal_type">
+                          <option value="Credit">Credit</option>
+                          <option value="Debit" selected>Debit</option>
+                        </select>
+                      </div>
+                      <input type="number" class="form-control text-white bg-black" id="opn_bal" name="opn_bal">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Branch</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="branch" name="branch">
+                  </div>
+                </div>
+          
+                <div class="row">
+                  <label for="ifsc" class="col-md-3 p-3 labels">IFSC</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="ifsc" name="ifsc">
+                  </div>
+                </div>
+
+                <br>
+                <input type="submit" class="btn save_btn mt-2 my-4 mx-2" style="background-color: chocolate; color: white;" value="SAVE" id="save">
+                <input class="btn save_btn my-4 mt-2" style="background-color: chocolate; color: white;" type="reset" value="RESET" id="reset">
+              </form>
+            </div>
+          </div>
+      </div>
+  </div>
+</div> 
+
+<script>
+  $('#opn_bal').change(function (){
+    val = $('#opn_bal').val()
+    if($('#bal_type').val() == 'Credit'){
+      $('#opn_bal').val(-val)
+    }else{
+      if(val<0){
+        $('#opn_bal').val(-val)
+      }
+    }
+  })
+
+  $('#bal_type').change(function (){
+    val = $('#opn_bal').val()
+    $('#opn_bal').val(-val)
+  })
+</script>
+
+{%endblock%}

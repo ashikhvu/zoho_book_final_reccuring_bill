@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div class="print-only tabcontent" id="Statement">
+        <div class="page" size="A4">
+          <div class="p-4">
+            <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+              <section>
+                <div class="text-center">
+                  <h2 class="text-white bg-warning p-3">LOAN STATEMENT</h2>
+                </div>
+              </section>
+              <br>
+              <section class="store-user mt-2">
+                <div class="col-12">
+                  <div class="row pb-3">
+                    <div class="col-7">
+                      <p><b class="text-black" >COMPANY</b>,</p>
+                      <div style="margin-left: 20%;">
+                        <h3>{{ loan_info.company.company_name }}</h3>
+                        <p class="text-black"> 
+                          {{ loan_info.company.contact }} <br>
+                          {{ loan_info.company.address }} <br>
+                          {{ loan_info.company.city }} <br>
+                          {{ loan_info.company.state|slice:'5:' }},
+                          {{ loan_info.company.country }} <br>
+                          {{ loan_info.company.pincode }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-5">
+                      <p><b class="text-black" >LOAN</b>,</p>
+                      <div style="margin-left: 20%;">
+                        <h3>{{ loan_info.bank_holder.customer_name }}</h3>
+                        <p class="text-black"> 
+                          {{ loan_info.bank_holder.account_number}} <br>
+                          {{ bnk.bnk_ifsc }} <br>
+                          {{ bnk.bnk_branch }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <h2 class="text-black" >Balance : {{ overall_balance }}</h2>
+                  </div>
+                </div>
+              </section>
+
+              <section class="table-responsive mt-4">
+                <table class=" table table-hover table-bordered border-dark " id="statementtable">
+                  <thead class="bg-warning">
+                    <tr class="text-center text-white" style="font-weight: bold;">
+                      <th style="width: 5%;">#</th>
+                      <th>DATE</th>
+                      <th>NAME</th>
+                      <th>TYPE</th>
+                      <th>AMOUNT</th>
+                      <th>INTEREST</th>
+                      <th>TOTAL AMOUNT</th>
+                      <th>BALANCE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    
+                    <tr class="text-black text-center">
+                      
+                        <td>1</td>
+                        <td>{{ loan_info.loan_date}}</td>
+                        <td>{{ loan_info.bank_holder.customer_name}}</td>
+                        <td>Opening Balance</td>
+                        <td>{{ loan_info.loan_amount }}</td>
+                        <td>{{ loan_info.interest }}</td>
+                        <td>{{ total_amount }}</td>
+                        <td>{{ loan_info.loan_amount }}</td>
+                    </tr>
+                    {% for a ,balance in repayment_details_with_balances %}
+                    <tr class="text-black text-center">
+                      {% with adjusted_counter=forloop.counter0|add:2 %}
+                      <td>{{ adjusted_counter }}</td>
+                      <td>{{ a.payment_date }}</td>
+                      <td>{{ a.loan.bank_holder.customer_name}}</td>
+                      <td>{{ a.type}}</td>
+                      <td>{{ a.principal_amount }}</td>
+                      <td>{{ a.interest_amount }}</td>
+                      <td>{{ a.total_amount }}</td>
+                      <td>{{ balance }}</td>
+                     
+                      
+                      
+
+                      </tr>
+                      {% endwith %}
+                      {% endfor %}
+                   
+                  </tbody>
+                </table><br><br>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+</body>
+</html>

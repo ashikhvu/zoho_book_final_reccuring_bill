@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% load static %}
+
+    <body>
+        <div class="body-wrapper">
+            <div class="container-fluid">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb text-light">
+                        {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                        {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                        <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning">All price lists</a></li>
+                        <li class="breadcrumb-item" aria-current="page">New price list</li>
+                    </ol>
+                </nav>
+                <div class="mt-lg-4 rounded p-4" style="background-color: rgb(0, 0, 0); color: white;">
+                    <h1 class="text-white">Create Price List</h1>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                        {% endfor %}
+                    {% endif %}
+
+                    <br>
+                    <form method="post" action="{% url 'create_price_list' %}">
+                        {% csrf_token %}
+
+                        <div class="form-group row">
+                            <label for="name" class="col-md-2 col-form-label text-white d-flex flex-column align-items-start">
+                                Name:
+                            </label>
+                            <div class="col-md-4 align-items-start">
+                                <input type="text" name="name" class="form-control form-control-sm bg-light text-black" required>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-white">Type:</label>
+                            <div class="col-sm-10">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" id="salesType" name="type" value="Sales" class="form-check-input" required>
+                                    <label for="salesType" class="form-check-label">Sales</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" id="purchaseType" name="type" value="Purchase" class="form-check-input" required>
+                                    <label for="purchaseType" class="form-check-label">Purchase</label>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-white">Tax Preference:</label>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input type="radio" id="percentageOption" name="item_rate_type" value="Percentage" class="form-check-input" required>
+                                    <label for="percentageOption" class="form-check-label">Markup/Markdown the item rates by a Percentage</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" id="eachItemOption" name="item_rate_type" value="Each Item" class="form-check-input" required>
+                                    <label for="eachItemOption" class="form-check-label">Enter Rate Individually for Each Item</label>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="form-group row">
+                            <label for="description" class="col-md-2 col-form-label text-white">Description:</label>
+                            <div class="col-md-4">
+                                <textarea name="description" rows="2"  class="form-control bg-light text-black" ></textarea>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div id="percentage_fields" style="display: none;">
+                            <div class="form-group row">
+                                <label for="percentage_type" class="col-sm-2 col-form-label text-white">Percentage:</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <select name="percentage_type" class="form-control-sm">
+                                            <option value="Markup" class="form-control-sm">Markup</option>
+                                            <option value="Markdown" class="form-control-sm">Markdown</option>
+                                        </select>
+                                        <div class="col-sm-6 col-md-4">
+                                            <input type="number" name="percentage_value" class="form-control  bg-light" value="0" placeholder="%">
+                                        </div>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <br>
+                                </div><br>
+                                <div class="form-group row">
+                                    <label for="round_off" class="col-sm-2 col-form-label text-white">Round Off:</label>
+                                    <div class="col-sm-10">
+                                        <select name="round_off" class="form-control-sm">
+                                            <option value="Never Mind">Never Mind</option>
+                                            <option value="Nearest Whole Number">Nearest Whole Number</option>
+                                            <option value="0.99">0.99</option>
+                                            <option value="0.50">0.50</option>
+                                            <option value="0.49">0.49</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div id="currency_field" style="display: none;">
+                            <div class="form-group row">
+                                <label for="currency" class="col-sm-2 col-form-label text-white">Currency:</label>
+                                <div class="col-md-4">
+                                    <select name="currency" class="form-control bg-light text-black">
+                                        <option value="Indian Rupee">Indian Rupee</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <h2 class="text-light mt-3 align-center">Customize Item Rates in Bulk</h2>
+
+                            <div class="table-responsive " style="overflow-x:auto;">
+                                <table class="table table-bordered table-sm border-warning text-light ">
+                                    <thead>
+                                        <tr class="text-center align-middle p-2">
+                                            <th scope="col" class="py-3">Item Details</th>
+                                            <th scope="col" class="py-3">Standard Rate (INR)</th>
+                                            <th scope="col" class="py-3">Custom Rate (INR)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                                        <tr class="text-center align-middle">
+                                            <td>{{ item.item_name }}</td>
+                                            <td class="standard-rate" data-sales-price="{{ item.selling_price }}" data-purchase-price="{{ item.purchase_price }}"></td>
+                                            <td>
+                                                <input type="number" name="custom_rate" class="form-control-sm custom-rate-input text-center" placeholder="0.00">
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                        <br>
+
+                        <button type="submit" class="btn  text-light" style="background-color:chocolate;">Save</button>
+                        <a href="{% url 'all_price_lists' %}" type="button" class="btn  text-light" style="background-color:chocolate;">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const typeRadios = document.getElementsByName("type");
+            const itemRateTypeRadios = document.getElementsByName("item_rate_type");
+            const percentageFields = document.getElementById("percentage_fields");
+            const currencyField = document.getElementById("currency_field");
+            const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
+            const percentageValueInput = document.getElementsByName("percentage_value")[0];
+    
+            function handleTypeChange() {
+                const selectedType = Array.from(typeRadios).find(radio => radio.checked);
+                const standardRateElements = document.querySelectorAll('.standard-rate');
+                
+                if (selectedType && selectedType.value === "Sales") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = ` ${element.dataset.salesPrice}`;
+                    });
+                } else if (selectedType && selectedType.value === "Purchase") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = ` ${element.dataset.purchasePrice}`;
+                    });
+                }
+            }
+    
+            function handleItemRateTypeChange() {
+                const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
+    
+                if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
+                    percentageFields.style.display = "block";
+                    currencyField.style.display = "none";
+                } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "block";
+    
+                    percentageTypeSelect.removeAttribute("required");
+                    percentageValueInput.removeAttribute("required");
+                } else {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "none";
+                }
+            }
+    
+            typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
+    
+            itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
+    
+            handleTypeChange();
+            handleItemRateTypeChange();
+        });
+    </script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const typeRadios = document.getElementsByName("type");
+            const itemRateTypeRadios = document.getElementsByName("item_rate_type");
+            const percentageFields = document.getElementById("percentage_fields");
+            const currencyField = document.getElementById("currency_field");
+            const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
+            const percentageValueInput = document.getElementsByName("percentage_value")[0];
+    
+            function handleTypeChange() {
+                const selectedType = Array.from(typeRadios).find(radio => radio.checked);
+                const standardRateElements = document.querySelectorAll('.custom-rate-input');
+            
+                if (selectedType && selectedType.value === "Sales") {
+                    standardRateElements.forEach(element => {
+                        const itemId = element.value.split('-')[0];
+                        const standardRate = document.getElementById(`standard-rate-${itemId}`);
+                        standardRate.innerText = `Sales: ${element.value.split('-')[1]}`;
+                    });
+                } else if (selectedType && selectedType.value === "Purchase") {
+                    standardRateElements.forEach(element => {
+                        const itemId = element.value.split('-')[0];
+                        const standardRate = document.getElementById(`standard-rate-${itemId}`);
+                        standardRate.innerText = ` ${element.value.split('-')[1]}`;
+                    });
+                }
+            }
+            
+    
+            function handleItemRateTypeChange() {
+                const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
+    
+                if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
+                    percentageFields.style.display = "block";
+                    currencyField.style.display = "none";
+                } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "block";
+    
+                    percentageTypeSelect.removeAttribute("required");
+                    percentageValueInput.removeAttribute("required");
+                } else {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "none";
+                }
+            }
+    
+            typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
+    
+            itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
+    
+            handleTypeChange();
+            handleItemRateTypeChange();
+        });
+    </script> -->
+    </body>
+
+{% endblock %}

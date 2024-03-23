@@ -1,0 +1,115 @@
+                                                <!-- CREATEED BY TINTO MT -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      table {
+          border-collapse: collapse;
+          width: 100%;
+      }
+  
+      th, td {
+          border: 1px solid black; /* Set border color to black */
+          padding: 8px;
+          text-align: left;
+          width: 100%;
+      }
+  </style>
+</head>
+<body>
+  
+  <div class="row text-center">
+    <h2 style="color: #000000;"><br>{{selitem.item_name}}
+      <hr>
+    </h2>
+  </div>  
+  <br>
+  <div class="row mt-3">
+    <div class="col-md-6">
+        <label class="text-dark bold" for="" style="background-color: white;">Item Name:</label>
+        {{selitem.item_name}}
+    </div>
+    <div class="col-md-6" style="padding-top: -20px;margin-left: 500px;">
+        <label class="text-dark bold" for="">Selling Price:</label>
+        {{selitem.selling_price}}
+    </div>
+</div>
+<br><br>
+<div class="row mt-3">
+  <div class="col-md-6">
+      <label class="text-dark bold" for="" style="background-color: white;">Purchase Price:</label>
+      {{selitem.purchase_price}}
+  </div>
+  <div class="col-md-6" style="padding-top: -20px;margin-left: 500px;">
+      <label class="text-dark bold" for="">Minimum Stock To Maintain:</label>
+      {{selitem.minimum_stock_to_maintain}}
+  </div>
+</div>
+<br><br>
+<div class="row mt-3">
+  <div class="col-md-6">
+      <label class="text-dark bold" for="" style="background-color: white;">Stock Quantity:</label>
+      {{selitem.opening_stock}}
+  </div>
+  <div class="col-md-6" style="padding-top: -20px;margin-left: 500px;">
+      <label class="text-dark bold" for="">Stock Value:</label>
+      {{stock_value}}
+  </div>
+</div>
+
+    
+  
+
+<br><br>
+<div class="dashed-line"></div>
+
+
+<table class="table table-hover table-bordered" id="table1" >
+<thead>
+<tr>
+  <th id="th" style="text-align: center;">Transactions     
+
+  </th>
+  <th id="th" style="text-align: center;">Type
+  
+  </th>
+  <th id="th" style="text-align: center;">Name 
+ </th>
+  <th id="th" style="text-align: center;">Date 
+   
+  </th>
+  <th id="th" style="text-align: center;">Quantity
+    
+ 
+  </th>
+  <th id="th" style="text-align: center;">Price 
+ 
+  </th>
+  <th id="th" style="text-align: center;">Status   
+  
+  </th>
+</tr>
+</thead>
+<tbody>
+
+<tr style="color: black;">  
+  <td style="text-align: center;">{{forloop.counter}}1</td>
+  <td style="text-align: center;">{{selitem.type}}</td>
+  <td style="text-align: center;"></td>
+  <td style="text-align: center;">{{ selitem.date|date:"Y-m-d" }}</td>
+
+  <td style="text-align: center;">{{selitem.opening_stock}}</td>
+  <td style="text-align: center;">{{selitem.opening_stock_per_unit}}</td>
+  <td style="text-align: center;"></td>
+</tr>
+
+
+<!-- Add more rows as needed -->
+</tbody>
+</table>
+
+</body>
+</html>

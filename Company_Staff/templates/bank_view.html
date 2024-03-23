@@ -1,0 +1,1830 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<style>
+  .hidden-option {
+    display: none;
+  }
+
+  a {
+    list-style: none;
+    color: azure;
+  }
+
+  a:hover {
+    color: rgb(218, 164, 48);
+    text-decoration: none;
+  }
+
+  .tab {
+    overflow: hidden;
+    background-color: transparent;
+    width: 300px;
+  }
+
+  .tab a {
+    font-family: inherit;
+    background-color: inherit;
+    float: left;
+    outline: none;
+    cursor: pointer;
+    padding: 10px 5px;
+    transition: 0.3s;
+    color: azure;
+    border: none;
+  }
+
+  .tab a:hover {
+    background-color: #ddd;
+    color: rgb(56, 54, 54);
+  }
+
+  .tab a.active {
+    background-color: #ccc;
+    color: rgb(56, 54, 54);
+  }
+
+  .tabcontent {
+    display: none;
+    border-top: none;
+  }
+
+  .page {
+    background: azure;
+    display: block;
+    box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+  }
+
+  .print-only {
+    display: none;
+    height: auto;
+    overflow-y: auto;
+    border: none;
+    box-shadow: inset 2px 2px 5px 2px rgba(0, 0, 0, 0.3),
+          inset -2px -2px 5px 2px rgba(0, 0, 0, 0.3),
+          inset 2px -2px 5px 2px rgba(0, 0, 0, 0.3),
+          inset -2px 2px 5px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-custom {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .card-text {
+    margin-bottom: 0.5rem;
+  }
+
+  .info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .label {
+    margin: 0;
+    width: 130px; 
+  }
+
+  .value {
+    margin: 0;
+    flex: 1;
+  }
+
+  .info-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+ .info-item h6.label {
+    margin-left: 10px;
+    display: inline-block;
+  } 
+
+  .info-item p.value {
+    margin-left: 10px;
+  }
+
+  .bank-info {
+    margin-bottom: 10px;
+  }
+
+  .bank-info span {
+    padding: 5px; 
+  }
+
+  .modal{
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .btn-outline-warning:hover{
+    color: black;
+    font-weight:bolder;
+  }
+
+
+  #Overview tbody tr td{
+    border: none;
+  }
+
+  .medium_btn{
+    font-size: 12px; 
+    padding: 10px 20px;
+    margin-left: 1px;
+  }
+
+  #overview_btn{
+    background-color: #ffae1f; 
+    color: black; 
+    font-weight: bold;
+  }
+
+  .modal .btn-outline-warning:hover{
+    color: black !important;
+  }
+
+  .modal{
+    margin-top: 3.5%;
+  }
+  
+  .dropdown-item:hover{
+    cursor: pointer;
+  }
+
+  .info-label {
+    flex: 0 0 50%;
+  }
+
+  .info-value {
+    flex: 1;
+  }
+
+  .bank-row{
+    padding-left: 10%;
+  }
+
+  ::-webkit-scrollbar{
+    display: none;
+  }
+
+  .page[size="A4"] {
+    overflow: hidden;
+  }
+  
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+
+    header {
+      display: none;
+    }
+
+    .print-only * {
+      visibility: visible;
+    }
+
+    .print-only {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      height:auto;
+      page-break-before: always;
+      page-break-inside: avoid;
+    }
+  }
+
+  .small_btn{
+    padding: 5px 9px;
+    height: 50%;
+    margin-top: 1%;
+  }
+
+  .xsmall_btn{
+    padding: 6px;
+    margin-top: 1%;
+  }
+</style>
+
+<div class="body-wrapper">
+  <div class="container-fluid">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+        <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'bank_list' %}" class="text-warning-emphasis">Banking</a></li>
+        <li class="breadcrumb-item" aria-current="page" id="over">Overview</li>
+        <li class="breadcrumb-item" aria-current="page" id="tran" style="display: none;">Transaction</li>
+        <li class="breadcrumb-item" aria-current="page" id="state" style="display: none;">Statement</li>
+      </ol>
+    </nav>
+    <div class="row pt-3">
+      <div class="col-md-12">
+        <div class="card mb-5">
+          <div class="row" style="background-color: #252525;" >
+            <!-- Left Side: Table -->
+            <div class="col-md-12 col-lg-4" style="background-color: black; border-radius: 1vh;">
+              <div class="p-4"> 
+                <h6 class="pt-3" style="font-size: 1.8rem; color: white;">All Banks</h6>
+                <div class="d-flex justify-content-between gap-1 mt-2 mr-4">
+                  <input class="form-control text-black bg-light mt-4" type="text" id="search" placeholder="Search..." style="margin-right: 10%;">
+
+                  <a class="btn btn-outline-warning small_btn mt-4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                  <i class="fa fa-sort mt-1" style="font-size: small;"></i>
+                  </a>
+                  <div class="dropdown-menu ">
+                      <a class="dropdown-item text-black" href="{% url 'bank_view' id %}" >All</a>
+                      <a class="dropdown-item text-black" onclick="sorttable(0)">Name</a>
+                      <a class="dropdown-item text-black" onclick="sorttable(1)">Balance</a>
+                  </div>
+  
+                  <a class="btn btn-outline-warning small_btn mt-4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                    <i class="fa fa-filter" style="font-size: small;"></i>
+                  </a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item text-black" href="{% url 'bank_view' id %}">All</a>
+                    <a class="dropdown-item text-black" onclick="filtertable('Active')">Active</a>
+                    <a class="dropdown-item text-black" onclick="filtertable('Inactive')">Inactive</a>
+                  </div>
+                  <a class="btn btn-outline-warning small_btn mt-4" role="button" href="{% url 'load_bank_create' %}">
+                    <i class="fa fa-plus"></i>
+                  </a>
+                </div>
+      
+                <div class="row">
+                  <div class="col-md-12 mt-2">
+                    <div class="table-responsive">
+                      <table class="table text-white" id="sidetable">
+                        <tbody>
+                          {% for b in bnk_list %}
+                          <tr class='clickable-row' data-href="{% url 'bank_view' b.id %}" style="cursor: pointer;">
+                            <td>
+                              <span class="name"><b>{{ b.bnk_name }}</b></span><br><br>
+                              {{ b.bnk_acno }}
+                            </td>
+                            <td>
+                              <span style="float: right;" class="bal">&#8377;{{ b.bnk_bal }}</span><br><br>
+                              <span style="float: right;" class="stat">{{b.status}}</span>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-12 col-lg-8">
+              <div style="background-color: black; border-radius: 1vh;">
+                <div class="card-header p-4">
+                  <h6 class="mt-3" style="font-size: 1.8rem; color: white;">All Transactions</h6><br>
+                  {% for message in messages %}
+                  <h5>
+                    <div class="alert alert-danger message text-center" style="color: black;" id="alert_danger">
+                      {{ message }}
+                      <a type="button" id="alert_close" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                        <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                      </a>
+                    </div>
+                  </h5>
+                  {% endfor %}
+                  <div class="row">
+                    <div class="col-md-6">
+                      <a class="btn btn-outline-warning xsmall_btn" onclick="changetab('Overview')" id="overview_btn">
+                        <i class="fa fa-eye" style="font-weight: bold; font-size: small;" id="overview_icon"></i> 
+                        <span style="font-size: small;">Overview</span>
+                      </a>
+                      <a class="btn btn-outline-warning xsmall_btn mx-2" onclick="changetab('Transaction')" id="transaction_btn">
+                        <i class="fa fa-exchange" style="font-weight: bold;  font-size: small;" id="transaction_icon"></i>
+                        <span style="font-size: small;">Transaction</span> 
+                      </a>
+                      <a class="btn btn-outline-warning xsmall_btn" onclick="changetab('Statement')" id="statement_btn">
+                        <span class="fa fa-file-word" style="font-weight: bold;  font-size: small;" id="statement_icon"></span> 
+                        <span style="font-size: small;">Statement</span>
+                      </a>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="d-sm-flex" style="float: right;">
+                        <a class="btn btn-outline-warning small_btn mt-2" title="EDIT" id="edit_btn" href="{% url 'load_bank_edit' bnk.id %}">
+                          <i class="fa fa-pencil"></i>
+                        </a>
+                        <a class="btn btn-outline-warning small_btn mt-2 mx-2" href="{% url 'delete_banking' bnk.id %}" title="DELETE" id="delete_btn">
+                          <i class="fa fa-trash"></i>
+                        </a>
+                        <a class="btn btn-outline-warning small_btn mt-2 mx-2 d-none" title="SHARE" id="share_btn" data-toggle="modal" data-target="#snd_mail">
+                          <i class="fas fa-share"></i>
+                        </a>
+                        <a class="btn btn-outline-warning small_btn mt-2" data-toggle="dropdown">
+                          <i class="fas fa-paperclip"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item text-black" data-toggle="modal" data-target="#bnk_files">Add Document</a>
+                          {% if bnk.document != "" %} 
+                          <a class="dropdown-item text-black" download href="{{bnk.document.url}}">Download Document</a>
+                          {% endif %}
+                        </div>
+                        <a class="btn btn-outline-warning small_btn mt-2 mx-2 d-none" onclick="export_as_pdf()" title="PDF" id="pdf_btn"> 
+                          <i class="fa fa-file-pdf"></i>
+                        </a>
+                        <a class="btn btn-outline-warning small_btn mt-2 d-none" onclick="window.print()" title="PRINT" id="print_btn">
+                          <i class="fa fa-print"></i> 
+                        </a>
+                        <a class="btn btn-outline-warning small_btn mt-2 mx-2" href="{% url 'banking_status' bnk.id %}" title="STATUS" id="status_btn">{{bnk.status}}</a>
+                      </div>
+                    </div>
+                  </div><br>
+
+                  <!-- Send Mail  -->
+                  <div class="modal fade" id="snd_mail">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">ADD Documents</h2>
+                            </div>
+                            <div class="col-md-2 p-3">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'send_bank_transaction' bnk.id %}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                            {%csrf_token%}
+                            <div class="row">
+                              <div class="col-md-1"></div>
+                              <div class="col-md-10">
+                                <label class="mb-3" for="origin" style="color: white; font-size: large;">Enter Email</label><br>
+                                <textarea class="form-control text-white bg-black" name="mail" cols="50" rows="10"></textarea>
+                              </div>
+                            </div>
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50 text-white" type="submit">Send</button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50 text-white" type="reset" value="Reset">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Add Document  -->
+                  <div class="modal fade" id="bnk_files">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">ADD Documents</h2>
+                            </div>
+                            <div class="col-md-2 p-3">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'bank_attachfile' bnk.id %}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                            {%csrf_token%}
+                            <div class="row mt-2">
+                              <div class="col-md-1"></div>
+                              <div class="col-md-2">
+                                <label class="pt-2" for="origin" style="color: white;">Enter File</label>
+                              </div>
+                              <div class="col-md-6">
+                                <input type="file" class="form-control text-white bg-black" name="file" id="filess">
+                              </div>
+                            </div>
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit">Save</button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <!-- Bank to Cash -->
+                  <div class="modal fade" id="bank_to_cash">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Bank To Cash Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'bank_transaction_create' bnk.id %}" method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="origin" style="color: white;">From</label>
+                                    <select class="form-control text-white bg-black form-select mt-1" id="origin" name="origin" >
+                                      <option value="" hidden>-- Select a Bank --</option>
+                                      {% for b in bnk_list %}
+                                      <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                      {% endfor %}
+                                    </select>
+                                  </div>
+                                <div class="col-md-6">
+                                    <label for="dest" style="color: white;">To</label>
+                                    <input type="text" class="form-control text-white bg-black mt-1" id="dest" maxlength="10" name="dest" value="Cash" readonly>
+                                </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="amount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="amount" maxlength="10" name="amount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="date" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="date" value="{{tod}}"name="date">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="description" style="color: white;">Description:</label>
+                                <textarea name="description" class="form-control text-white bg-black mt-1" id="description" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+
+                            <input type="hidden" id="selectedType" name="type">
+
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="paySave">Save</button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <!-- Cash to Bank -->
+                  <div class="modal fade" id="cash_to_bank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Cash To Bank Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'bank_transaction_create' bnk.id %}" method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="origin" style="color: white;">From</label>
+                                <input type="text" class="form-control text-white bg-black mt-1" id="origin" maxlength="10" name="origin" value="Cash" readonly>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="dest" style="color: white;">To</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="dest" name="dest">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="amount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="amount" maxlength="10" name="amount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="date" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="date" value="{{tod}}" name="date">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="description" style="color: white;">Description:</label>
+                                <textarea name="description" class="form-control text-white bg-black mt-1" id="description" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+  
+                            <input type="hidden" id="selectedTypeC" name="type">
+  
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="paySave" style="color: #ffae1f;">Save</button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset" style="color: #ffae1f;">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+    
+                  <!-- Bank to Bank -->
+                  <div class="modal fade" id="bank_to_bank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Bank To Bank Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'bank_transaction_create' bnk.id %}" method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="origin" style="color: white;">From</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="corigin" name="origin">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="dest" style="color: white;">To</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="cdest" name="dest">
+                                  <option value="" hidden>-- Select Origin Bank First --</option>
+                                </select>
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="amount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="amount" maxlength="10" name="amount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="date" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="date" value="{{tod}}" name="date">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="description" style="color: white;">Description:</label>
+                                <textarea name="description" class="form-control text-white bg-black mt-1" id="description" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+  
+                            <input type="hidden" id="selectedTypeB" name="type">
+  
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="paySave">Save</button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+    
+                  <!-- Adjust Balance -->
+                  <div class="modal fade" id="adjbank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Adjust Bank Balance</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form action="{% url 'bank_transaction_create' bnk.id %}" method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="adjacname" style="color: white;">Account Name</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="adjacname" name="adjacname">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="adjtype" style="color: white;">Type</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="adjtype" name="adjtype">
+                                  <option value="Increase Balance">Increase Balance</option>
+                                  <option value="Reduce Balance">Reduce Balance</option>
+                                </select>
+                              </div>
+                            </div>
+  
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="amount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="amount" maxlength="10" name="amount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="date" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="date" value="{{tod}}" name="date">
+                              </div>
+                            </div>
+  
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="description" style="color: white;">Description:</label>
+                                <textarea name="description" class="form-control text-white bg-black mt-1" id="description" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+  
+                            <input type="hidden" id="selectedTypeA" name="type">
+  
+                            <div class="row mt-3">
+                              <div class="col-md-4"></div>
+                              <div class="col-md-4">
+                                <div class="d-flex">
+                                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="paySave">Save </button> 
+                                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                                </div>
+                              </div>
+                              <div class="col-md-4"></div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+    
+                  <!-- Bank to Cash Edit -->
+                  <div class="modal fade" id="edit_bank_to_cash">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Edit Bank To Cash Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <input type="text" id="btcid" hidden>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="btcorigin" style="color: white;">From</label>
+                                    <select class="form-control text-white bg-black form-select mt-1" id="btcorigin" name="btcorigin" >
+                                      <option value="" hidden>-- Select a Bank --</option>
+                                      {% for b in bnk_list %}
+                                      <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                      {% endfor %}
+                                    </select>
+                                  </div>
+                                <div class="col-md-6">
+                                    <label for="btcdest" style="color: white;">To</label>
+                                    <input type="text" class="form-control text-white bg-black mt-1" id="btcdest" maxlength="10" name="ebtcest" value="Cash" readonly>
+                                </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="btcamount" style="color: white;">Amount</label>
+                                <input class="form-control text-white bg-black mt-1" id="btcamount" name="btcamount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="btcdate" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="btcdate" name="edate">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="btcdescription" style="color: white;">Description:</label>
+                                <textarea name="btcdescription" class="form-control text-white bg-black mt-1" id="btcdescription" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+                            <input type="hidden" id="eselectedType" name="ctbtype">
+                          </form>
+                          <div class="row mt-3">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                              <div class="d-flex">
+                                <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="btcpaysave">Save</button> 
+                                <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                              </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+    
+                  <!-- Cash to Bank Edit -->
+                  <div class="modal fade" id="edit_cash_to_bank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Edit Cash To Bank Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <input type="text" id="ctbid" hidden>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="ctborigin" style="color: white;">From</label>
+                                <input type="text" class="form-control text-white bg-black mt-1" id="ctborigin" maxlength="10" name="ctborigin" value="Cash" readonly>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="ctbdest" style="color: white;">To</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="ctbdest" name="ctbdest">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="ctbamount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="ctbamount" maxlength="10" name="ctbamount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="ctbdate" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="ctbdate" name="ctbdate">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="ctbdescription" style="color: white;">Description:</label>
+                                <textarea name="ctbdescription" class="form-control text-white bg-black mt-1" id="ctbdescription" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+                            <input type="hidden" id="eselectedTypeC" name="ctbtype">
+                          </form>
+                          <div class="row mt-3">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                              <div class="d-flex">
+                                <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="ctbpaysave">Save</button> 
+                                <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                              </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+    
+                  <!-- Bank to Bank Edit -->
+                  <div class="modal fade" id="edit_bank_to_bank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Edit Bank To Bank Transfer</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <input type="text" id="btbid" hidden>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="btborigin" style="color: white;">From</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="btborigin" name="btborigin">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="btbdest" style="color: white;">To</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="btbdest" name="btbdest">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="btbamount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="btbamount" maxlength="10" name="btbamount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="btbdate" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="btbdate" name="btbdate">
+                              </div>
+                            </div>
+        
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="btbdescription" style="color: white;">Description:</label>
+                                <textarea name="btbdescription" class="form-control text-white bg-black mt-1" id="btbdescription" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+                            <input type="hidden" id="eselectedTypeB" name="btbtype">
+                          </form>
+                          <div class="row mt-3">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                              <div class="d-flex">
+                                <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="btbpaysave">Save</button> 
+                                <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                              </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+    
+                  <!-- Adjust Balance Edit -->
+                  <div class="modal fade" id="edit_adjbank">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content" style="background:black; border: 1px solid #ffae1f;">
+                        <div class="modal-body">
+                          <div class="row">
+                            <div class="col-md-10 p-4">
+                              <h2 class="text-uppercase" style="color: white; font-weight: bolder;">Edit Adjust Bank Balance</h2>
+                            </div>
+                            <div class="col-md-2 p-4">
+                              <button type="button" class="btn close" data-dismiss="modal" aria-label="Close" style="float: right;">
+                                <span aria-hidden="true" style="color: white; font-weight: bolder;">&times;</span>
+                              </button>
+                            </div>
+                          </div><br>
+                          <form method="post" class="needs-validation" novalidate autocomplete="off">
+                            {%csrf_token%}
+                            <input type="text" id="adjid" hidden>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <label for="eadjacname" style="color: white;">Account Name</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="eadjacname" name="eadjacname">
+                                  <option value="" hidden>-- Select a Bank --</option>
+                                  {% for b in bnk_list %}
+                                  <option value="{{b.id }}">{{ b.bnk_name }} ({{ b.bnk_acno }})</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label for="eadjtype" style="color: white;">Type</label>
+                                <select class="form-control text-white bg-black form-select mt-1" id="eadjtype" name="eadjtype">
+                                  <option value="Increase Balance">Increase Balance</option>
+                                  <option value="Reduce Balance">Reduce Balance</option>
+                                </select>
+                              </div>
+                            </div>
+  
+                            <div class="row mt-3">
+                              <div class="col-md-6">
+                                <label for="adjamount" style="color: white;">Amount</label>
+                                <input type="number" class="form-control text-white bg-black mt-1" id="adjamount" maxlength="10" name="adjamount">
+                              </div>
+                              <div class="col-md-6">
+                                <label for="adjdate" style="color: white;">Date</label>
+                                <input type="date" class="form-control text-white bg-black mt-1" id="adjdate" name="adjdate">
+                              </div>
+                            </div>
+  
+                            <div class="row mt-3">
+                              <div class="col-md-12">
+                                <label for="adjdescription" style="color: white;">Description:</label>
+                                <textarea name="adjdescription" class="form-control text-white bg-black mt-1" id="adjdescription" placeholder="Max. 500 characters"></textarea>
+                              </div>
+                            </div>
+                            <input type="hidden" id="eselectedTypeA" name="adjtype">
+                          </form>
+                          <div class="row mt-3">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                              <div class="d-flex">
+                                <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" data-dismiss="modal" id="adjpaysave">Save </button> 
+                                <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="reset" value="Reset">
+                              </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>  
+                </div>
+
+                <div id="Overview" style="background-color: #aba9a9;">
+                  <div class="row">
+                    <h1 class="text-black mt-3" style="text-align: center;">Bank Details</h1>
+                    <hr class="text-black" style="margin-left: 5%; margin-right: 5%">
+                    <div class="col-md-6 p-4">
+                      <div class="bank-row d-md-flex">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">Bank Name</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_name }}</span>
+                        </div>
+                      </div>
+                      <div class="bank-row d-md-flex mt-5">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">IFSC Code</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_ifsc }}</span>
+                        </div>
+                      </div>
+                      <div class="bank-row d-md-flex mt-5">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">Account Number</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_acno }}</span>
+                        </div>
+                      </div>
+                      <div class="bank-row d-md-flex mt-5">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">Balance</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_bal }}</span>
+                        </div>
+                      </div>
+                      <div class="bank-row d-md-flex mt-5">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">Account Type</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_bal_type }}</span>
+                        </div>
+                      </div>
+                      <div class="bank-row d-md-flex mt-5">
+                        <div class="col-md-5">
+                            <span class="bank-label text-black">Branch</span>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="bnk-colon text-black">:</span>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <span class="bank-value text-black">{{ bnk.bnk_branch }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 p-4">
+                      <div style="background-color: #383838; border-radius: 2vh;">
+                        <br>
+                        <h3 class="text-white" style="text-align: center;">Bank History</h3>
+                        <hr class="text-white" style="margin-left: 5%; margin-right: 5%">
+                        <div class="bank-row d-md-flex mt-4">
+                          <div class="col-md-5">
+                              <span class="bank-label text-white">Created By</span>
+                          </div>
+                          <div class="col-md-2 text-center">
+                              <span class="bnk-colon text-white">:</span>
+                          </div>
+                          <div class="col-md-5 text-right">
+                              <span class="bank-value text-white">{{ hist_f.login_details.first_name }} {{ hist_f.login_details.last_name }}</span>
+                          </div>
+                        </div>
+                        <div class="bank-row d-md-flex mt-4">
+                          <div class="col-md-5">
+                              <span class="bank-label text-white">Created On</span>
+                          </div>
+                          <div class="col-md-2 text-center">
+                              <span class="bnk-colon text-white">:</span>
+                          </div>
+                          <div class="col-md-5 text-right">
+                              <span class="bank-value text-white">{{ hist_f.hist_adj_date|date:'d-m-Y' }}</span>
+                          </div>
+                        </div>
+                        <div class="bank-row d-md-flex mt-4">
+                          <div class="col-md-5">
+                              <span class="bank-label text-white">Last Updated By</span>
+                          </div>
+                          <div class="col-md-2 text-center">
+                              <span class="bnk-colon text-white">:</span>
+                          </div>
+                          <div class="col-md-5 text-right">
+                              <span class="bank-value text-white">{{ hist_l.login_details.first_name }} {{ hist_l.login_details.last_name }}</span>
+                          </div>
+                        </div>
+                        <div class="bank-row d-md-flex mt-4">
+                          <div class="col-md-5">
+                              <span class="bank-label text-white">Last Updated on</span>
+                          </div>
+                          <div class="col-md-2 text-center">
+                              <span class="bnk-colon text-white">:</span>
+                          </div>
+                          <div class="col-md-5 text-right">
+                              <span class="bank-value text-white">{{ hist_l.hist_adj_date|date:'d-m-Y' }}</span>
+                          </div>
+                        </div>
+                        <br>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="Transaction" style="display: none;">
+                  <div class="row p-4"> 
+                    <div class="col-md-6">
+                      <div class="info-container"  style="padding-left: 5%;">
+                        <div class="info-row d-md-flex">
+                            <span class="info-label text-white">Bank Name :</span>
+                            <span class="info-value text-white">{{ bnk.bnk_name }}</span>
+                        </div>
+                        <div class="info-row d-md-flex mt-3">
+                            <span class="info-label text-white">IFSC Code :</span>
+                            <span class="info-value text-white">{{ bnk.bnk_ifsc }}</span>
+                        </div>
+                        <div class="info-row d-md-flex mt-3">
+                            <span class="info-label text-white">Account Number :</span>
+                            <span class="info-value text-white">{{ bnk.bnk_acno }}</span>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <div class="col-md-6">
+                      <div style="float: right; padding-right: 5%;">
+                        <h4 class="text-white">Balance: &nbsp;&nbsp;&nbsp;&#8377;{{bnk.bnk_bal}}</h4>
+                        <div class="form-group">
+                          <select class="form-control form-select bg-black text-white" id="selectOption">
+                            <option value="" class="hidden-option">Deposit/Withdraw</option>
+                            <option value="Bank To Cash Transfer">Bank To Cash Transfer</option>
+                            <option value="Cash To Bank Transfer">Cash To Bank Transfer</option>
+                            <option value="Bank To Bank Transfer">Bank To Bank Transfer</option>
+                            <option value="Adjust Bank Balance">Adjust Bank Balance</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="table-responsive p-4">      
+                    <table class="table tabcontent" style="display: inline-table;" id="transactiontable">
+                      <thead>
+                        <tr class="text-center text-white" style="font-weight: bold;">
+                          <th>#</th>
+                          <th>DATE</th>
+                          <th>NAME</th>
+                          <th>TYPE</th>
+                          <th>AMOUNT</th>
+                          <th>ACTION</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for t in trans %}
+                        <tr class="text-white text-center">
+                          <td>{{ forloop.counter }}</td>
+                          <td>{{ t.trans_adj_date|date:'d-m-Y' }}</td>
+                          <td>{{ t.trans_type }}</td>
+                          <td>{{ t.trans_adj_type }}</td>
+                          <td>{{ t.trans_amount }}</td>
+                          {% if t.trans_type == 'Opening Balance' %}
+                          <td>
+                            <a class="btn medium_btn" data-toggle="dropdown">
+                              <i class="fas fa-ellipsis-v text-warning"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item btn text-black" href="{% url 'load_bank_edit' t.banking.id %}">
+                                &nbsp; <i class="fa fa-pencil"></i> &nbsp;&nbsp; <span style="font-size: medium;">Edit</span>
+                              </a>
+                              <a class="dropdown-item btn text-black" href="{% url 'load_bank_history' t.banking.id %}">
+                                &nbsp; <i class="fas fa-history"></i> &nbsp;&nbsp; <span style="font-size: medium;">History</span>
+                              </a>
+                            </div>
+                          </td>
+                          {% else %}
+                          <td>
+                            <a class="btn medium_btn" data-toggle="dropdown">
+                              <i class="fas fa-ellipsis-v text-warning"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item btn text-black" onclick="edit_trans_details('{{t.id}}')">
+                                &nbsp; <i class="fa fa-pencil"></i> &nbsp;&nbsp; <span style="font-size: medium;">Edit</span>
+                              </a>
+                              <a class="dropdown-item btn text-black" href="{% url 'delete_transaction' t.id %}">
+                                &nbsp; <i class="fas fa-trash-alt"></i> &nbsp;&nbsp; <span style="font-size: medium;">Delete</span>
+                              </a>
+                              <a class="dropdown-item btn text-black" href="{% url 'load_bank_trans_history' t.id %}">
+                                &nbsp; <i class="fas fa-history"></i> &nbsp;&nbsp; <span style="font-size: medium;">History</span>
+                              </a>
+                            </div>
+                          </td>
+                          {% endif %}
+                        </tr>
+                        {%endfor%}
+                      </tbody>
+                    </table> 
+                  </div>
+                </div>
+
+                <div class="print-only tabcontent" id="Statement">
+                  <div class="page" size="A4">
+                    <div class="p-4">
+                      <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+                        <section>
+                          <div class="text-center">
+                            <h2 class="text-white bg-warning p-3">BANK STATEMENT</h2>
+                          </div>
+                        </section>
+                        <br>
+                        <section class="store-user mt-2">
+                          <div class="col-12">
+                            <div class="row pb-3">
+                              <div class="col-7">
+                                <p><b class="text-black">COMPANY</b>,</p>
+                                <div style="margin-left: 20%;">
+                                  <h3>{{ bnk.company.company_name }}</h3>
+                                  <p class="text-black"> 
+                                    {{ bnk.company.contact }} <br>
+                                    {{ bnk.company.address }} <br>
+                                    {{ bnk.company.city }} <br>
+                                    {{ bnk.company.state|slice:'5:' }},
+                                    {{ bnk.company.country }} <br>
+                                    {{ bnk.company.pincode }}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-5">
+                                <p><b class="text-black">BANK</b>,</p>
+                                <div style="margin-left: 20%;">
+                                  <h3>{{ bnk.bnk_name }}</h3>
+                                  <p class="text-black"> 
+                                    {{ bnk.bnk_acno }} <br>
+                                    {{ bnk.bnk_ifsc }} <br>
+                                    {{ bnk.bnk_branch }}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <h2 class="text-black">Bank Balance : {{ bnk.bnk_bal }}</h2>
+                            </div>
+                          </div>
+                        </section>
+
+                        <section class="table-responsive mt-4">
+                          <table class=" table table-hover table-bordered border-dark" id="statementtable">
+                            <thead class="bg-warning">
+                              <tr class="text-center text-white" style="font-weight: bold;">
+                                <th style="width: 5%;">#</th>
+                                <th>DATE</th>
+                                <th>NAME</th>
+                                <th>TYPE</th>
+                                <th>AMOUNT</th>
+                                <th>BALANCE</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for t in trans %}
+                              <tr class="text-black text-center">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ t.trans_adj_date|date:'d-m-Y' }}</td>
+                                <td>{{ t.trans_type }}</td>
+                                <td>{{ t.trans_adj_type }}</td>
+                                <td>{{ t.trans_amount }}</td>
+                                <td>{{ t.trans_adj_amount }}</td>
+                              </tr>
+                              {%endfor%}
+                            </tbody>
+                          </table><br><br>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> 
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    show_div = '{{show_div}}'
+    if (show_div == 'True'){
+      changetab('Transaction')
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var table = document.getElementById('transactiontable');
+    var rows = table.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+      var cells = row.querySelectorAll('td');
+      if (cells[3].innerText == 'Balance Decrease'){
+        text = cells[4].innerText
+        cells[4].innerText = parseFloat(-text)
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var table = document.getElementById('statementtable');
+    var rows = table.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+      var cells = row.querySelectorAll('td');
+      if (cells[3].innerText == 'Balance Decrease'){
+        text = cells[4].innerText
+        cells[4].innerText = parseFloat(-text)
+      }
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+    var $rows = $('#sidetable tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
+    });
+  });
+  $('.dropdown-toggle').dropdown();
+</script>
+
+<script>
+ function sorttable(col) {
+    var table = document.getElementById('sidetable');
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    if (col == 1){
+      rows.sort(function(a, b) {
+          var balanceA = parseFloat(a.querySelector('.bal').innerText.replace(/[^\d.-]/g, ''));
+          var balanceB = parseFloat(b.querySelector('.bal').innerText.replace(/[^\d.-]/g, ''));
+          return balanceA - balanceB;
+      });
+    }else{
+      rows.sort(function(a, b) {
+          var nameA = a.querySelector('.name').innerText.toLowerCase();
+          var nameB = b.querySelector('.name').innerText.toLowerCase();
+          return nameA.localeCompare(nameB);
+      });
+    }
+    tbody.innerHTML = '';
+    rows.forEach(function(row) {
+      tbody.appendChild(row);
+    });
+  }
+</script>
+
+<script>
+  function filtertable(key) {
+    var rows = document.querySelectorAll('#sidetable tbody tr');
+    rows.forEach(function(row) {
+        var cell = row.querySelector('.stat');
+        var status = cell.innerText.trim();
+        if (status === key) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+  }
+</script>
+
+<script>
+  $('#alert_close').click(function(){
+    $('#alert_danger').hide()
+  })
+</script>
+
+<script>
+  $('#corigin').change(function(){
+    $('#cdest').empty();
+    $('#cdest').append($('<option selected hidden></option>').text('-- Select a Bank --').val(''));
+    var options = $('#corigin option:not(:first-child)');
+    options.each(function() {
+      if($(this).val() != $('#corigin').val()){
+        $('#cdest').append($('<option></option>').text($(this).text()).val($(this).val()));
+      }
+    });
+  })
+
+  $('#btborigin').change(function(){
+    val = $('#btbdest').val()
+    $('#btbdest').empty();
+    $('#btbdest').append($('<option selected hidden></option>').text('-- Select a Bank --').val(''));
+    var options = $('#btborigin option:not(:first-child)');
+    options.each(function() {
+      if($(this).val() != $('#btborigin').val()){
+        if($(this).val() == val){
+          $('#btbdest').append($('<option selected></option>').text($(this).text()).val($(this).val()));
+        }else{
+          $('#btbdest').append($('<option></option>').text($(this).text()).val($(this).val()));
+        }
+      }
+    });
+  })
+</script>
+
+<script>
+  function edit_trans_details(id) {
+    $.ajax({
+      type: "POST", 
+      url: "{% url 'load_trans_details' %}",
+      data: {
+        'id':id
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+      },
+      success: function (response) {
+        if(response.ttype == 'Bank to Cash'){
+          $('#edit_bank_to_cash').modal('show');
+          document.getElementById('eselectedType').value = 'Bank To Cash Transfer';
+          $('#btcid').val(response.trans_id)
+          $('#btcorigin').val(response.origin)
+          $('#btcamount').val(response.trans_amount)
+          $('#btcdate').val(response.trans_adj_date)
+          $('#btcdescription').val(response.trans_desc)
+
+        }else if(response.ttype == 'Cash to Bank'){
+          $('#edit_cash_to_bank').modal('show');
+          document.getElementById('eselectedTypeC').value = 'Cash To Bank Transfer';
+          $('#ctbid').val(response.trans_id)
+          $('#ctbdest').val(response.destination)
+          $('#ctbamount').val(response.trans_amount)
+          $('#ctbdate').val(response.trans_adj_date)
+          $('#ctbdescription').val(response.trans_desc)
+
+        }else if(response.ttype == 'Bank to Bank'){
+          $('#edit_bank_to_bank').modal('show');
+          document.getElementById('eselectedTypeB').value = 'Bank To Bank Transfer';
+          $('#btbid').val(response.trans_id)
+          $('#btborigin').val(response.origin)
+          $('#btbdest').val(response.destination)
+          $('#btbamount').val(response.trans_amount)
+          $('#btbdate').val(response.trans_adj_date)
+          $('#btbdescription').val(response.trans_desc)
+          $('#btbdest').find('option[value="' + response.origin + '"]').remove();
+
+        }else if(response.ttype == 'Bank Adjustment'){
+          $('#edit_adjbank').modal('show');
+          document.getElementById('eselectedTypeA').value = 'Adjust Bank Balance';
+          if(response.trans_adj_type == 'Balance Increase'){
+            $('#eadjtype').val('Increase Balance')
+          }else{
+            $('#eadjtype').val('Reduce Balance')
+          }
+          $('#adjid').val(response.trans_id)
+          $('#eadjacname').val(response.origin)
+          $('#adjamount').val(response.trans_amount)
+          $('#adjdate').val(response.trans_adj_date)
+          $('#adjdescription').val(response.trans_desc)
+        }
+      },
+    });
+  }
+</script>
+
+<script>
+  $("#btcpaysave").click(function () {
+    $('#edit_bank_to_cash').modal('hide');
+    $.ajax({
+      type: "POST", 
+      url: "{% url 'bank_transaction_edit' %}",
+      data: {
+        id : document.getElementById('btcid').value,
+        origin : document.getElementById('btcorigin').value,
+        amount : document.getElementById('btcamount').value,
+        edit_date : document.getElementById('btcdate').value,
+        desc : document.getElementById('btcdescription').value,
+        type : 'Bank To Cash Transfer'
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+      },
+      success: function (response) {
+        window.location.href = '?Transaction=True';
+      },
+    });
+  });
+
+  $("#ctbpaysave").click(function () {
+    $('#edit_cash_to_bank').modal('hide');
+    $.ajax({
+      type: "POST", 
+      url: "{% url 'bank_transaction_edit' %}",
+      data: {
+        id : document.getElementById('ctbid').value,
+        dest : document.getElementById('ctbdest').value,
+        amount : document.getElementById('ctbamount').value,
+        edit_date : document.getElementById('ctbdate').value,
+        desc : document.getElementById('ctbdescription').value,
+        type : 'Cash To Bank Transfer'
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+      },
+      success: function (response) {
+        window.location.href = '?Transaction=True';
+      },
+    });
+  });
+
+  $("#btbpaysave").click(function () {
+    $('#edit_bank_to_bank').modal('hide');
+    $.ajax({
+      type: "POST", 
+      url: "{% url 'bank_transaction_edit' %}",
+      data: {
+        id : document.getElementById('btbid').value,
+        origin : document.getElementById('btborigin').value,
+        dest : document.getElementById('btbdest').value,
+        amount : document.getElementById('btbamount').value,
+        edit_date : document.getElementById('btbdate').value,
+        desc : document.getElementById('btbdescription').value,
+        type : 'Bank To Bank Transfer'
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+      },
+      success: function (response) {
+        window.location.href = '?Transaction=True';
+      },
+    });
+  });
+
+  $("#adjpaysave").click(function () {
+    $('#edit_adjbank').modal('hide');
+    $.ajax({
+      type: "POST", 
+      url: "{% url 'bank_transaction_edit' %}",
+      data: {
+        id : document.getElementById('adjid').value,
+        adjacname : document.getElementById('eadjacname').value,
+        adjtype : document.getElementById('eadjtype').value,
+        amount : document.getElementById('adjamount').value,
+        edit_date : document.getElementById('adjdate').value,
+        desc : document.getElementById('adjdescription').value,
+        type : 'Adjust Bank Balance'
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+      },
+      success: function (response) {
+        window.location.href = '?Transaction=True';
+      },
+    });
+  });
+</script>
+
+<script>
+  document.querySelector('#edit_bank_to_cash .close').addEventListener('click', function() {
+    $('#edit_bank_to_cash').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+
+  document.querySelector('#edit_cash_to_bank .close').addEventListener('click', function() {
+    $('#edit_cash_to_bank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+  
+  document.querySelector('#edit_bank_to_bank .close').addEventListener('click', function() {
+    $('#edit_bank_to_bank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+
+  document.querySelector('#edit_adjbank .close').addEventListener('click', function() {
+    $('#edit_adjbank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+</script>
+
+<!-- Bank to Cash -->
+<script>
+  document.getElementById('selectOption').addEventListener('change', function() {
+    var selectedValue = this.value;
+    if (selectedValue === 'Bank To Cash Transfer') {
+      $('#bank_to_cash').modal('show');
+      document.getElementById('selectedType').value = selectedValue;
+    } else {
+      $('#bank_to_cash').modal('hide');
+    }
+  });
+
+  document.querySelector('#bank_to_cash .close').addEventListener('click', function() {
+    $('#bank_to_cash').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+</script>
+
+<!-- Cash to Bank -->
+<script>
+  document.getElementById('selectOption').addEventListener('change', function() {
+    var selectedValue = this.value;
+    if (selectedValue === 'Cash To Bank Transfer') {
+      $('#cash_to_bank').modal('show');
+      document.getElementById('selectedTypeC').value = selectedValue;
+    } else {
+      $('#cash_to_bank').modal('hide');
+    }
+  });
+  document.querySelector('#cash_to_bank .close').addEventListener('click', function() {
+    $('#cash_to_bank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+</script>
+
+<!-- Bank to Bank -->
+<script>
+  document.getElementById('selectOption').addEventListener('change', function() {
+    var selectedValue = this.value;
+    if (selectedValue === 'Bank To Bank Transfer') {
+      $('#bank_to_bank').modal('show');
+      document.getElementById('selectedTypeB').value = selectedValue;
+    } else {
+      $('#bank_to_bank').modal('hide');
+    }
+  });
+  document.querySelector('#bank_to_bank .close').addEventListener('click', function() {
+    $('#bank_to_bank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+</script>
+
+<!-- Adjust Balance -->
+<script>
+  document.getElementById('selectOption').addEventListener('change', function() {
+    var selectedValue = this.value;
+    if (selectedValue === 'Adjust Bank Balance') {
+      $('#adjbank').modal('show');
+      document.getElementById('selectedTypeA').value = selectedValue;
+    } else {
+      $('#adjbank').modal('hide');
+    }
+  });
+  document.querySelector('#adjbank .close').addEventListener('click', function() {
+    $('#adjbank').modal('hide');
+    window.location.href = '?Transaction=True';
+  });
+</script>
+
+<script>
+  jQuery(document).ready(function($){
+    $(".clickable-row").click(function (){
+      window.location = $(this).data("href")
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+    var $rows = $('#table tbody tr');
+    $('#search').keyup(function() {
+      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+      $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+      }).hide();
+    });
+  });
+
+  $(document).ready(function () {
+    $("#fileSave").click(function () {
+      var formData = new FormData();
+      formData.append('id', $("#file_id").val());
+      formData.append('file', $("#filess")[0].files[0]); 
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      $.ajax({
+        type: 'POST',
+        url: "",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          document.getElementById("modalAddfile").reset();
+          location.reload();
+        },
+      });
+    });
+  });
+</script>
+
+<script>
+  function changetab(tab) {
+    if (tab === "Overview") {
+      document.getElementById('Overview').style.display = "block"; 
+      document.getElementById('overview_btn').style.backgroundColor = "#ffae1f";    
+      document.getElementById('overview_btn').style.color = "black";    
+      document.getElementById('overview_btn').style.fontWeight = 'bold';    
+      document.getElementById('overview_icon').style.fontWeight = 'bold';
+      document.getElementById('Transaction').style.display = "none"; 
+      document.getElementById('transaction_btn').style.backgroundColor = "black";    
+      document.getElementById('transaction_btn').style.color = "#ffae1f";    
+      document.getElementById('transaction_btn').style.fontWeight = 'lighter';
+      document.getElementById('transaction_icon').style.fontWeight = 'lighter';
+      document.getElementById('Statement').style.display = "none"; 
+      document.getElementById('statement_btn').style.backgroundColor = "black";    
+      document.getElementById('statement_btn').style.color = "#ffae1f";    
+      document.getElementById('statement_btn').style.fontWeight = 'lighter';
+      document.getElementById('statement_icon').style.fontWeight = 'lighter';
+      document.getElementById('pdf_btn').classList.remove('d-block');
+      document.getElementById('pdf_btn').classList.add('d-none');
+      document.getElementById('print_btn').classList.remove('d-block');
+      document.getElementById('print_btn').classList.add('d-none');
+      document.getElementById('edit_btn').classList.remove('d-none');
+      document.getElementById('edit_btn').classList.add('d-block');
+      document.getElementById('delete_btn').classList.remove('d-none');
+      document.getElementById('delete_btn').classList.add('d-block');
+      document.getElementById('share_btn').classList.remove('d-block');
+      document.getElementById('share_btn').classList.add('d-none');
+      document.getElementById('over').style.display = 'block'
+      document.getElementById('tran').style.display = 'none'
+      document.getElementById('state').style.display = 'none'
+
+    } else if (tab === "Transaction") {
+      document.getElementById('Overview').style.display = "none"; 
+      document.getElementById('overview_btn').style.backgroundColor = "black";    
+      document.getElementById('overview_btn').style.color = "#ffae1f";  
+      document.getElementById('overview_btn').style.fontWeight = 'lighter';    
+      document.getElementById('overview_icon').style.fontWeight = 'lighter';
+      document.getElementById('Transaction').style.display = "block"; 
+      document.getElementById('transaction_btn').style.backgroundColor = "#ffae1f";    
+      document.getElementById('transaction_btn').style.color = "black";    
+      document.getElementById('transaction_btn').style.fontWeight = 'bold';
+      document.getElementById('transaction_icon').style.fontWeight = 'bold';
+      document.getElementById('Statement').style.display = "none"; 
+      document.getElementById('statement_btn').style.backgroundColor = "black";    
+      document.getElementById('statement_btn').style.color = "#ffae1f";    
+      document.getElementById('statement_btn').style.fontWeight = 'lighter';    
+      document.getElementById('statement_icon').style.fontWeight = 'lighter';
+      document.getElementById('pdf_btn').classList.remove('d-block');
+      document.getElementById('pdf_btn').classList.add('d-none');
+      document.getElementById('print_btn').classList.remove('d-block');
+      document.getElementById('print_btn').classList.add('d-none');
+      document.getElementById('edit_btn').classList.remove('d-none');
+      document.getElementById('edit_btn').classList.add('d-block');
+      document.getElementById('delete_btn').classList.remove('d-none');
+      document.getElementById('delete_btn').classList.add('d-block');
+      document.getElementById('share_btn').classList.remove('d-block');
+      document.getElementById('share_btn').classList.add('d-none');
+      document.getElementById('over').style.display = 'none'
+      document.getElementById('tran').style.display = 'block'
+      document.getElementById('state').style.display = 'none'
+    } else {
+      document.getElementById('Overview').style.display = "none"; 
+      document.getElementById('overview_btn').style.backgroundColor = "black";    
+      document.getElementById('overview_btn').style.color = "#ffae1f";  
+      document.getElementById('overview_btn').style.fontWeight = 'lighter';    
+      document.getElementById('overview_icon').style.fontWeight = 'lighter';
+      document.getElementById('Statement').style.display = "block"; 
+      document.getElementById('Transaction').style.display = "none"; 
+      document.getElementById('transaction_btn').style.backgroundColor = "black";    
+      document.getElementById('transaction_btn').style.color = "#ffae1f";    
+      document.getElementById('transaction_btn').style.fontWeight = 'lighter';
+      document.getElementById('transaction_icon').style.fontWeight = 'lighter';
+      document.getElementById('statement_btn').style.backgroundColor = "#ffae1f";    
+      document.getElementById('statement_btn').style.color = "black";    
+      document.getElementById('statement_btn').style.fontWeight = 'bold';    
+      document.getElementById('statement_icon').style.fontWeight = 'bold';
+      document.getElementById('pdf_btn').classList.remove('d-none');
+      document.getElementById('pdf_btn').classList.add('d-block');
+      document.getElementById('print_btn').classList.remove('d-none');
+      document.getElementById('print_btn').classList.add('d-block');
+      document.getElementById('edit_btn').classList.remove('d-block');
+      document.getElementById('edit_btn').classList.add('d-none');
+      document.getElementById('delete_btn').classList.remove('d-block');
+      document.getElementById('delete_btn').classList.add('d-none');
+      document.getElementById('share_btn').classList.remove('d-none');
+      document.getElementById('share_btn').classList.add('d-block');
+      document.getElementById('over').style.display = 'none'
+      document.getElementById('tran').style.display = 'none'
+      document.getElementById('state').style.display = 'block'
+    }
+  }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script>
+  function export_as_pdf() {
+    const content = document.getElementById('Statement');
+    html2pdf().from(content).save('{{bnk.bnk_name }}.pdf');
+  }
+</script>
+{%endblock%}

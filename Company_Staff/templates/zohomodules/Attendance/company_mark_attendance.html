@@ -1,0 +1,1127 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+
+<style>
+  table tr td:hover {
+  cursor: pointer;
+}
+.action-button {
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 10px; 
+    margin: 10px;
+}
+.btn-orange {
+    background-color: orange; 
+    color: white;              
+  }
+.modal-body input[type="text"],
+    .modal-body input[type="email"],
+    
+    .modal-body textarea {
+        width: 100%; /* Adjust the width as needed */
+    }
+    .modal-body input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0); /* Invert color for the calendar icon */
+    }
+input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1); /* Invert color for the calendar icon */
+    }
+    .btn-container {
+    text-align: center; /* Center the content horizontally */
+  }
+
+  .btn-add {
+    border: 2px solid orange;
+    border-radius: 10px;
+   color: orange;
+   
+    width: 80px;
+   
+    transition: background-color 0.3s ease; /* Add smooth transition effect */
+}
+select#employee-dropdown {
+            color: white; /* Set the color of the selected option */
+            background-color: black; /* Set the background color of the dropdown box */
+        }
+
+        /* Style for the option elements */
+        select#employee-dropdown option {
+            color: black; 
+            background-color: white;/* Set the color of the options */
+        }
+
+.btn-add:hover {
+    background-color: orange;
+    color: white;
+    color: white; /* Add this line to ensure text is visible on hover */
+}
+  
+
+</style>
+<body>
+  
+  <div class="body-wrapper">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'company_attendance_list' %}" class="text-warning-emphasis">Attendance list</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'company_mark_attendance' %}" >Mark Leave</a></li>
+        </ol>
+      </nav>
+      <div style="overflow-x:auto;"> 
+
+
+        <div class="container-fluid bg-black" id="mark" style="padding: 20px;">
+
+         
+          <h3 style="color: white;">Mark Leave</h3>
+          {% if messages %}
+          {% for message in messages %}
+              <div class="alert alert-success" role="alert" style="color: orange;background-color: black;border: none;">
+                  {{ message }}
+              </div>
+          {% endfor %}
+      {% endif %}
+          <form method="post" action="{% url 'add_attendance' %}">
+            {% csrf_token %}
+            <div class="row justify-content-center mt-5">
+              <div class="col-md-3 mb-3">
+                  <label class="mb-3">Employee</label><br>
+                  <div class="input-group">
+                    <div class="input-group">
+                      
+                      
+                      <select name="employee"  class="form-control" id="employee-dropdown" style="font-size: 16px;color:white;">
+                          
+                          {% for i in staffs %}
+                          
+                          <option value="{{i.id}}" style="color: grey;">{{i.first_name}} {{i.last_name}}</option>
+                          
+                          {% endfor %}
+                      </select>
+                     
+                  </div>
+                  
+                  </div>
+              </div>
+              <div class="col-md-1 mb-3" style="margin-top: 39px;">
+                <a href="" class="btn "  data-toggle="modal" data-target="#addEmployeeModal" style="border: 1px solid orange;border-radius: 5px;">+</a>
+            </div>
+      
+              <div class="col-md-4 mb-3">
+                <label class="mb-3">Date</label><br>
+                  <div class="input-group">
+                    <input type="date" id="dateInput" name="date" class="form-control" style="font-size: 16px;color: white;" required >
+                  </div>
+              </div>
+          </div>
+    
+
+
+          <div class="row justify-content-center mt-3">
+            <div class="col-md-4 mb-3">
+              <label class="mb-3">Status</label><br>
+                
+                <div class="input-group">
+                  <div class="input-group">
+                   
+                    
+                    <select name="status"  class="form-control" style="font-size: 16px;color: white;">
+                        <option class="form-control" value="leave" style="font-size: 16px;">Leave</option>
+                        
+                    </select>
+                </div>
+                </div>
+            </div>
+           
+    
+            <div class="col-md-4 mb-3">
+              <label class="mb-3">Reason</label><br>
+                <div class="input-group">
+                  <input type="text" name="reason" class="form-control"  style="font-size: 16px;color: white;" required>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-3">
+            <input type="checkbox" id="myCheckbox" name="check"  required> &nbsp<label style="font-size: 16px;color: white;" required> Agree to terms and Conditions </label>
+          </div>
+        </div>
+        <div class="row justify-content-center mt-5">
+          <div class="col-md-1 mb-3">
+            <input type="submit" class="btn-add form-control" value="Add">
+          </div>
+          <div class="col-md-1 mb-3">
+            <a href="{% url 'company_attendance_list' %}" class="cancel-link btn-add form-control">Cancel</a>
+          </div>
+        </div>
+
+
+        </div>
+
+        
+          
+      </form>
+
+      <div class="modal fade"  id="addEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document"  >
+            <div class="modal-content bg-dark" style="width: 1050px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEmployeeModalLabel" style="color: white;">Add Employee</h5>
+                   
+                </div>
+                <div class="modal-body">
+                    
+                  <div class="row mt-5">
+                    <div class="col-md-12">
+                        <div class="card mb-3 bg-black shadow  mb-5 rounded" style="width: 1000px;">
+                          <div class="row mt-4">
+                <section>
+                    <div class="container pl-5" style="color:white;">
+                       
+                        <form method="POST" action="" enctype="multipart/form-data" id="myForm" onsubmit=" submitForm();event.preventDefault();" >
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="data  col-md-6 ">
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Title</label>
+                                        </div>
+                                        <div class=" col-6">
+                                            <select class="form-control text-dark bg-light" name="title" id="title" required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="Mr">Mr</option>
+                                                <option value="Mrs">Mrs</option>
+                                                <option value="Miss">Miss</option>
+                                                <option value="Ms">Ms</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">First Name</label>
+                                        </div>
+                                        <div class="input-container col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="fname" id="fname" required>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Last Name</label>
+                                        </div>
+                                        <div class="input-container col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="lname" id="lname" required>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Alias</label>
+                                        </div>
+                                        <div class="input-container col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="alias" id="alias">
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Date of joining</label>
+                                        </div>
+                                        <div class="input-container col-6">
+                                            <input type="date" class="form-control text-dark bg-light" name="joindate" id="joindate" required>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="sdate">Salary Date</label>
+                                        </div>
+                                        <div class="input-container col-6">
+                                            <select class="form-control text-dark bg-light" name="salary" id="sdate" required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="1-10">1-10</option>
+                                                <option value="11-15">11-15</option>
+                                                <option value="16-31">16-31</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Define salary details</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <select class="form-control text-dark bg-light" name="saltype" id="sal" onchange="salFunction()" required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="Fixed">Fixed</option>
+                                                <option value="Temporary">Temporary</option>
+                                                <option value="Variable">Time Based</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="fixed" style="display: none;">
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Salary Amount</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control text-dark bg-light" name="fsalary" id="fsalary" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="variable" style="display: none;">
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Amount per Hour</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control text-dark bg-light" name="amnthr" id="amnthr" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Total working Hours</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control text-dark bg-light" name="hours" id="hours" onkeyup="calculateAmount()" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3"> 
+                                            <div class="col-6">
+                                                <label for="">Salary Amount</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control text-dark bg-light" name="vsalary" id="vsalary" value="0" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                
+                                <div class="image col-6 col-lg-6 col-md-6 col-sm-5">
+                                    <div class="row">
+                                        <div class="col-5 col-lg-5 col-md-10 col-sm-5 text-center">
+                                            <label for="">Upload Image</label>
+                                        </div>
+                                        <div class="col-6 col-lg-7 col-md-10 col-sm-5">
+                                            <br><br><br><br>
+                                            <label for="image-input">
+                                                <img  class="img-fluid" src="{% static 'images/payrollimg.png' %}" alt="profile image" id="img"
+                                                    style="background-color: rgba(156, 156, 156, 0.267); border-radius: 30px;">
+                                            </label>
+                                            <input id="image-input"  type="file" name="file" class="form-control" accept="image/*" onchange="loadFile(event)" style="display: none;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <br>
+                            <div class="gen-info row pt-5">
+                               
+                                    <h4 class="text-center py-2 text-light">General information</h4>
+                                    <hr class="text-warning font-weight-bold">
+                                    <div class="left col-lg-6 col-sm-6">
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Employee Number</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="empnum" id="empnum" onkeyup="empValidation(document.getElementById('empnum'))" required >
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Designation</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="designation" required >
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Location</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="location" required >
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Gender</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <select class="form-control text-dark bg-light" name="gender" id="dropId3" required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female" >Female</option>
+                                                <option value="Transgender" >Transgender</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Date of Birth</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="date" class="form-control text-dark bg-light"  id="dob" name="dob" onchange="calculateAge()" required >
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Age</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type=""  class="form-control text-dark bg-light"  id="age" name="age" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Blood Group</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <select class="form-control text-dark bg-light" id="blood" name="blood" required>
+                                                <option value="A+">A+</option>
+                                                <option value="B+">B+</option>
+                                                {% for i in blood %}
+                                                <option value="{{i.Blood_group}}" >{{i.Blood_group}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <a class="btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip" title="comment">
+                                                Add Blood group
+                                            </a>
+                                        </div>
+
+                                       
+                                        
+                                        
+                                        
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Father's Name/Mother's Name</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="fm_name">
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Spouse's Name</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" class="form-control text-dark bg-light" name="s_name">
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Contact Number</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="number" class="form-control text-dark bg-light" name="phone" id="phone" required 
+                                                onkeyup="phoneValidate(document.getElementById('phone'),document.getElementById('pherror'))">
+                                            <div id="pherror" class="text-danger"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Emergency Contact Number</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="number" class="form-control text-dark bg-light" name="ephone" id="ephone"
+                                                onkeyup="phoneValidate(document.getElementById('ephone'),document.getElementById('epherror'))">
+                                            <div id="epherror" class="text-danger"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Email</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="email"  class="form-control text-dark bg-light" name="email" id="email"
+                                                required onkeyup="emailvalidate()">
+                                            <div id="error" class="text-danger"></div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-lg-5 col-sm-5">
+        
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Permanent Address</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <textarea class="form-control text-dark bg-light mb-2 pt-0" name="paddress" id="padrs1" onkeyup="clearaddreass(this.id)" required value=""></textarea>
+                                            <textarea class="form-control text-dark bg-light pt-0" name="paddress2" id="padrs2" onkeyup="clearaddreass(this.id)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-4">
+                                        <div class="col-6">
+                                            <label for="">Temporary Address</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input class="mx-2" type="checkbox" id="filladdress" name="filladdress">
+                                            <label style="font-size: .8rem;">Same as permanent address</label>
+                                            <textarea class="form-control text-dark bg-light mb-2 pt-0" name="address" id="adrs1" onkeyup="clearaddreass(this.id)"></textarea>
+                                            <textarea class="form-control text-dark bg-light pt-0" name="address2" id="adrs2" onkeyup="clearaddreass(this.id)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Attachments</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input class="form-control" id="file-upload" type="file" name="attach" style="background: transparent;">
+                                        </div>
+                                    </div>
+                                    <div class="row pb-4">
+                                        <div class="col-6">
+                                            <label for="">Provide Bank Details</label>
+                                        </div>
+                                        <div class="col-6"><select class="form-control text-dark bg-light" name="bank" id="dropId"
+                                                onchange="bankdisplay()" required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+        
+                                    <div class="bank" id="bank" style="display: none;">
+                                        <br>
+                                        <br>
+                                        <h4 class="text-center py-2 text-light">Bank information</h4>
+                                        <hr class="text-warning font-weight-bold">
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Account Number</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text"  class="form-control text-dark bg-light" name="acc_no" id="acc_no" pattern="[0-9]{14}">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">IFSC</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" value="" class="form-control text-dark bg-light" name="ifsc" id="ifsc">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Name of Bank</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" value="" class="form-control text-dark bg-light" name="b_name" id="b_name">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Branch Name</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" value="" class="form-control text-dark bg-light" name="branch" id="branch">
+                                            </div>
+                                        </div>
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Transaction Type</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <select class="form-control text-dark bg-light" name="ttype" id="ttype">
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="ATM">ATM</option>
+                                                    <option value="Cash">Cash</option>
+                                                    <option value="Check">Check</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        
+        
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">TDS Applicable</label>
+                                        </div>
+                                        <div class="col-6">
+                                            <select class="form-control text-dark bg-light" name="tds" id="tds" onchange="tdsFunction()"
+                                                required>
+                                                <option value="" selected hidden>Select</option>
+                                                <option value="1">Yes</option>
+                                                <option value="0">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+        
+                                    <div id="tds-div" style="display: none;">
+                                        <br>
+                                        <br>
+                                        <h5 class="text-center py-1 text-light">For Banking</h5>
+                                        <hr class="text-warning font-weight-bold">
+                                        
+                                        <div class="row pb-3">
+                                            <div class="col-6">
+                                                <label for="">Percentage/Amount</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <select class="form-control text-dark bg-light" name="pora" id="pora" onchange="tdsFunction2()">
+                                                    <option value="" selected hidden>Select</option>
+                                                    <option value="Percentage">Percentage</option>
+                                                    <option value="Amount">Amount</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div id="p" style="display: none;">
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Percentage</label>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="number" class="form-control text-dark bg-light" name="pcnt" id="pcnt">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="a" style="display: none;">
+                                            <div class="row pb-3">
+                                                <div class="col-6">
+                                                    <label for="">Amount</label>
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="number" class="form-control text-dark bg-light" name="amnt" id="amnt" >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <br>
+                                <br>
+                              
+        
+                                </div>
+                                <br>
+                                <br>
+                                <div class="row">
+                                    <h4 class="text-center py-2 text-light">Statutary information</h4>
+                                    <hr class="text-warning font-weight-bold">
+                                    <div class=" col-sm-9 col-lg-6">
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Income Tax Number(PAN)</label>
+                                        </div>
+                                        <div class="col-6"><input type="text" class="form-control text-dark bg-light" name="itn" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$" placeholder="ABCDE0051C"></div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Aadhar Number(*)</label>
+                                        </div>
+                                        <div class="col-6"><input type="text"class="form-control text-dark bg-light" name="an" id="an" requiredpattern="[0-9\s]{14}"></div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">Universal Account Number(UAN)</label>
+                                        </div>
+                                        <div class="col-6"><input type="number"  class="form-control text-dark bg-light" name="uan" ></div>
+                                    </div>
+                                    </div>
+                                    <div class=" col-sm-9 col-lg-6">
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">PF Account Number (PFN)</label>
+                                        </div>
+                                        <div class="col-6"><input type="number"  class="form-control text-dark bg-light" name="pfn" ></div>
+                                    </div>
+                                    <div class="row pb-3">
+                                        <div class="col-6">
+                                            <label for="">PR Account Number (PRAN)</label>
+                                        </div>
+                                        <div class="col-6"><input type="text"  class="form-control text-dark bg-light" name="pran" ></div>
+                                    </div>
+                                </div>
+                                </div>
+                                <input type="hidden" id="employee-create-url" value="{% url 'attendance_create_employee' %}">
+                
+                            </div>
+                            <hr>
+                            <div class="action-button">
+                                <button class="btn  btn-add " type="button" data-dismiss="modal" id="itemSave"  onclick="validateform()">Add</button>
+                                <button class="btn btn-add" type="reset"  data-dismiss="modal" onclick="goToTop()">Cancel</button>
+                            </div>
+
+                          
+                            
+                        </form>
+
+                         <!-- Modal -->
+                         <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content" style="background-color: #3b3b3b;">
+                                <div class="modal-header">
+                                  <h3 class="modal-title text-light" id="exampleModalLabel">Add Blood group</h3>
+                                  <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                                  </button>
+                                </div>
+                                <form action="" method="POST" enctype="multipart/form-data" id="blood1" onsubmit="clearInputField()" >
+                                  {% csrf_token %}
+                                  <div class="modal-body">
+                                    <input type="text" class="form-control text-light" name="blood" id="blood_form"  title="Enter Uppercase Letter" required>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-add" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-add" data-dismiss="modal" onclick="uploadBlood()">Save</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                        </div>
+                         
+          </div>
+            
+          <script>
+           $(document).on("click", "#itemSave", function() {
+    var formData = new FormData(document.getElementById('myForm'));
+
+    $.ajax({
+        url: "{% url 'attendance_create_employee' %}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                alert('Employee added successfully!  Name: ' + response.employee_name);
+                document.getElementById("myForm").reset();
+                $("#img").attr("src", "");
+                $('#addEmployeeModal').modal('hide');
+
+                reloadItem();
+            }else if (response.status === 'error') {
+                if (response.message === 'empnum_exists') {
+                    alert('Employee with this  number already exists!');
+                } else {
+                    alert('Error adding employee: ' + response.message);
+                }
+            } else {
+                alert('Unknown response status. Please try again.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            alert('Error adding employee. Please try again.');
+        }
+    });
+});
+
+
+function reloadItem() {
+    $.ajax({
+        url: "{% url 'attendance_employee_dropdown' %}",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            var dropdown = $('#employee-dropdown');
+            dropdown.empty();
+
+            $.each(data, function(key, value) {
+                dropdown.append($('<option></option>').attr('value', key).text(value));
+            });
+            dropdown.css({
+                'font-size': '16px',
+                'color': 'white',
+                // You can set the background color here
+            });
+        },
+
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            alert('Error reloading dropdown options.');
+        }
+    });
+}
+</script>
+       <script>
+        async function uploadBlood() {
+            const form = document.getElementById('blood1');
+            const formData = new FormData(form);
+        
+            try {
+                const response = await fetch('attendance_add_blood', {
+                    method: 'POST',
+                    body: formData
+                });
+        
+                if (response.ok) {
+                    const result = await response.json();
+        
+                    if (result.message === 'Blood group saved successfully') {
+                        document.getElementById('blood1').reset();
+                        const bloodDropdown = document.getElementById("blood");
+                        const bloodOptions = bloodDropdown.options;
+        
+                        // Check if blood group already exists
+                        let exists = false;
+                        for (let i = 0; i < bloodOptions.length; i++) {
+                            if (bloodOptions[i].value === result.blood) {
+                                exists = true;
+                                break;
+                            }
+                        }
+        
+                        // Display appropriate message
+                        if (!exists) {
+                            const newOption = document.createElement("option");
+                            newOption.value = result.blood;
+                            newOption.text = result.blood;
+                            bloodDropdown.appendChild(newOption);
+                            alert(result.message);
+                        } else {
+                            alert("Blood group already exists");
+                            inputField.value = ''; 
+                        }
+                    } else {
+                        alert(result.message);
+                    }
+                } else {
+                    throw new Error('Failed to save blood group');
+                }
+            } catch (error) {
+                console.error('Error saving blood group:', error);
+                alert('An error occurred while saving blood group. Please try again later.');
+            }
+        }
+        
+        document.getElementById('commentModal').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+        </script>
+        
+          <script>
+         
+      var defaultDate = new Date();
+
+// Formatting the date to YYYY-MM-DD
+var formattedDate = defaultDate.toISOString().split('T')[0];
+
+// Setting the value of the input field
+document.getElementById("joindate").value = formattedDate;
+        </script>
+      
+     
+      
+      
+      <script>
+          function validateform() {
+              var sal = document.getElementById('sal').value;
+              var amnthr = document.getElementById('amnthr').value;
+              var hours = document.getElementById('hours').value;
+              var fsalary = document.getElementById('fsalary').value;
+      
+              var dropId = document.getElementById('dropId').value;
+              var acc_no = document.getElementById('acc_no').value;
+              var ifsc = document.getElementById('ifsc').value;
+              var b_name = document.getElementById('b_name').value;
+              var branch = document.getElementById('branch').value;
+              var ttype = document.getElementById('ttype').value;
+      
+              var tds = document.getElementById('tds').value;
+              var pora = document.getElementById('pora').value;
+              var pcnt = document.getElementById('pcnt').value;
+              var amnt = document.getElementById('amnt').value;
+      
+              if (sal === 'Variable'){
+                  if (amnthr === ''){
+                      alert('Add Amount per Hour');
+                      return false;
+                  }
+                  if (hours === ''){
+                      alert('Add Total Amount Worked');
+                      return false;
+                  }
+              }else{
+                  if (fsalary === ''){
+                      alert('Add Salary');
+                      return false;
+                  }
+              }
+      
+              if (dropId === '1'){
+                  if (acc_no === ''){
+                      alert('Add an Account Number');
+                      return false;
+                  }
+                  if (ifsc === ''){
+                      alert('Add IFSC code');
+                      return false;
+                  }
+                  if (b_name === ''){
+                      alert('Add Bank Name');
+                      return false;
+                  }
+                  if (branch === ''){
+                      alert('Add Branch Name');
+                      return false;
+                  }
+                  if (ttype === ''){
+                      alert('Select a Transaction Type');
+                      return false;
+                  }
+              }
+      
+              if (tds === '1'){
+                  if (pora === ''){
+                      alert('Select TDS Amount Type');
+                      return false;
+                  }else if(pora === 'Percentage'){
+                      if (pcnt === ''){
+                          alert('Add Percentage of TDS');
+                          return false;
+                      }
+                  }else if(pora === 'Amount'){
+                      if (amnt === ''){
+                          alert('Add TDS Amount');
+                          return false;
+                      }
+                  }
+              }
+      
+              return true; 
+          }
+      </script>
+      
+      <script>
+          const input = document.getElementById("an");
+          input.addEventListener("input", () => input.value = formatNumber(input.value.replaceAll(" ", "")));
+          const formatNumber = (number) => number.split("").reduce((seed, next, index) => {
+              if (index !== 0 && !(index % 4)) seed += " ";
+              return seed + next;
+          }, "");
+      </script>
+      
+      <script>
+          var loadFile = function (event) {
+              var reader = new FileReader();
+              reader.onload = function () {
+                  var output = document.getElementById('img');
+                  output.src = reader.result;
+              };
+              reader.readAsDataURL(event.target.files[0]);
+          };
+      </script>
+      
+      <script>
+          function goToTop() {
+              document.body.scrollTop = 0; // For Safari
+              document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE, and Opera
+          }
+      
+          function bankdisplay() {
+              var e = document.getElementById("dropId").value;
+              if (e == 0) {
+                  document.getElementById("bank").style.display = 'none'
+                  document.getElementById("acc_no").value = ''
+                  document.getElementById("ifsc").value = ''
+                  document.getElementById("b_name").value = ''
+                  document.getElementById("branch").value = ''
+                  document.getElementById("ttype").value = ''
+              }
+              else {
+                  document.getElementById("bank").style.display = 'block'
+              }
+          }
+      
+          function salFunction() {
+              var e = document.getElementById("sal");
+              var sal = e.value;
+              if (sal == 'Fixed' || sal == 'Temporary') {
+                  document.getElementById("fixed").style.display = 'block'
+                  document.getElementById("variable").style.display = 'none'
+                  document.getElementById("amnthr").value = 0
+                  document.getElementById("hours").value = 0
+                  document.getElementById("vsalary").value = 0
+              }
+              else if (sal == 'Variable') {
+                  document.getElementById("variable").style.display = 'block'
+                  document.getElementById("fixed").style.display = 'none'
+                  document.getElementById("fsalary").value = 0
+              }
+          }
+      
+          function calculateAmount() {
+              var a = document.getElementById("amnthr").value;
+              var h = document.getElementById("hours").value;
+              var tot = h * a;
+              document.getElementById('vsalary').value = tot;
+          }
+      
+          function tdsFunction() {
+              var e = document.getElementById("tds");
+              var sal = e.value;
+              if (sal == '1') {
+                  document.getElementById("tds-div").style.display = 'block'
+              }
+              else {
+                  document.getElementById("tds-div").style.display = 'none'
+                  document.getElementById("pora").value = 0
+                  document.getElementById("pcnt").value = 0
+                  document.getElementById("amnt").value = 0
+              }
+          }
+      
+          function tdsFunction2() {
+              var e = document.getElementById("pora");
+              var sal = e.value;
+              if (sal == 'Percentage') {
+                  document.getElementById("p").style.display = 'block';
+                  document.getElementById("a").style.display = 'none';
+                  document.getElementById("amnt").value = 0
+              }
+              else if (sal == 'Amount') {
+                  document.getElementById("a").style.display = 'block';
+                  document.getElementById("p").style.display = 'none'
+                  document.getElementById("pcnt").value = 0
+              }
+          }
+      
+          function emailvalidate() {
+              var email = document.getElementById('email')
+              var error = document.getElementById('error')
+              if (!email.value.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/)) {
+                  error.style.fontSize = ".8rem"
+                  error.innerHTML = "*Please enter a valid email"
+                  return false;
+              }
+              error.innerHTML = ""
+              return true;
+          }
+      
+          function phoneValidate(phn, pherror) {
+              if (!phn.value.match(/^[6-9]\d{9}$/)) {
+                  pherror.style.display = "block"
+                  pherror.style.fontSize = ".8rem"
+                  pherror.innerHTML = "*Please enter a valid phone number"
+                  return false;
+              }
+              pherror.style.display = "none"
+              pherror.innerHTML = ""
+              return true;
+          }
+      
+          function empValidation(emp) {
+              emp.addEventListener("input", function () {
+                  emp.value = emp.value.toUpperCase();
+              });
+          }
+      
+          inputvalue = document.getElementById('ifsc')
+          inputvalue.addEventListener("input", function () {
+              inputvalue.value = inputvalue.value.toUpperCase();
+          });
+          const inputFields = document.querySelectorAll("input[type='text']");
+          inputFields.forEach(function (input) {
+              input.addEventListener("input", function () {
+                  const inputValue = input.value;
+                  input.value = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+              });
+          });
+      
+          document.getElementById("an").addEventListener("input", function () {
+              const input = this.value;
+              if (input.length > 14) {
+                  this.value = input.slice(0, 14);
+              }
+          });
+      
+          document.getElementById("acc_no").addEventListener("input", function () {
+              const input = this.value;
+              if (input.length > 15) {
+                  this.value = input.slice(0, 15);
+              }
+          });
+      
+          $(document).ready(function () {
+              $("#filladdress").on("click", function () {
+                  if (this.checked) {
+                      $("#adrs1").val($("#padrs1").val());
+                      $("#adrs2").val($("#padrs2").val());
+                  }
+                  else {
+                      $("#adrs1").val('');
+                      $("#adrs2").val('');
+                  }
+              });
+          });
+      
+          function calculateAge() {
+              const dobInput = document.getElementById("dob");
+              const selectedDateOfBirth = new Date(dobInput.value);
+              const currentDate = new Date();
+              const age = currentDate.getFullYear() - selectedDateOfBirth.getFullYear();
+              const ageInput = document.getElementById("age");
+              ageInput.value = age;
+          }
+          function clearaddreass(id){
+              document.getElementById('filladdress').checked = false
+              if(id == 'padrs1' || id == 'padrs2'){
+                  $("#adrs1").val('');
+                  $("#adrs2").val('');
+              }
+          }
+      </script>
+      
+
+  </div>
+</div>
+
+
+
+<script>
+  // Function to make the alert blink
+  function blink() {
+      $('#alertMessage').fadeOut(1000).fadeIn(1000, blink);
+  }
+
+  // Call the blink function when the page loads
+  $(document).ready(function() {
+      blink();
+  });
+</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Function to format the date as "yyyy-mm-dd" (required format for <input type="date">)
+          function formatDate(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          }
+      
+          // Get the current date
+          const currentDate = new Date();
+      
+          // Set the input value to the formatted current date
+          document.getElementById('dateInput').value = formatDate(currentDate);
+        });
+      </script>
+
+
+      
+  </div>
+</body>
+
+{% endblock %}

@@ -1,0 +1,1936 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+    /*.modal {
+      z-index: 9999;
+      overflow: scroll;
+    }*/
+
+    a {
+        color: rgb(248, 247, 246);
+    }
+
+    a:hover {
+        color: rgb(214, 141, 5);
+    }
+
+    tr:hover {
+        background-color: #92929242;
+        font-weight: bold;
+    }
+
+    /* width */
+    /*::-webkit-scrollbar {
+      width: 10px;
+    }
+  
+    /* Track */
+    /*::-webkit-scrollbar-track {
+      background: rgb(252, 236, 217);
+  
+    }
+  
+    /* Handle */
+    /*::-webkit-scrollbar-thumb {
+      background: #888;
+    }
+  
+    /* Handle on hover */
+    /*::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }*/
+
+    /*#selected-area {
+      font-size: 20px;
+    }
+  
+  
+  
+    /* .......................................... search box1.............. */
+    .select-box1 {
+        position: relative;
+        width: 70%;
+    }
+    
+
+    .select-option1 {
+        position: relative;
+        
+    }
+
+    .select-option1 input {
+        width: 100%;
+        cursor: pointer;
+        background-color: white;
+        color: black;
+        border-radius: 7px;
+        padding: 10px 15px;
+        border: 0 !important;
+        outline: 0 !important;
+    }
+
+    .select-option1:after {
+        content: "";
+        border-top: 12px solid #000;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        margin-top: -8px;
+
+    }
+
+    .content1 {
+        background-color: white;
+        position: absolute;
+        color: black;
+        border-radius: 7px;
+        margin-top: 15px;
+        width: 100%;
+        z-index: 999;
+        padding: 20px;
+        display: none;
+    }
+
+    .search1 input {
+        width: 100%;
+        font-size: 17px;
+        padding: 15px;
+        outline: 0;
+        border: 1px solid #b3b3b3;
+        border-radius: 5px;
+    }
+
+    .options1 {
+        margin-top: 10px;
+        max-height: 150px;
+        overflow-y: scroll;
+        padding: 0;
+    }
+
+    /* .options1::-webkit-scrollbar{
+        width: 5px;
+       
+      } */
+    .options1 li {
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        border-bottom: 1px solid gray;
+    }
+
+    .select-box1.active .content1 {
+        display: block;
+    }
+
+    .select-box1.active .select-option1:after {
+        transform: rotate(-180deg);
+    }
+</style>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'chartofaccounts' %}" class="text-warning-emphasis">Accounts</a></li>
+              <!-- <li class="breadcrumb-item"><a href="{% url 'chartofaccounts' %}" class="text-warning-emphasis">Chart of Accounts</a></li> -->
+              <!-- <li class="breadcrumb-item" aria-current="page" class="text-warning-emphasis"></li> -->
+              <li class="breadcrumb-item" aria-current="page">Edit Chart of Accounts</li>
+            </ol>
+        </nav>
+        <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
+       
+            <div style="margin-top: 90px;">
+              <h4 id="selected_customer_heading" class="text" style="color: white; margin-left: 2%; padding-top: 20px;"><b>EDIT ACCOUNT</b></h4>
+            </div>
+         <br>
+  
+                                                            
+     
+
+
+<div class="container-fluid" id="container-to-print" style="width: 100%;"> 
+    <section id="selected-area">
+  <div class="row pt-5">
+      <center>
+
+       
+
+      </center>
+      <div class="table-responsive"> 
+          <form action="{% url 'editchartofaccounts' acc.id %}" method="POST" enctype="multipart/form-data" class="text-white">
+              {% csrf_token%}
+              
+              <div class="d-flex align-items-center">
+         
+                
+              </div>
+              <hr>
+              <div class="row ">
+                  <div class="col">
+                      <div class="row">
+                          <div class="col-sm-4">
+                              <label for="">Account Type:</label>
+                          </div>
+                          <div class="col-sm-8">
+                              <div class="select-box1" onclick="message()">
+                                  <div class="select-option1">
+                                      <input type="text" value="{{acc.account_type}}" style="color: #000;" id="soValue1" name="account_type" readonly>
+                                  </div>
+                                  <div class="content1" id="myDropdown1">
+                                      <div class="search1">
+                                          <input type="text" placeholder="search" id="myInput1" onkeyup="filterFunction1()">
+                                      </div>
+                                      <ul class="options1">
+                                          <div class="opt">
+                                              <span style="font-weight: bold;">Assets</span>
+                                              <li>Other Assets</li>
+                                              <li>Other Current Assets</li>
+                                              <li>Cash</li>
+                                              <li>Bank</li>
+                                              <li>Fixed Asset</li>
+                                              <li>Stock</li>
+                                              <li>Payment Clearing</li>
+                                          </div>
+      
+                                          <div class="opt">
+                                              <span style="font-weight: bold;">Liability</span>
+                                              <li>Other Liability</li>
+                                              <li>Other Current Liability</li>
+                                              <li>Credit Card</li>
+                                              <li>Long Term Liability</li>
+                                              <li>Overseas Tax Payable</li>
+                                          </div>
+      
+                                          <div class="opt">
+                                              <span style="font-weight: bold;">Equity</span>
+                                              <li>Equity</li>
+                                          </div>
+      
+                                          <div class="opt">
+                                              <span style="font-weight: bold;">Income</span>
+                                              <li>Income</li>
+                                              <li>Other Income</li>
+                                          </div>
+      
+                                          <div class="opt">
+                                              <span style="font-weight: bold;">Expense</span>
+                                              <li>Expense</li>
+                                              <li>Cost Of Goods Sold</li>
+                                              <li>Other Expense</li>
+                                          </div>
+                                      </ul>
+      
+      
+      
+                                  </div>
+                              </div>
+      
+                          </div>
+      
+                          <script>
+                              const selectBox1 = document.querySelector('.select-box1');
+                              const selectOption1 = document.querySelector('.select-option1');
+                              const optionsList1 = document.querySelectorAll('.options1 li');
+                              const soValue1 = document.querySelector('#soValue1');
+      
+                              selectOption1.addEventListener('click', function () {
+                                  selectBox1.classList.toggle('active')
+                              })
+      
+                              optionsList1.forEach(function (optionsListSingle) {
+                                  optionsListSingle.addEventListener('click', function () {
+                                      text = this.textContent;
+                                      soValue1.value = text;
+                                      selectBox1.classList.remove('active')
+      
+                                  })
+                              })
+                          </script>
+                      </div>
+                      <div id="name" style="display: block;">
+                          <div class="row mt-3">
+                              <div class="col-sm-4">
+                                  <label for="">Account Name:</label>
+                              </div>
+                              <div class="col-sm-8">
+                                  <input type="text" value="{{acc.account_name}}"  class="form-control text-dark bg-light" name="account_name"
+                                      id="account_name" style="width: 70%;" required>
+                              </div>
+                          </div>
+                      </div>
+      
+                      <div id="credit" style="display: none;">
+                          <div class="row mt-3">
+                              <div class="col-sm-4">
+                                  <label for="">Credit Card Name:</label>
+                              </div>
+                              <div class="col-sm-8">
+                                  <input type="text" class="form-control text-dark bg-light" style="width: 70%;" name="credit_number"
+                                      id="credit_number">
+                              </div>
+                          </div>
+                      </div>
+      
+                
+      
+                      <div class="row mt-3">
+                          <div class="col-sm-4">
+                              <label for="">Account Code:</label>
+                          </div>
+                          <div class="col-sm-8">
+                              <input type="text" value="{{acc.account_code}}"  class="form-control text-dark bg-light" name="account_code"
+                                  id="account_code" style="width: 70%;">
+                          </div>
+                      </div>
+                      <div style="display: none;" id="acc_bo_div">
+                          <div class="row mt-3">
+                              <div class="col-sm-4">
+                                  <label for="">Account Number:</label>
+                              </div>
+                              <div class="col-sm-8">
+                                  <input type="text"  class="form-control text-dark bg-light" name="account_number"
+                                      id="account_number" style="width: 70%;">
+                              </div>
+                          </div>
+                      </div>
+                      <div id="sub_div" style="display: none;">
+
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                    
+                            <div class="col-sm-8">
+                    
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent()"
+                                    name="sub_account" id="sub_account">
+                    
+                                <label for="">Make this a sub-account</label>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div22" style="display: none;">
+                    
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                    
+                            <div class="col-sm-8">
+                    
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent22()"
+                                    name="sub_account22" id="sub_account22">
+                    
+                                <label for="">Make this a sub-account</label>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div33" style="display: none;">
+                    
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                    
+                            <div class="col-sm-8">
+                    
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent33()"
+                                    name="sub_account33" id="sub_account33">
+                    
+                                <label for="">Make this a sub-account</label>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div44" style="display: none;">
+                    
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                    
+                            <div class="col-sm-8">
+                    
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent44()"
+                                    name="sub_account44" id="sub_account44">
+                    
+                                <label for="">Make this a sub-account</label>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div55" style="display: none;">
+                    
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                    
+                            <div class="col-sm-8">
+                    
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent55()"
+                                    name="sub_account55" id="sub_account55">
+                    
+                                <label for="">Make this a sub-account</label>
+                    
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="sub_div66" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent66()"
+                                    name="sub_account66" id="sub_account66">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div id="sub_div77" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent77()"
+                                    name="sub_account77" id="sub_account77">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div id="sub_div88" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent88()"
+                                    name="sub_account88" id="sub_account88">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div99" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent99()"
+                                    name="sub_account99" id="sub_account99">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div100" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent100()"
+                                    name="sub_account100" id="sub_account100">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div111" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent111()"
+                                    name="sub_account111" id="sub_account111">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="sub_div222" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for=""></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input type="checkbox" class=" text-dark bg-light" onclick="show_parent222()"
+                                    name="sub_account222" id="sub_account222">
+                                <label for="">Make this a sub-account</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    
+                    <!-- ..........................  checkbox ............................. -->
+                    
+                    <div id="parent_div" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account" id="parent_account">
+                                    <option value="" class="bg-dark text-light text-center"  disabled>Other Current
+                                        Assets
+                                    </option>
+                                    <option value="" selected></option>
+                                    <option value="Advance Tax">Advance Tax</option>
+                                    <option value="Employee Advance">Employee Advance</option>
+                                    <option value="Prepaid Expenses">Prepaid Expenses</option>
+                                    <option value="GST TCS Receivable">GST TCS Receivable</option>
+                                    <option value="GST TDS Receivable">GST TCS Receivable</option>
+                                    <option value="Input Tax Credits">Input Tax Credits</option>
+                                    <option value="Input CGST">&nbsp; &nbsp;&nbsp;Input CGST</option>
+                                    <option value="Input IGST"> &nbsp; &nbsp;&nbsp;Input IGST</option>
+                                    <option value="Input SGST">&nbsp; &nbsp;&nbsp;Input SGST</option>
+                    
+                    
+                                    <option value="Reverse Charge Tax Input but no due">Reverse Charge Tax Input but no
+                                        due
+                                    </option>
+                                    <option value="Sales to Customers(Cash)">Sales to Customers(Cash)</option>
+                    
+                    
+                                    <option value="TDS Receivable">TDS Receivable</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div22" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account22"
+                                    id="parent_account22">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Cash</option>
+                                    <option value="" class="bg-dark text-light text-center" selected></option>
+                    
+                                    <option value="Petty Cash">Petty Cash</option>
+                                    <option value="Undeposited Fund">Undeposited Fund</option>
+                                    <option value="Cash Account">Cash Account</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="parent_div33" style="display:none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account33"
+                                    id="parent_account33">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Fixed Asset
+                                    </option>
+                                    <option value="" class="bg-dark text-light text-center" selected></option>
+                    
+                                    <option value="Furniture and Equipment">Furniture and Equipment</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div id="parent_div44" style="display:none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account44"
+                                    id="parent_account44">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Stock</option>
+                                    <option value="" class="bg-dark text-light text-center" selected></option>
+                    
+                                    <option value="Inventory Asset">Inventory Asset</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div55" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account55"
+                                    id="parent_account55">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Other Current
+                                        Liability
+                                    </option>
+                                    <option value="" class="bg-dark text-light text-center" selected></option>
+                    
+                                    <option value="Employee Reimbursements">Employee Reimbursements</option>
+                                    <option value="Opening Balance Adjustments">Opening Balance Adjustments</option>
+                                    <option value="Tax Payable">Tax Payable</option>
+                                    <option value="Unearned Revenue">Unearned Revenue</option>
+                                    <option value="GST Payable">GST Payable</option>
+                                    <option value="Output CGST">&nbsp;&nbsp;&nbsp;Output CGST</option>
+                                    <option value="Output IGST">&nbsp;&nbsp;&nbsp;Output IGST</option>
+                                    <option value="Output SGST">&nbsp;&nbsp;&nbsp;Output SGST</option>
+                                    <option value="TDS Payable">TDS Payable</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div66" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account66"
+                                    id="parent_account66">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Long Term Liability
+                                    </option>
+                                    <option value="" selected></option>
+                                    <option value="Construction Loans">Construction Loans</option>
+                                    <option value="Mortgages">Mortgages</option>
+                    
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div77" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account77"
+                                    id="parent_account77">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Other Liability
+                                    </option>
+                                    <option value="" selected></option>
+                                    <option value="Tag Adjustments">Tag Adjustments</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div88" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account88"
+                                    id="parent_account88">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Equity</option>
+                                    <option value="" selected></option>
+                                    <option value="Drawings">Drawings</option>
+                                    <option value="Opening Balance Offset">Opening Balance Offset</option>
+                                    <option value="Owner's Equity">Owner's Equity</option>
+                                    <option value="Retained Earnings">Retained Earnings</option>
+                                    <option value="Capital Stock">Capital Stock</option>
+                                    <option value="Distributions">Distributions</option>
+                                    <option value="Dividends Paid">Dividends Paid</option>
+                                    <option value="Investments">Investments</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div99" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account99"
+                                    id="parent_account99">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Income</option>
+                                    <option value="" selected></option>
+                                    <option value="Discount">Discount</option>
+                                    <option value="General Income">General Income</option>
+                                    <option value="Interest Income">Interest Income</option>
+                                    <option value="Late Fee Income">Late Fee Income</option>
+                                    <option value="Other Charges">Other Charges</option>
+                                    <option value="sales">sales</option>
+                                    <option value="Shipping Charge">Shipping Charge</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div id="parent_div100" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account100"
+                                    id="parent_account100">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Expense</option>
+                                    <option value="" selected></option>
+                                    <option value="Discount">Discount</option>
+                                    <option value="Advertising and Marketing">Advertising and Marketing</option>
+                                    <option value="Automobile Expense">Automobile Expense</option>
+                                    <option value="Bad Debt">Bad Debt</option>
+                                    <option value="Bank Fees and Charges">Bank Fees and Charges</option>
+                                    <option value="Consultant Expense">Consultant Expense</option>
+                                    <option value="Credit Card Charges">Credit Card Charges</option>
+                                    <option value="Depreciation Expense">Depreciation Expense</option>
+                                    <option value="IT and Internet Expenses">IT and Internet Expenses</option>
+                                    <option value="Ganitorial Expense">Ganitorial Expense</option>
+                                    <option value="Lodging">Lodging</option>
+                                    <option value="Meals and Entertainment">Meals and Entertainment</option>
+                                    <option value="Office Supplies">Office Supplies</option>
+                                    <option value="Other Expenses">Other Expenses</option>
+                                    <option value="Postage">Postage</option>
+                                    <option value="Printing and Stationery">Printing and Stationery</option>
+                                    <option value="Rent Expense">Rent Expense</option>
+                                    <option value="Repairs and Maintenance">Repairs and Maintenance</option>
+                                    <option value="Salaries and Employee Wages">Salaries and Employee Wages</option>
+                                    <option value="Telephone Expense">Telephone Expense</option>
+                                    <option value="Travel Expense">Travel Expense</option>
+                                    <option value="Uncategorized">Uncategorized</option>
+                                    <option value="Contract Assets">Contract Assets</option>
+                                    <option value="Depreciation And Amortisation">Depreciation And Amortisation</option>
+                                    <option value="Merchandise">Merchandise</option>
+                                    <option value="Raw Materials And Consumables">Raw Materials And Consumables</option>
+                                    <option value="Transportation Expense">Uncategorized</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div id="parent_div111" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account111"
+                                    id="parent_account111">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Cost Of Goods Sold
+                                    </option>
+                                    <option value="" selected></option>
+                                    <option value="Cost Of Goods Sold">Cost Of Goods Sold</option>
+                                    <option value="Job Costing">Job Costing</option>
+                                    <option value="Labor">Labor</option>
+                                    <option value="Materials">Materials</option>
+                                    <option value="Subcontractor">Subcontractor</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="parent_div222" style="display: none;">
+                        <div class="row mt-3">
+                            <div class="col-sm-4">
+                                <label for="">Parent Account:</label>
+                            </div>
+                            <div class="col-sm-8">
+                    
+                                <select class="form-control text-dark bg-light" style="width: 70%;" name="parent_account222"
+                                    id="parent_account222">
+                                    <option value="" class="bg-dark text-light text-center" disabled>Other Expense
+                                    </option>
+                                    <option value="" selected></option>
+                                    <option value="Cost Of Goods Sold">Exchange Gain or Loss</option>
+                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+      
+                      <div style="display: none;" id="cr_div">
+                          <div class="row mt-3">
+                              <div class="col-sm-4">
+                                  <label for="">Currency:</label>
+                              </div>
+                              <div class="col-sm-8">
+                                  <input type="text" class="form-control text-dark bg-light" name="currency" id="currency" style="width: 70%;">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-sm-4">
+                              <label for="">Description:</label>
+                          </div>
+                          <div class="col-sm-8">
+                              <textarea name="description" value="{{acc.account_description}}"  class="form-control text-dark bg-light" id="description"
+                               style="width: 70%;">{{acc.account_description}}</textarea>
+                          </div>
+                      </div>
+            
+      
+                  </div>
+      
+                  <div class="col-sm">
+                      <div class="alert alert-warning alert-dismissible fade show" style="width: 50%;" >
+                          <span id="message_hd">Assets</span> <br>
+                          <span id="message" >Track special assets like goodwill and other intangible assets</span>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                  </div>
+              </div><br><br><br><br><br>
+              <div class="row">
+                  <div class="col-sm-12">
+                      <input class="btn btn-warning" type="submit" value="Save" style="width: 100px;height: 40px;">
+                      <input class="btn btn-light ml-3" type="reset" value="Cancel" style="width: 100px;height: 40px;">
+                  </div>
+              </div>
+      </div>
+      </div>
+      
+      </form>
+      {% comment %} <div id="total-bill-amount" class="mt-3" style="color: white;"></div> {% endcomment %}
+      <div>
+          <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
+          <br><br><br><br><br>
+      </div>
+  </div>
+</div>
+</section>
+
+
+</div>
+        </div>
+    </div>
+</section>
+</div>
+
+<section class="container-fluid" style="color: aliceblue; font-size: large; overflow-y: auto;">
+
+
+<br><br><br><br><br><br>
+<div  style="top: 7rem; margin-left: 20rem; margin-right: 2rem; margin-top: 5%;">
+ 
+</section>
+<script>
+    function message() {
+
+        var vals = document.getElementById('soValue1').value
+        console.log(vals)
+        if (vals == "Other Assets") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = "Track special assets like goodwill and other intangible assets"
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("cr_div").style.display = "none";
+
+        } else if (vals == "Other Current Assets") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account").checked = false;
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "block";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+
+            $('#message').append(
+                `Any short term asset that can be converted into cash or cash equivalents easily<ul style='list-style-type: disc;'><li>Prepaid expenses</li><li>Stocks and Mutual Funds</li></ul>`
+            )
+
+        } else if (vals == "Cash") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account22").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div22").style.display = "block";
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            $('#message').append(
+                `To keep track of cash and other cash equivalents like petty cash, undeposited funds, etc.`
+            )
+
+        } else if (vals == "Bank") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("cr_div").style.display = "block";
+            document.getElementById("acc_bo_div").style.display = "block";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+
+            $('#message').append(
+                `To keep track of bank accounts like Savings, Checking, and Money Market accounts`
+            )
+
+        } else if (vals == "Fixed Asset") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account33").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div33").style.display = "block";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            $('#message').append(
+                `Any long term investment or an asset that cannot be converted into cash easily like: 
+                <ul style='list-style-type: disc;'><li>Land and Buildings</li> <li>Plant, Machinery and Equipment</li> <li>Computers</li> <li>Furniture</li></ul>`
+            )
+
+        } else if (vals == "Stock") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account44").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div44").style.display = "block";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("cr_div").style.display = "none";
+            $('#message').append(
+                `To keep track of your inventory assets.`
+            )
+
+        } else if (vals == "Payment Clearing") {
+            document.getElementById('message_hd').innerHTML = "Assets"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+            $('#message').append(
+                `To keep track of funds moving in and out via payment processors like Stripe, PayPal, etc.`
+            )
+
+        } else if (vals == "Other Current Liability") {
+            document.getElementById('message_hd').innerHTML = "Liability"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account55").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "block";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+
+            $('#message').append(
+                `Any short term liability like:
+                <ul style='list-style-type: disc;'><li>Customer Deposits</li> <li>Tax Payable</li></ul>`
+            )
+
+        } else if (vals == "Credit Card") {
+            document.getElementById('message_hd').innerHTML = "Liability"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("cr_div").style.display = "block";
+            document.getElementById("acc_bo_div").style.display = "none";
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            $('#message').append(
+                `Create a trail of all your credit card transactions by creating a credit card account`
+            )
+
+        } else if (vals == "Long Term Liability") {
+            document.getElementById('message_hd').innerHTML = "Liability"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account66").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("sub_div66").style.display = "block";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+
+            document.getElementById("acc_bo_div").style.display = "none";
+
+            $('#message').append(
+                `Liabilities that mature after a minimum period of one year like Notes Payable, Debentures, and Long Term Loans`
+            )
+
+        } else if (vals == "Other Liability") {
+            document.getElementById('message_hd').innerHTML = "Liability"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account77").checked = false;
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div77").style.display = "block";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+
+
+            $('#message').append(
+                `Obligation of an entity arising from past transactions or events which would require repayment.<ul style='list-style-type: disc;'><li>Tax to be paid</li> <li>Loan to be Repaid</li> <li>Accounts Payable etc</li> </ul>`
+            )
+
+        } else if (vals == "Overseas Tax Payable") {
+            document.getElementById('message_hd').innerHTML = "Liability"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+
+            $('#message').append(
+                `Track your taxes in this account if your business sells digital services to foreign customers.`
+            )
+
+        } else if (vals == "Equity") {
+            document.getElementById('message_hd').innerHTML = "Equity"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account88").checked = false;
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "block";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            document.getElementById("acc_bo_div").style.display = "none";
+
+            $('#message').append(
+                `Owners or stakeholders interest on the assets of the business after deducting all the liabilities`
+            )
+
+        } else if (vals == "Income") {
+            document.getElementById('message_hd').innerHTML = "Income"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account99").checked = false;
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "block";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+
+            document.getElementById("acc_bo_div").style.display = "none";
+
+            $('#message').append(
+                `Income or Revenue earned from normal business activities like sale of goods and services to customers`
+            )
+
+        } else if (vals == "Other Income") {
+            document.getElementById('message_hd').innerHTML = "Income"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            $('#message').append(
+                `Income or revenue earned from activties not directly related to your business like :<ul style='list-style-type: disc;'><li>Interest Earned</li> <li>Dividend Earned</li></ul>`
+            )
+
+        } else if (vals == "Expense") {
+            document.getElementById('message_hd').innerHTML = "Expense"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account100").checked = false;
+
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div100").style.display = "block";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            $('#message').append(
+                `Reflects expenses incurred for running normal business operations, such as :<ul style='list-style-type: disc;'><li>Advertisements and Marketing</li> <li>Business Travel Expenses</li><li>License Fees</li><li>Utility Expenses</li></ul>`
+            )
+
+        } else if (vals == "Cost Of Goods Sold") {
+            document.getElementById('message_hd').innerHTML = "Expense"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account111").checked = false;
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div222").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div111").style.display = "block";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+            document.getElementById("sub_div222").style.display = "none";
+
+            $('#message').append(
+                `This indicates the direct costs attributable to the production of the goods sold by a company such as:<ul style='list-style-type: disc;'><li>Material and Labor costs</li> <li>Cost of obtaining raw materials</li></ul>`
+            )
+
+        } else if (vals == "Other Expense") {
+            document.getElementById('message_hd').innerHTML = "Expense"
+            document.getElementById('message').innerHTML = ""
+            document.getElementById("sub_account222").checked = false;
+
+            document.getElementById("cr_div").style.display = "none";
+            document.getElementById("name").style.display = "block";
+            document.getElementById("credit").style.display = "none";
+            document.getElementById("acc_bo_div").style.display = "none";
+            document.getElementById("parent_div").style.display = "none";
+            document.getElementById("parent_div22").style.display = "none";
+            document.getElementById("parent_div33").style.display = "none";
+            document.getElementById("parent_div44").style.display = "none";
+            document.getElementById("parent_div55").style.display = "none";
+            document.getElementById("parent_div66").style.display = "none";
+            document.getElementById("parent_div77").style.display = "none";
+            document.getElementById("parent_div88").style.display = "none";
+            document.getElementById("parent_div99").style.display = "none";
+            document.getElementById("parent_div100").style.display = "none";
+            document.getElementById("parent_div111").style.display = "none";
+
+            document.getElementById("sub_div").style.display = "none";
+            document.getElementById("sub_div22").style.display = "none";
+            document.getElementById("sub_div33").style.display = "none";
+            document.getElementById("sub_div44").style.display = "none";
+            document.getElementById("sub_div55").style.display = "none";
+            document.getElementById("sub_div66").style.display = "none";
+            document.getElementById("sub_div77").style.display = "none";
+            document.getElementById("sub_div88").style.display = "none";
+            document.getElementById("sub_div222").style.display = "block";
+            document.getElementById("sub_div100").style.display = "none";
+            document.getElementById("sub_div111").style.display = "none";
+            document.getElementById("sub_div99").style.display = "none";
+
+            $('#message').append(
+                `Reflects expenses incurred for activities unrelated to primary business operations like :<ul style='list-style-type: disc;'><li>Bad debts</li> <li>Contributions Towards Charity</li><li>Insurance</li></ul>`
+            )
+
+        }
+
+
+
+
+    };
+</script>
+
+<script>
+  function filterFunction1() {
+      var input, filter, ul, li, a, i, b, j;
+      input = document.getElementById("myInput1");
+      filter = input.value.toUpperCase();
+      div = document.getElementById("myDropdown1");
+      a = div.getElementsByClassName('opt');
+      // a = div.getElementsByTagName('div');
+
+      b = div.getElementsByTagName('li');
+
+      for (i = 0; i < a.length; i++) {
+          txtValue = a[i].textContent || a[i].innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              a[i].style.display = "";
+          }
+          else {
+              a[i].style.display = "none";
+          }
+      }
+      for (j = 0; j < b.length; j++) {
+          txtValue = b[j].textContent || b[j].innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              b[j].style.display = "";
+          }
+          else {
+              b[j].style.display = "none";
+          }
+      }
+
+  }
+</script>
+
+<!-- <script>
+  function show_parent(){
+    var chk = document.getElementById("sub_account").checked
+
+    if(chk== true){
+      document.getElementById("parent_div").style.display="block";
+    }else{
+      document.getElementById("parent_div").style.display="none";
+    }
+  }
+</script> -->
+
+<script>
+
+  function show_parent() {
+
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Other Current Assets") {
+
+          var chk = document.getElementById("sub_account").checked;
+
+
+          if (chk == true) {
+              document.getElementById("parent_div").style.display = "block";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+
+
+
+          } else {
+              document.getElementById("parent_div").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent22() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+      if (vals == "Cash") {
+          var chk = document.getElementById("sub_account22").checked;
+          if (chk == true) {
+              document.getElementById("parent_div22").style.display = "block";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          }
+          else {
+              document.getElementById("parent_div22").style.display = "none";
+          }
+      }
+
+  }
+
+  function show_parent33() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+      if (vals == "Fixed Asset") {
+          var chk1 = document.getElementById("sub_account33").checked;
+          if (chk1 == true) {
+              document.getElementById("parent_div33").style.display = "block";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+
+          }
+          else {
+              document.getElementById("parent_div33").style.display = "none";
+          }
+      }
+
+  }
+
+  function show_parent44() {
+
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+      if (vals == "Stock") {
+          var chk = document.getElementById("sub_account44").checked
+          if (chk == true) {
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div44").style.display = "block";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+
+          } else {
+              document.getElementById("parent_div44").style.display = "none";
+          }
+      }
+  }
+
+
+  function show_parent55() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Other Current Liability") {
+          var chk = document.getElementById("sub_account55").checked
+          if (chk == true) {
+              document.getElementById("parent_div55").style.display = "block";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          } else {
+              document.getElementById("parent_div55").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent66() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Long Term Liability") {
+          var chk = document.getElementById("sub_account66").checked
+          if (chk == true) {
+              document.getElementById("parent_div66").style.display = "block";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          } else {
+              document.getElementById("parent_div66").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent77() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Other Liability") {
+          var chk = document.getElementById("sub_account77").checked
+          if (chk == true) {
+              document.getElementById("parent_div77").style.display = "block";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          } else {
+              document.getElementById("parent_div77").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent88() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Equity") {
+          var chk = document.getElementById("sub_account88").checked
+          if (chk == true) {
+              document.getElementById("parent_div88").style.display = "block";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          } else {
+              document.getElementById("parent_div88").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent99() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+      if (vals == "Income") {
+          var chk = document.getElementById("sub_account99").checked
+          if (chk == true) {
+              document.getElementById("parent_div99").style.display = "block";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+          } else {
+              document.getElementById("parent_div99").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent100() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+      if (vals == "Expense") {
+          var chk = document.getElementById("sub_account100").checked;
+          if (chk == true) {
+              document.getElementById("parent_div100").style.display = "block";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+
+
+          } else {
+              document.getElementById("parent_div100").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent111() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+
+      if (vals == "Cost Of Goods Sold") {
+          var chk = document.getElementById("sub_account111").checked
+          if (chk == true) {
+              document.getElementById("parent_div111").style.display = "block";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div222").style.display = "none";
+
+
+          } else {
+              document.getElementById("parent_div111").style.display = "none";
+          }
+      }
+  }
+
+  function show_parent222() {
+      var vals = document.getElementById('soValue1').value;
+      console.log(vals);
+
+      if (vals == "Other Expense") {
+          var chk = document.getElementById("sub_account222").checked;
+          if (chk == true) {
+              document.getElementById("parent_div222").style.display = "block";
+              document.getElementById("parent_div66").style.display = "none";
+              document.getElementById("parent_div99").style.display = "none";
+              document.getElementById("parent_div55").style.display = "none";
+              document.getElementById("parent_div44").style.display = "none";
+              document.getElementById("parent_div33").style.display = "none";
+              document.getElementById("parent_div22").style.display = "none";
+              document.getElementById("parent_div").style.display = "none";
+              document.getElementById("parent_div77").style.display = "none";
+              document.getElementById("parent_div88").style.display = "none";
+              document.getElementById("parent_div100").style.display = "none";
+              document.getElementById("parent_div111").style.display = "none";
+
+
+          } else {
+              document.getElementById("parent_div222").style.display = "none";
+          }
+      }
+  }
+
+
+</script>
+
+
+
+
+
+{% endblock %}

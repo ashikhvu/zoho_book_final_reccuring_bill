@@ -1,0 +1,770 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+  @media print {
+    body {
+      visibility: hidden !important;
+      /* hide everything in body when in print mode*/
+    }
+
+    .printContainer {
+      visibility: visible !important;
+      /* Override the rule above to only show the printables*/
+      position: absolute;
+      z-index: 99999;
+      top: 0;
+      bottom: 0;
+      width: 70vh;
+      height: 10%;
+    }
+  }
+</style>
+<div class="body-wrapper">
+  <div class="container-fluid text-light">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}"
+            class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+        {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}"
+            class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+        <li class="breadcrumb-item"><a href="{% url 'view_vendor_list' %}" class="text-warning-emphasis">vendor_list</a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">Over view</li>
+      </ol>
+    </nav>
+    <div class="row mt-5">
+      <div class="col-sm-12 col-lg-12 flex-column">
+        <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+          <div class="row mt-4">
+            <div class="col-sm flex-column">
+              <div class="row">
+                <div class="row">
+                  <a class="text-white" style="font-size: 1.5rem;">Vendors</a>
+                </div>
+                <div class="row">
+                  <div class="col-sm-3 col-lg-7">
+                    <input type="text" id="search" class="form-control bg-light text-dark " placeholder="Search.."
+                      autocomplete="off">
+                  </div>
+                  <div class="col-sm-4 col-lg-5 " style="text-align: right; float: right;">
+                    <a class="btn text-center  btn-outline-warning btn-sm" id="sortbutton" data-bs-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false" role="button">
+                      <i class="fas fa-sort "></i>
+                    </a>
+
+
+                    <div class="dropdown-menu m-1">
+                      <a class="dropdown-item" href="{% url 'view_vendor_list' %}">All</a>
+                      <a class="dropdown-item" href="{% url 'sort_vendor_by_name' %}">Name</a>
+                      <a class="dropdown-item" href="{% url 'sort_vendor_by_amount' %}">Amount</a>
+                    </div>
+                    <a class="btn text-center btn-outline-warning btn-sm" id="filterbutton" data-bs-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false" role="button">
+                      <i class="fas fa-filter "></i>
+                    </a>
+                    <div class="dropdown-menu m-1 ">
+                      <a class="dropdown-item" href="{% url 'view_vendor_list' %}">All</a>
+                      <a class="dropdown-item" href="{% url 'view_vendor_active' %}">Active</a>
+                      <a class="dropdown-item" href="{% url 'view_vendor_inactive' %}">Inactive</a>
+                    </div>
+                    <a class="btn btn btn-outline-warning btn-sm " style="text-align: right;"
+                      href="{% url 'vendor' %}"><i class="fa fa-plus "></i></a>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="row">
+                <div class="table-responsive scrollable-table">
+                  <table class="table  text-white" id="myTable">
+                    <tbody>
+
+
+
+                      <tr class="clickable-row" data-href="{% url 'view_vendor_details' vendor_obj.id %}">
+                        <td>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <h5 style="color: white;">{{vendor_obj.first_name}} {{vendor_obj.last_name}}</h5>
+                            </div>
+                            <div class="col-md-6 " style="text-align: right;">&#x20B9; {{ vendor_obj.opening_balance }}
+                            </div>
+                          </div>
+                          <p>{{vendor_obj.vendor_email}}</p>
+
+                        </td>
+
+                      </tr>
+
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div id="overviewdiv">
+                <div class="row ">
+                  <div class="col-md-7">
+                    <a class="text-white" style="font-size: 1.5rem;;">
+                      <h3 class="text-white">{{vendor_obj.first_name}} {{vendor_obj.last_name}}</h3>
+                    </a>
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <!-- <div class="col-md-2" > -->
+                  <style>
+                    .mrl-2{
+                      margin-right: 0.75rem
+                    }
+                  </style>
+                  <div class="col-sm-12 col-md-4 col-lg-12 d-flex ">
+                    <div onclick="fieldset1_function()" class="btn btn-warning d-flex mrl-2"
+                      style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">
+                      <span>
+                        <i class="fas fa-eye ml-1"></i> Overview</span> </div>
+                    <div onclick="fieldset8_function()" class="btn mrl-2" style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                            background-color: rgb(78, 77, 77);"><span><i class="fas fa-file-alt ml-1"></i> Transactions</span> </div>
+                  </div>
+
+
+
+                  <!-- <a class="btn bg-warning text-light btn-sm" ><i class="fas fa-eye"></i> Overview</a>
+                        </div> -->
+                  <div class="col-md-10 col-lg-12 col-sm-12" style="text-align: right; ">
+                    <a href="{% url 'Vendor_edit' vendor_obj.id %} " class=" text-dark">
+                      <button class="btn btn-outline-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></button>
+                    </a>
+                    <a class="text-dark" onclick="exportToPDF()" id="pdflink">
+                      <button class="btn btn-outline-warning btn-sm" title="Pdf"><i
+                          class="fa-solid fa-file-pdf"></i></button>
+                    </a>
+                    <a class=" text-dark" onclick="printSelectedArea()">
+                      <button class="btn btn-outline-warning btn-sm" title="Print"> <i class="fas fa-print"></i>
+                      </button>
+                    </a>
+                    <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal"
+                      data-toggle="tooltip" title="comment">
+                      <i class="far fa-comment"></i>
+                    </a>
+                    {% if p.uploaded_file %}
+                    <a class="text-dark" href="{{ p.uploaded_file.url }}" download>
+                      <button class="btn btn-outline-warning btn-sm" title="download"><i
+                          class="fas fa-download"></i></button>
+                    </a>
+                    {% else %}
+                    <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" title="upload"
+                      data-target="#commentModal3" data-toggle="tooltip" title="comment">
+                      <i class="fa-solid fa-upload"></i>
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'delete_vendors'  vendor_obj.id %}" class="text-dark">
+                      <button class="btn btn-outline-warning btn-sm" title="Delete"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </a>
+                    <a class="btn btn-outline-warning btn-sm" href="{% url 'vendor_status' vendor_obj.id %}"
+                      id="sts">{{vendor_obj.vendor_status}}</a>
+                    <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal2"
+                      data-toggle="tooltip" title="history">
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </a>
+                    <a class="btn btn-outline-warning dropdown-toggle btn-sm" href="#" role="button" title="share"
+                      id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fa-solid fa-share-nodes"></i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <a class="dropdown-item" href="#" data-toggle="modal" title="upload" data-target="#commentModal4"
+                        data-toggle="tooltip" title="comment">Mail</a>
+                      <a class="dropdown-item" href="#" onclick="shareViaWhatsApp()">whatsapp</a>
+                    </div>
+                  </div>
+
+                </div><br>
+
+                <div id="printdiv" style="color:black;">
+                  <div class="row " id="div-to-pdf"
+                    style="background-color: #acaaaafd; margin-left:1px; margin-right: 1rem; ">
+                    <br>
+                    <div id="overview">
+                      <div class="row">
+                        <div class="col-3 mt-3">
+                         
+                          <label style="font-size: medium; "><b>{{vendor_obj.company_name}}</b></label>
+  
+  
+                        </div>
+                        <div class="col-6 mt-3">
+                          <div class="row text-center">
+                            <h2>Vendor Details</h2>
+                          </div>
+                        </div>
+                        <div class="col-3 mt-3" style="text-align: right;">
+                          <label style="font-size: medium;"><b>Status : {{vendor_obj.vendor_status}}</b></label><br>
+                        </div>
+                      </div>
+                      <div class="row text-center">
+                        <h2>
+                          <hr>
+                        </h2>
+                      </div>
+                      <div class="row">
+                        <div class="gen-info col-6 " style="padding-left: 3rem;  ">
+                          <div class="row mt-1">
+                            <div class="col-2"></div>
+                            <div class="col-6" style="text-align: center; ">
+                              <a href=" ">
+    
+                                <br><br>
+                                <p class="text-dark fs-5 b">{{vendor_obj.title}} &nbsp;{{vendor_obj.first_name}}
+                                  &nbsp;{{vendor_obj.last_name}}
+                                </p>
+                              </a>
+                            </div>
+                          </div><br>
+                          <div class="row mt-1">
+                            <div class="col-5">
+                              <p for=""> Email : </p>
+                            </div>
+                            <div class="col-7">
+                              <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{vendor_obj.vendor_email}}
+                              </p>
+                            </div>
+                          </div>
+                          <div class="row mt-2">
+                            <div class="col-5">
+                              <p for="">Work Phone :</p>
+                            </div>
+                            <div class="col-7">
+                              <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{vendor_obj.phone}}</p>
+                            </div>
+                          </div>
+    
+                          <div class="row mt-2">
+                            <div class="col-5">
+                              <p for="">Mobile Phone :</p>
+                            </div>
+                            <div class="col-7">
+                              <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{vendor_obj.mobile}}</p>
+                            </div>
+                          </div>
+                          <div class="h3 mt-4 text-black">More info
+                            <hr style="color: orange;">
+                          </div>
+                          <div class="row mt-2">
+                            <div class="col-5">
+                              <p for="">Website : </p>
+                            </div>
+                            <div class="col-7">
+                              <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{vendor_obj.website}}</p>
+                            </div>
+                          </div>
+    
+    
+                        </div>
+                        <div class="p-info col-6 mr-2">
+                          <div class="card "
+                            style="background-color:#383838 ; color:white; padding-left: 1rem; padding-top: 1rem;">
+                            <div class="h3 mt-4 " style="margin-right: 1vh; color:white">
+                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;General Information
+                              <hr style="color: orange;">
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">GST Treatment :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.gst_treatment}}</p>
+                              </div>
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">GST Number :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.gst_number}}</p>
+                              </div>
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">PAN Number:</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.pan_number}}</p>
+    
+                              </div>
+                            </div>
+    
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Source Of Supply :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.source_of_supply}}</p>
+                              </div>
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Currency :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.currency}}</p>
+                              </div>
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Opening Balance Type :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.opening_balance_type}}</p>
+                              </div>
+                            </div>
+    
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Opening Balance Amount :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.opening_balance}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5">
+                                <p for="">Payment Terms :</p>
+                              </div>
+                              <div class="col-6">
+                                <p class="bold">{{vendor_obj.payment_term.term_name}}</p>
+                              </div>
+                            </div>
+    
+    
+    
+    
+    
+    
+                          </div><br>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="transactions" style="display: none;background-color:#acaaaafd " >
+                      <fieldset8 class="p-2">
+                        <div class="row text-dark ">
+                          <div class="col-md-8">
+                            <h6 class="text-uppercase py-2">{{vendor_obj.first_name}} {{vendor_obj.last_name}}
+                            </h6>
+                            {% if vendor_obj.phone %}
+                            <p>Phone : {{vendor_obj.phone}}</p>
+                            {% endif %}
+                            {% if vendor_obj.vendor_email %}
+                            <p>Email : {{vendor_obj.vendor_email}}</p>
+                            {% endif %}
+                            <p>No Credit Limit Set</p>
+                          </div>
+          
+                          <hr>
+                        </div>
+          
+                        <div>
+                          <h6 class="text-dark text-uppercase py-2">TRANSACTIONS</h6>
+                          <table class="transaction_table table text-dark border mb-4" id="myTable">
+                            <thead>
+                              <tr>
+                                <th></th>
+          
+                                <th>
+                                  <div class="row">
+                                    <div class="col-md-6"><h5>BALANCE </h5><p>{{vendor_obj.opening_balance}}</p></div>
+                                    <!-- <div class="col-md-6 " style="text-align: right;"><i class="fas fa-filter filter-button"></i>
+                                      <div class="filter-dropdown">
+                                        <select class="filter-option">
+                                          <option value="equal-to">Equal to</option>
+                                          <option value="less-than">Less than</option>
+                                          <option value="greater-than">Greater than</option>
+                                        </select><br><br>
+                                        <input type="number" class="filter-value"><br><br>
+          
+          
+                                        <button class="btn apply-filter">Apply</button>
+                                        <button class="btn clear-filter">Clear</button>
+          
+                                      </div>
+                                    </div> -->
+                                  </div>
+                                </th>
+          
+          
+                              </tr>
+                            </thead>
+                            <tbody>
+          
+                            </tbody>
+                          </table>
+                        </div>
+          
+                      </fieldset8>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+             
+
+
+           
+            <!---------------------------------------------print div content----------->
+            <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" style="margin-top: 8vh;">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content" style="background-color: #3b3b3b;">
+                <div class="modal-header">
+                  <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+                  <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                  </button>
+                </div>
+                <form action="{% url 'vendor_add_comment' vendor_obj.id %}" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="modal-body" style="background-color: #3b3b3b;">
+                    <textarea type="text" class="form-control text-light" name="comments"></textarea>
+                    <div class="container-fluid">
+                      <table class="table  text-white" style="margin:3px; background-color: #000000;">
+                        <thead>
+                          <tr>
+                            <th style="text-align: center; font-size: large;">sl no.</th>
+                            <th style="text-align: center; font-size: large;">Comments</th>
+                            <th style="text-align: center; font-size: large;">By</th>
+                            <th style="text-align: center; font-size: large;">Delete</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for c in vendor_comments %}
+                          <tr class="table-row">
+                            <td style="text-align: center;">{{forloop.counter }}</td>
+                            <td style="text-align: center;">{{c.comment}}</td>
+                            <td style="text-align: center;">{{c.login_details.first_name}}
+                              {{c.login_details.last_name}}</td>
+                            <td style="text-align: center;">
+                              <a class="text-danger" href="{% url 'vendor_delete_comment' c.id %}"><i class="fa fa-trash"
+                                  style="font-size:20px;"></i></a>
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-warning">Save</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!--------------------------------------------------------------------->
+          <div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true" style="margin-top: 8vh;">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content" style="background-color: #3b3b3b;">
+                <div class="modal-header">
+                  <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+                  <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="container ">
+                    <table class="table text-light  " style="margin:3px; background-color: #000000;">
+                      <thead>
+                        <tr>
+                          <th>
+                            sl
+                          </th>
+                          <th>
+                            Date
+                          </th>
+                          <th>
+                            Action
+                          </th>
+                          <th>
+                            By
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for i in vendor_history %}
+                        <tr class="table-row">
+                          <td>{{forloop.counter}}</td>
+                          <td>{{i.date}}</td>
+                          <td>{{i.action}}</td>
+                          <td>{{i.login_details.first_name}} {{i.login_details.Last_name}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--------------------------------------------------------------------------------------->
+        <div class="modal fade" id="commentModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+          aria-hidden="true" style="margin-top: 8vh;">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #3b3b3b;">
+              <div class="modal-header">
+                <h3 class="modal-title text-light" id="exampleModalLabel">Add FILE</h3>
+                <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                </button>
+              </div>
+              <form action="{% url 'add_vendor_file' vendor_obj.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                  <input type="file" name="file" required class="form-control" multiple>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-outline-warning">Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-------------------------------------------------------------------------------------------------------->
+        <div class="modal fade" id="commentModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+          aria-hidden="true" style="margin-top: 8vh;">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #3b3b3b;">
+              <div class="modal-header">
+                <h3 class="modal-title text-light" id="exampleModalLabel">Share details</h3>
+                <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                </button>
+              </div>
+              <form action="{% url 'vendor_shareemail' vendor_obj.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                  <input type="email" name="email" required style="color:white;" class="form-control">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-outline-warning">Share</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+            <!----------------------------------------------------------end--------------------------------->
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+
+  function fieldset1_function() {
+    document.getElementById("overview").style.display = "block";
+    document.getElementById("transactions").style.display = "none";
+    
+  }
+
+
+  function fieldset8_function() {
+    document.getElementById("overview").style.display = "none";
+    document.getElementById("transactions").style.display = "block";
+   
+
+
+  }
+
+</script>
+<script>
+  function shareViaWhatsApp() {
+    // Replace 'Hello, this is a shared message!' with your desired message
+    var message = encodeURIComponent(window.location.href);
+
+    // Create the WhatsApp share link
+    var whatsappLink = 'https://wa.me/?text=' + message;
+
+    // Open the link in a new tab/window
+    window.open(whatsappLink, '_blank');
+  }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script>
+  function exportToPDF() {
+    console.log("myTable1");
+
+    // Use the correct selector to get the element by ID
+    var element = document.getElementById('div-to-pdf')
+
+    var opt =
+    {
+      margin: 0.5,
+      filename: 'overviewpage' + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 4 },
+      jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait', }
+    };
+    html2pdf().set(opt).from(element).save();
+
+
+  }
+</script>
+
+<script>
+  function printSelectedArea() {
+    var printContents = $("#printdiv").clone(); // Clone the content-div to avoid modifying the original content
+    printContents.find('.hideon-print').remove(); // Remove columns by class name
+
+    var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
+    $printerDiv.html(printContents.html());
+    $('body').append($printerDiv).addClass("printingContent");
+    var h1Element = document.createElement("h1");
+    var head = document.getElementById("printContainer");
+    head.insertBefore(h1Element, head.firstChild);
+    window.print();
+    $printerDiv.remove();
+    $('body').removeClass("printingContent");
+
+
+  }
+</script>
+
+<script>
+  const rows = document.querySelectorAll('.clickable');
+  rows.forEach(row => {
+    row.addEventListener('click', () => {
+      var currentURL = window.location.href
+      const rowId = row.id;
+      var newURL = currentURL.replace(/\d+$/, rowId);
+      window.location.href = newURL;
+    });
+  });
+</script>
+
+<script>
+  var $rows = $('#myTable tbody tr');
+  $('#search').keyup(function () {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    $rows.hide().filter(function () {
+      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return ~text.indexOf(val);
+    }).show();
+  });
+</script>
+
+<script>
+  function sortTable() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 0; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("b")[0];
+        y = rows[i + 1].getElementsByTagName("b")[0];
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+  }
+
+  function sortTablebal() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 0; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = parseFloat(rows[i].getElementsByTagName("label")[2].textContent.replace('₹', '').trim());
+        y = parseFloat(rows[i + 1].getElementsByTagName("label")[2].textContent.replace('₹', '').trim());
+        if (x > y) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+      }
+    }
+  }
+
+  function applyFilter(currentFilter) {
+    var rows = $("#myTable tbody tr");
+    rows.show();
+    if (currentFilter === "Active" || currentFilter === "Inactive") {
+      rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+    }
+  }
+</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  {% for msg in messages %}
+  swal({
+    title: "{{msg}}",
+    text: "{{msg.tags}}",
+    icon: "{{msg.tags}}",
+  });
+  {% endfor %}
+</script>
+
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function() {
+      const filterButton = document.querySelector(".filter-button");
+      const filterDropdown = document.querySelector(".filter-dropdown");
+
+      // Initially hide the filter dropdown
+      filterDropdown.style.display = "none";
+
+      // Toggle display of filter dropdown when filter button is clicked
+      filterButton.addEventListener("click", function() {
+          if (filterDropdown.style.display === "none") {
+              filterDropdown.style.display = "block";
+          } else {
+              filterDropdown.style.display = "none";
+          }
+      });
+  });
+</script> -->
+
+
+{% endblock %}

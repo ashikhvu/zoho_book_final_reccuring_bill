@@ -1,0 +1,914 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+  .btn-margin {
+      margin-right: 5px;
+  }
+</style>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-ez8n5b/9F3JpKCEY6zIp+Hg7IbU8d7Q5ST78iEiRaP2mNPjkDps8I+1i0fblDOoh" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+     .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+
+</style>
+<style>
+  .scrollable-container {
+    border-right: 1px solid white;
+    overflow-y: scroll;
+    height: 84vh;
+  }
+
+  .scrollable-container::-webkit-scrollbar {
+    width: 0; /* Set width to 0 to hide the scrollbar */
+  }
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> -->
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script> -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'chartofaccounts' %}" class="text-warning-emphasis">Accounts</a></li>
+              <li class="breadcrumb-item" aria-current="page">Overview</li>
+            </ol>
+        </nav>
+        <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
+       
+            
+                                                            
+         <div class="col-md-12" style="width: 120%;">
+          <div class="row">
+            <div class="col-md-3 scrollable-container" style="border-right: 1px solid white; overflow-y: scroll; height: 84vh;width: 25%;">
+              <div class="row">
+            
+                <a class="text-white" style="font-size: 1.5rem;color: white; padding-left: 20px; padding-top: 20px;">All Accounts</a>
+             
+                <br>      
+                <div class="col-md-2">
+                  <div class="dropdown">
+                      <a class="btn text-center mt-2 btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button" style="margin-left: 20px; height: 38px;">
+                          <i class="fas fa-sort m-1"></i>
+                      </a>
+                      
+                      <div class="dropdown-menu m-1" style="background-color: black; color: white;">
+                          <a class="dropdown-item text-white" href="{% url 'chartofaccountsoverview' selacc.id %}">All</a>
+                          <a class="dropdown-item text-white" href="{% url 'account_view_sort_by_name' selacc.id %}">Account Name</a>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="col-md-3" style="padding-left: 40px;">
+                  <div class="col-md-2 mt-2 mx-1">
+                      <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="height: 38px;">
+                          <i class="fa fa-filter"></i>
+                      </a>
+              
+                      <div class="dropdown-menu m-1">
+                        <a class="dropdown-item" href="{% url 'chartofaccountsoverview' selacc.id %}">All</a>
+                        <a class="dropdown-item" href="{% url 'account_view_filterActive' selacc.id %}">Active</a>
+                        <a class="dropdown-item" href="{% url 'account_view_filterinActive' selacc.id %}">Inactive</a>
+                      </div>
+                  </div>
+              </div>
+              <script>
+                  function applyFilter(currentFilter) {
+                              var rows = $("#table2 tbody tr");
+                              rows.show();
+                              if (currentFilter === "Active" || currentFilter === "inactive") {
+                                rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+                              }
+                            }
+              </script>
+              
+              <div class="col-md-3" style="padding-left: 120PX;">
+                  <a class="btn btn btn-outline-warning text-right mt-2" style="height: 38px; padding-top: 12px; padding-left: 17px;" href="{% url 'addchartofaccounts'%}">
+                      <i class="fa fa-plus"></i>
+                  </a>
+              </div>
+              
+              <div class="col-md-6"></div>
+              
+  
+              </div>
+              <br>
+              <div class="scrollable-table" style="width: 85%;margin-left: 20px;">
+                <div class="row">
+                  <div class="col-md-12">
+                    <input type="text"  id="searchInput" class="form-control text-black" style="border-color: rgb(201, 200, 199);background-color: #fefefe;color: #000;" placeholder="Search...">
+
+
+                  </div>
+              </div>
+  
+         
+            
+            <br>
+            <!-- Table 2: Billable Projects -->
+            <table class="table  text-white" id="table2">
+              <tbody>
+                {% for i in acc %}
+                  <tr class="clickable" id="{{i.id}}">
+                    <td class="justify-content-between align-items-center ">
+                      <b ><a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}">{{i.account_name}} </a></b>
+                      <br>
+                      <a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}">{{i.account_type}}</a><br>
+                 
+                    </td>
+                    
+                    <td>
+                      <label class="text-end d-block"><a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}">{{i.status}}</a></label>
+                      <br>
+                      <label class="text-end d-block"><a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}">{{i.account_code}}</a></label>
+                    </td>
+                  </tr></a>
+                {% endfor %}
+              </tbody>
+            </table>
+            <!-- <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;color: #d19d0d;">
+              <tbody>
+                {% for i in acc %} -->
+                       <!-- <td>
+                    <a class="text-white"  href="{% url 'itemsoverview'  i.id%}"><b>{{i.item_name}}</b> <span class="d-flex justify-content-end text-warning align-items-start" > {{i.current_stock}}</span> <br>
+                        <span class="d-flex  align-items-start text-warning"> {{i.hsn_code}}</span> <span class="d-flex justify-content-end align-items-start"> {{i.activation_tag}}</span>
+                    </a>   
+                </td> -->
+                
+                <!-- <style>
+                  .reduce-gap {
+                    margin-top: -0px; /* Adjust the value as needed */
+                  }
+                </style> -->
+                
+                <!-- Your HTML code -->
+                
+                <!-- <tr class="account-row" data-account-type="{{ i.account_type }}">
+                  <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 254, 252);"><b>{{i.account_name}}</b></a></td>
+                  <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 255, 253);">{{ i.Create_status }}</a></td>
+                </tr> 
+                
+                <tr class="account-row reduce-gap" data-account-type="{{ i.account_type }}">
+                  <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(245, 245, 245);">{{i.account_type}}</a></td>
+                  <td><a href="{% url 'chartofaccountsoverview' i.id %}" style="text-decoration: none; color: rgb(255, 255, 254);">{{ i.account_code }}</a><hr style="width: 500%;margin-left: -220px;color: #ffffff;"></td>
+                </tr>
+                
+            
+                {% endfor %}
+              </tbody>
+            </table> -->
+<!--               
+            <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;">
+
+              <tbody>
+                {%for i in acc %}
+                <tr class="account-row" data-account-type="{{ i.account_type }}">
+                  <td>
+                    <a class="text-white"  href="{% url 'chartofaccountsoverview'  i.id%}"><b>{{i.account_name}}</b> <span class="d-flex justify-content-end text-warning align-items-start" > {{i.account_type}}</span> <br>
+                        <span class="d-flex  align-items-start text-warning"> {{i.account_code}}</span> <span class="d-flex justify-content-end align-items-start"> {{i.Create_status}}</span>
+                    </a> 
+                </td>
+                </tr>
+                {%endfor%}
+              </tbody>
+            </table> -->
+
+  </div>
+</div>
+
+
+<div class="col" style="width: 300%;" id="overviewdiv" >
+  <div class="row">
+    <div class="col-md-7">
+      <a class="text-white" style="font-size: 1.5rem;padding-top: 20px;">
+        <br>
+        <h2 style="color: aliceblue;">{{selacc.account_name}}</h2>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;"><i class="fas fa-eye"></i>
+        Overview</a>
+        <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
+          Transaction</a>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get the elements by ID
+                var overviewDiv = document.getElementById('overviewdiv');
+                var transactionDiv = document.getElementById('Transaction');
+        
+                // Set the initial display state
+                overviewDiv.style.display = 'block';
+                transactionDiv.style.display = 'none';
+            });
+        
+            function totemplate() {
+                // Get the elements by ID
+                var overviewDiv = document.getElementById('overviewdiv');
+                var transactionDiv = document.getElementById('Transaction');
+        
+                // Toggle the display property
+                if (overviewDiv.style.display === 'block' || overviewDiv.style.display === '') {
+                    overviewDiv.style.display = 'none';
+                    transactionDiv.style.display = 'block';
+                } else {
+                    overviewDiv.style.display = 'block';
+                    transactionDiv.style.display = 'none';
+                }
+            }
+            function totemplate2() {
+      // Get the elements by ID
+      var overviewDiv = document.getElementById('overviewdiv');
+      var transactionDiv = document.getElementById('Transaction');
+
+      // Show the overviewDiv and hide the transactionDiv
+      overviewDiv.style.display = 'block';
+      transactionDiv.style.display = 'none';
+  }
+        </script>
+        
+
+
+    </div>
+    <!-- <div class="col-sm-1 " style="margin-left: -18%;">
+      <div class="col-md-6 d-flex justify-content-between align-items-center"> -->
+  
+       <!-- Edit Button -->
+<!-- <a href="{% url 'editchartofaccounts' selacc.id %}" class="btn btn-outline-warning py-2 text-warning btn-margin" title="save this draft"><i class="fas fa-pencil-alt"></i></a> -->
+
+<!-- Item Status Edit Button -->
+<!-- <a href="{% url 'acc_status_edit' selacc.id %}" class="btn btn-outline-warning py-2 btn-margin" title="save this draft">{{selacc.status}}</a> -->
+
+<!-- Delete Button -->
+<!-- <a href="{% url 'deleteaccount' selacc.id %}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this creditnote?');"></a> -->
+
+<!-- Share Button -->
+<!-- <div class="dropdown btn-margin">
+  <a class="btn text-center btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button">
+      <i class="fas fa-share"></i>
+  </a>
+  <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;">
+      <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+      <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
+  </div>
+</div>
+
+<a class="text-dark btn-margin" onclick="exportToPDF3()">
+  <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;"><i class="fas fa-file-pdf"></i></button>
+</a>
+
+<a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" onclick="exportToExcel()" style="width: 50px;">XLS</a>
+
+<a class="text-dark btn-margin" onclick="printSelectedArea2()">
+  <button class="btn btn-outline-warning" title="Print" style="width: 50px;"><i class="fas fa-print"></i></button>
+</a> -->
+
+<!-- Comment Button -->
+<!-- <div class="dropdown btn-margin">
+  <a href=" " class="btn btn-outline-warning py-2 fas fa-comment-dots dropdown-toggle text-warning" data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"></a>
+  <div class="dropdown-menu" aria-labelledby="attachmentDropdown" style="background-color: rgb(46, 45, 45); color: white;">
+      <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+      <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+  </div>
+</div> -->
+
+<!-- History Button -->
+<!-- <a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" data-toggle="modal" data-target="#history">History</a>
+</div> -->
+  <!-- </div><br> -->
+  <div class="col-sm-1 " style="margin-left: -10%;">
+    <div class="col-md-1 d-flex justify-content-between align-items-center">
+
+        <!-- Edit Button -->
+        <a href="{% url 'editchartofaccounts' selacc.id %}" class="btn btn-outline-warning py-2 text-warning btn-margin" title="save this draft"><i class="fas fa-pencil-alt"></i></a>
+
+        <!-- Item Status Edit Button -->
+        <a href="{% url 'acc_status_edit' selacc.id %}" class="btn btn-outline-warning py-2 btn-margin" title="save this draft">{{selacc.status}}</a>
+        
+        <!-- Delete Button -->
+        <a href="{% url 'deleteaccount' selacc.id %}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Account?');"></a>
+        <!-- <div class="dropdown btn-margin">
+          <a href=" " class="btn btn-outline-warning py-2 fas fa-comment-dots dropdown-toggle text-warning" data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"></a>
+          <div class="dropdown-menu" aria-labelledby="attachmentDropdown" style="background-color: rgb(46, 45, 45); color: white;">
+              <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+              <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+          </div>
+      </div> -->
+      <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip" title="comment">
+        <i class="far fa-comment"></i>
+      </a>
+        <!-- Share Button -->
+        <!-- <div class="dropdown btn-margin">
+            <a class="btn text-center btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button">
+                <i class="fas fa-share"></i>
+            </a>
+            <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;">
+                <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+                <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
+            </div>
+        </div>
+        
+        <a class="text-dark btn-margin" onclick="exportToPDF3()">
+            <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;"><i class="fas fa-file-pdf"></i></button>
+        </a>
+        
+        <a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" onclick="exportToExcel()" style="width: 50px;">XLS</a>
+        
+        <a class="text-dark btn-margin" onclick="printSelectedArea2()">
+            <button class="btn btn-outline-warning" title="Print" style="width: 50px;"><i class="fas fa-print"></i></button>
+        </a>
+        
+      Comment Button -->
+        <!-- <div class="dropdown btn-margin">
+            <a href=" " class="btn btn-outline-warning py-2 fas fa-comment-dots dropdown-toggle text-warning" data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"></a>
+            <div class="dropdown-menu" aria-labelledby="attachmentDropdown" style="background-color: rgb(46, 45, 45); color: white;">
+                <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmnts"><i class="fa-solid fa fa-plus"></i>Add</a>
+                <a class="dropdown-item text-white" style="cursor: pointer;" data-toggle="modal" data-target="#cmt_list"><i class="fas fa-list"></i>&nbsp;View List</a>
+            </div>
+        </div>
+         -->
+        <!-- History Button -->
+        <!-- <a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" data-toggle="modal" data-target="#history">History</a>  -->
+        <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal2" data-toggle="tooltip" title="history">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </a>
+        <a href="{% url 'chartofaccounts'%}" class="delete fa fa-times  btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="back" ></a>
+        
+         </div>
+</div><br>
+<br>
+  <div class="row" id=""
+    style="background-color: #c4c1c1fd;  height: auto; margin-left:20px; margin-right: 1rem;width: 75%; margin-top: 10px;">
+
+    <div class="row text-center">
+      <h2 style="color: #000000;"><br>{{selacc.account_name}}
+        <hr>
+      </h2>
+    </div>    
+
+  
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-black" for="">Account Type:</label></div>
+        <div class="col-7">
+          <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">{{selacc.account_type}}</p>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-black" for="">Description:</label></div>
+        <div class="col-7">
+          <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
+              {{selacc.description}}
+            </p>
+        </div>
+      </div>
+      {% if selacc.account_code is not none and selacc.account_code != '' %}
+      <div class="row mt-3">
+          <div class="col-5"><label class="text-black" for="">Account Code:</label></div>
+          <div class="col-7">
+              <p class="bold text-black" style="max-width: 15rem; word-wrap: break-word;">
+                  {{ selacc.account_code }}
+              </p>
+          </div>
+      </div>
+  {% endif %}
+  {% if selacc.account_number is not none and selacc.account_number != '' %}
+  <div class="row mt-3">
+      <div class="col-5"><label class="text-black" for="">Account Code:</label></div>
+      <div class="col-7">
+          <p class="bold text-black" style="max-width: 15rem; word-wrap: break-word;">
+              {{ selacc.account_number }}
+          </p>
+      </div>
+  </div>
+{% endif %}
+
+  
+{% if selacc.account_description is not none and selacc.account_description != '' %}
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-black" for="">Description :</label></div>
+        <div class="col-7">
+          <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
+              {{selacc.account_description}}</p>
+        </div>
+      </div>
+     {% endif %}
+    
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""></label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;"></p>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""></label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;"><br>
+    
+             </p>
+        </div>
+      </div>
+    
+      <div class="row mt-3">
+        <div class="col-5"><label class="text-dark" for=""></label></div>
+        <div class="col-7">
+          <p class="bold text-dark" style="max-width: 15rem;word-wrap: break-word;"></p>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  
+
+</div>
+<div class="col" style="width: 300%;" id="Transaction" style="display: none;">
+  <div class="row">
+    <div class="col-md-7">
+      <a class="text-white" style="font-size: 1.5rem;">
+        <br>
+        <h2 style="color: aliceblue;">{{selacc.account_name}}</h2>
+      </a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate2()"><i class="fas fa-eye"></i>
+        Overview</a>
+        <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
+          Transaction</a>
+
+
+
+    </div>
+    <div class="col-sm-1 " style="margin-left: -10%;">
+      <div class="col-md-1 d-flex justify-content-between align-items-center">
+  
+          <!-- Edit Button -->
+          <!-- <a href="{% url 'editchartofaccounts' selacc.id %}" class="btn btn-outline-warning py-2 text-warning btn-margin" title="save this draft"><i class="fas fa-pencil-alt"></i></a> -->
+
+          <!-- Item Status Edit Button -->
+          <!-- <a href="{% url 'acc_status_edit' selacc.id %}" class="btn btn-outline-warning py-2 btn-margin" title="save this draft">{{selacc.status}}</a> -->
+          
+          <!-- Delete Button -->
+          <!-- <a href="{% url 'deleteaccount' selacc.id %}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this creditnote?');"></a> -->
+          
+          <!-- Share Button -->
+          <div class="dropdown btn-margin">
+              <a class="btn text-center btn-outline-warning" id="sortbutton" data-bs-toggle="dropdown" role="button">
+                  <i class="fas fa-share"></i>
+              </a>
+              <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;">
+                  <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
+              </div>
+          </div>
+          
+          <a class="text-dark btn-margin" onclick="exportToPDF3()">
+              <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;"><i class="fas fa-file-pdf"></i></button>
+          </a>
+          
+          <a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" onclick="exportToExcel()" style="width: 50px;">XLS</a>
+          
+          <a class="text-dark btn-margin" onclick="printSelectedArea2()">
+              <button class="btn btn-outline-warning" title="Print" style="width: 50px;"><i class="fas fa-print"></i></button>
+          </a>
+          
+          <!-- Comment Button -->
+       
+          
+          <!-- History Button -->
+          <a class="btn btn-outline-warning py-2 btn-margin" style="cursor: pointer;" data-toggle="modal" data-target="#history">History</a>
+           </div>
+  </div><br>
+  <br>
+  <br>
+  <div class="row" id="div-to-pdf"
+  style="background-color: #c4c1c1fd;  height: 31rem; margin-left:20px; margin-right: 1rem; width: 75%; ">
+  <div class="row" id="div-to-print"
+  style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem;width: 100%; ">
+  <div class="row text-center">
+    <h2 style="color: #000000;"><br>{{selacc.account_name}}
+      <hr>
+    </h2>
+  </div>    
+
+
+<style>
+.dashed-line {
+border-top: 1px dashed #000; /* Set color and style */
+margin: 20px 0; /* Adjust margin for spacing */
+}
+</style>
+
+
+
+<H3>Recent Transactions</H3>
+<table class=" table table-hover table-bordered " id="table1" style="border-color: #000000;color: rgb(0, 0, 0); width: 100%;">
+<thead>
+    <tr>
+
+      <th id="th" style="text-align: center;">Date</th>
+      <th id="th" style="text-align: center;">Type</th>
+    
+      <th id="th" style="text-align: center;">Debit</th>
+      <th id="th" style="text-align: center;">Credit</th>
+
+    
+    </tr>
+  </thead>
+  <tbody>
+ 
+    <tr style="color: black;">
+      <td style="text-align: center;"></td>
+      <td style="text-align: center;"> </td>
+    
+      <td style="text-align: center;">  
+      </td>
+      <td style="text-align: center;"></td>
+    </tr>
+  </tbody>
+</table><br><br>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+
+  <!-- <div class="row" id="div-to-pdf"
+    style="background-color: #c4c1c1fd;  height: auto; margin-left:20px; margin-right: 1rem; width: 75%; ">
+
+    <div class="row text-center">
+      <h2 style="color: #000000;"><br>{{selacc.account_name}}
+        <hr>
+      </h2>
+    </div>    
+    <div class="row" id="div-to-print"
+    style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem;width: 200%; ">
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <style>
+          .dashed-line {
+            border-top: 1px dashed #000; /* Set color and style */
+            margin: 20px 0; /* Adjust margin for spacing */
+          }
+        </style>
+        
+        <div class="dashed-line"></div>
+
+     
+        <br>
+        <div></div>
+        <div class="row mt-3">
+          <div class="col-5"><label class="text-dark" for=""></label></div>
+          <div class="col-7">
+            <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;"></p>
+          </div>
+        </div>
+      <table class=" table table-hover table-bordered " id="table1" style="border-color: #000000;color: rgb(0, 0, 0); width: 100%;">
+          <thead>
+              <tr>
+
+                <th id="th" style="text-align: center;">Date</th>
+                <th id="th" style="text-align: center;">Type</th>
+              
+                <th id="th" style="text-align: center;">Debit</th>
+                <th id="th" style="text-align: center;">Credit</th>
+  
+              
+              </tr>
+            </thead>
+            <tbody>
+           
+              <tr style="color: black;">
+                <td style="text-align: center;"></td>
+                <td style="text-align: center;"> </td>
+              
+                <td style="text-align: center;">  
+                </td>
+                <td style="text-align: center;"></td>
+              </tr>
+            </tbody>
+      </table><br><br>
+</div>
+</div>
+</div>
+</div> -->
+
+<!-- SORT  AND FILTER SCRIPT -->
+<script>
+  $(document).ready(function() {
+      // Event listener for dropdown menu links
+      $('.dropdown-item-filter-account-type').click(function() {
+          // Get the selected account type
+          var selectedType = $(this).text().toLowerCase();
+  
+          // Show/hide table rows based on the selected account type
+          $('.account-row').each(function() {
+              var accountType = $(this).data('account-type').toLowerCase();
+              if (selectedType === 'all' || accountType === selectedType) {
+                  $(this).show();
+              } else {
+                  $(this).hide();
+              }
+          });
+      });
+  });
+
+  $(document).ready(function() {
+  // Initialize DataTable
+  var table = $('#table2').DataTable({
+      "paging": false, // Disable pagination if not needed
+      "order": [[0, "asc"]], // Initial sorting by the first column (change as needed)
+  });
+
+  // Event listener for dropdown menu links
+  $('.dropdown-item-filter-account-type').click(function() {
+      // ... (your existing filtering logic)
+
+      // Refresh DataTable after filtering
+      table.draw();
+  });
+
+  // Event listener for sorting dropdown menu link
+  $('.dropdown-item-sort').click(function() {
+      var columnIndex = $(this).data('column-index');
+
+      // Toggle between ascending and descending order
+      var order = table.order()[0];
+      if (order[0] === columnIndex) {
+          order[1] = order[1] === 'asc' ? 'desc' : 'asc';
+      } else {
+          order = [columnIndex, 'asc'];
+      }
+
+      // Apply sorting
+      table.order(order).draw();
+  });
+});
+  </script>
+  
+
+<!-- print and pdf  and xcel scripts -->
+
+
+<script>
+function printSelectedArea2(area) {
+  // Get the HTML content of the table
+  var printContents = document.getElementById("table1").innerHTML;
+
+  // Open a new window
+  var printWindow = window.open('', '_blank');
+
+  // Add styles to hide specific elements during printing
+  printWindow.document.write('<style>@media print { #searchInput, #filterWindow { display: none; } }</style>');
+
+  // Add additional styles for the table layout
+  printWindow.document.write('<style>table { border-collapse: collapse; width: 100%; }</style>');
+  printWindow.document.write('<style>table, th, td { border: 1px solid black; }</style>');
+
+  // Write the HTML content to the new window
+  printWindow.document.write('<html><head><title>Print Data</title></head><body>');
+  printWindow.document.write(document.getElementById('div-to-print').innerHTML);
+  printWindow.document.write('</body></html>');
+
+  // Print the new window
+  printWindow.print();
+}
+
+
+  function exportToPDF3() {
+  var content = document.getElementById('div-to-print');
+  
+
+
+// Hide the search input temporarily
+
+  content.style.backgroundColor = 'white';
+  content.style.color = 'black';
+  content.style.marginLeft = 'auto';
+content.style.marginRight = 'auto';
+
+
+
+
+  // Apply styles to h1 elements within the content
+  var h1Elements = content.getElementsByTagName('h1');
+  for (var i = 0; i < h1Elements.length; i++) {
+    h1Elements[i].style.color = 'black';
+  }
+
+  // Generate PDF using html2pdf
+  html2pdf()
+    .from(content)
+    .save('{{selacc.account_name}}' + '.pdf');
+}
+function exportToExcel() {
+    var table = document.querySelector('#table1'); // Add # to select by ID
+    var ws = XLSX.utils.table_to_sheet(table);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, 'account.xlsx');
+}
+
+</script>
+
+
+
+<!-- history modal -->
+
+
+
+</div>
+</div>
+
+<!-- comment modal -->
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  $('#searchInput').on('keyup', function() {
+    var searchText = $(this).val().toLowerCase();
+    $('#table2 tbody tr').each(function() {
+      var itemData = $(this).text().toLowerCase();
+      if (itemData.indexOf(searchText) === -1) {
+        $(this).hide();
+      } else {
+        $(this).show();
+      }
+    });
+  });
+});
+</script>
+
+
+<div class="modal fade" id="shareBillEmail">
+<div class="modal-dialog modal-xl">
+  <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+    <div class="modal-header" style="background: rgb(32, 35, 37);">
+      <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #fefefe;">Share Item Acoount details Via Email</h5>
+      <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+    </div>
+    <div class="modal-body" style="background: rgb(32, 35, 37);">
+      <div class="card p-3 m-3">
+        <form action="{% url 'shareaccountToEmail' selacc.id %}" method="post" class="needs-validation"
+          id="share_to_email_form" autocomplete="off">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="emailIds" style="color: #000;">Email IDs</label>
+            <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+              placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+          </div>
+          <div class="form-group mt-2">
+            <label for="item_unitname"  style="color: #000;">Message(optional)</label>
+            <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
+              rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+          </div>
+   
+      </div>
+      <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+        <!-- <button type="submit">submit</button> -->
+        <input type="submit" id="share_with_email"
+          class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+</div>
+
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background-color: #3b3b3b;">
+      <div class="modal-header">
+        <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+        <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+        </button>
+      </div>
+      <form action="{% url 'add_account_comment' selacc.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <textarea type="text" class="form-control text-light" name="comment"></textarea>
+          <div class="container-fluid">
+            <table class="table  text-white">
+              <thead>
+                <tr>
+                  <th style="text-align: center; font-size: large;">sl no.</th>
+                  <th style="text-align: center; font-size: large;">Comments</th>
+                  <th style="text-align: center; font-size: large;">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in est_comments %}
+                  <tr class="table-row">
+                    <td style="text-align: center;">{{forloop.counter }}</td>
+                    <td style="text-align: center;">{{c.comments}}</td>
+                    <td style="text-align: center;">
+                      <a class="text-danger" href="{% url 'delete_account_comment' c.id selacc.id %}"><i class="fa fa-trash" style="font-size:20px;"></i></a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-outline-warning">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;width: 100%;">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content" style="background-color: #3b3b3b;">
+      <div class="modal-header">
+        <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+        <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <div class="container " >
+        <table class="table text-light table-borderless " style="margin:3px; background-color: #000000;width: 100%;">
+          <thead>
+            <tr>
+              <th>
+                sl
+              </th>
+              <th>
+                Date
+              </th>
+              <th>
+                Action
+              </th>
+              <th>
+                By
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in latest_item_id %}
+            <tr>
+              <td>{{forloop.counter}}</td>
+              <td>{{i.Date}}</td>
+              <td>{{i.action}}</td>
+              <td>{{ i.logindetails.first_name }}&nbsp;{{ i.logindetails.last_name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

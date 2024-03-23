@@ -1,0 +1,562 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+   @media print{
+    body{
+      visibility: hidden !important; /* hide everything in body when in print mode*/
+    }
+
+    .printContainer {
+      visibility: visible !important; /* Override the rule above to only show the printables*/
+      position: absolute;
+      z-index: 99999;
+      top: 0;
+      bottom: 0;
+      width: 70vh;
+      height: 10%;
+    } 
+  }
+</style>
+<div class="body-wrapper">
+  <div class="container-fluid text-light">
+      <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+           {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+           {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+            <li class="breadcrumb-item"><a href="" class="text-warning-emphasis">Godown_list</a></li>
+            <li class="breadcrumb-item" aria-current="page">Over view</li>
+          </ol>
+      </nav>
+      <div class="row mt-5">
+          <div class="col-sm-12 col-lg-12 flex-column">
+              <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                <div class="row mt-4">
+                  <div class="col-sm flex-column">
+                    <div class="row">
+                      <div class="row">
+                        <a class="text-white" style="font-size: 1.5rem;">Godown List</a>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-3 col-lg-7">
+                          <input type="text" id="search" class="form-control bg-light text-dark " placeholder="Search.." autocomplete="off">
+                        </div>
+                        <div class="col-sm-4 col-lg-5 " style="text-align: right; float: right;" >
+                          <a class="btn text-center  btn-outline-warning btn-sm" id="sortbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                            <i  class="fas fa-sort "></i>
+                          </a>
+                          <div class="dropdown-menu m-1">
+                            <a class="dropdown-item" href="">All</a>
+                            <a class="dropdown-item" onclick="sortTable()">Godown Name</a>
+                            <a class="dropdown-item" onclick="sortTablebal()">Date</a>
+                          </div>
+                          <a class="btn text-center btn-outline-warning btn-sm" id="filterbutton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button" >
+                            <i  class="fas fa-filter "></i>
+                          </a>
+                          <div class="dropdown-menu m-1">
+                            <a class="dropdown-item" onclick="applyFilter('All')">All</a>
+                            <a class="dropdown-item" onclick="applyFilter('Saved')">Saved</a>
+                            <a class="dropdown-item" onclick="applyFilter('Draft')">Draft</a>
+                          </div>
+                          <a class="btn btn btn-outline-warning btn-sm " style="text-align: right;" href="{% url 'add_godown' %}"><i class="fa fa-plus "></i></a>
+                        </div>
+                      </div> 
+                      </div>
+                      
+                  
+                    <div class="row">
+                      <div class="table-responsive scrollable-table" >
+                        <table class="table  text-white" id="myTable">
+                          <tbody>
+                            {% for i in godown_obj %}
+                              <tr class="clickable" id="{{i.id}}">
+                                <td class="justify-content-between align-items-center ">
+                                  <b style="font-size: large;">{{i.godown_name}}</b><br><br>
+                                </td>
+                                <td>
+                                  <label class="text-end d-block">{{i.stock_in_hand}}</label> 
+                                </td>
+                                <td>
+                                  <label class="text-end d-block">{{i.date}}</label> 
+                                </td>
+                                <td>
+                                  <label class="text-end d-block">{{i.action}}</label> 
+                                </td>
+                                
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-8">
+                    <div  id="overviewdiv">
+                      <div class="row ">
+                        <div class="col-md-7" >
+                          <a class="text-white" style="font-size: 1.5rem;;"><h2 class="text-white">{{p.first_name}} {{p.last_name}}</h2></a>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-2" >
+                          <a class="btn bg-warning text-light btn-sm" ><i class="fas fa-eye"></i> Overview</a>
+                        </div>
+                        <div class="col-md-10 col-lg-10 col-sm-12" style="text-align: right; ">
+                          <a href="{% url 'edit_godown' p.id %}"  class=" text-dark" >
+                            <button class="btn btn-outline-warning btn-sm"  title="Edit"><i class="fas fa-edit"></i></button>
+                          </a>
+                          <a  class="text-dark"  onclick="exportToPDF()" id="pdflink">
+                            <button class="btn btn-outline-warning btn-sm"  title="Pdf"><i class="fa-solid fa-file-pdf"></i></button>
+                          </a>
+                          <a class=" text-dark"  onclick="printSelectedArea()"  >
+                            <button class="btn btn-outline-warning btn-sm"  title="Print"> <i class="fas fa-print"></i> </button> 
+                          </a>
+                          
+
+                          <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip" title="comment">
+                            <i class="far fa-comment"></i>
+                          </a>
+
+                          
+                          <a class="btn btn-outline-warning btn-sm" href="" data-bs-toggle="dropdown" aria-haspopup="true"
+                          data-toggle="tooltip" title="Attach File" aria-expanded="false" role="button">
+                            <i class="fa-solid fa-upload"></i>
+                          </a>
+                          <div class="dropdown-menu">
+                            {% if p.file %}
+                              
+                                  <a class="text-center text-decoration-none mx-2 text-black" href="" data-toggle="modal" title="upload" data-target="#commentModal3" data-toggle="tooltip">Attach File</a><br>
+                                  <a class="text-center text-decoration-none mx-2 text-black" href="{% url 'file_download' p.id %}">Download File</a></td>
+                                
+                              {% else %}
+                              
+                                <a class=" text-decoration-none mx-2 text-black" href="" data-toggle="modal" title="upload" data-target="#commentModal3" data-toggle="tooltip">Attach File</a>
+                              
+                              {% endif %}
+                          </div>
+
+                          <a href="{% url 'delete_godown' p.id %}" class="  text-dark" >
+                            <button class="btn btn-outline-warning btn-sm"  title="Delete"><i class="fas fa-trash-alt"></i></button>
+                          </a>
+                          <a class="btn btn-outline-warning btn-sm" href="{% url 'change_status' p.id %}" id="sts">{{p.status}}</a>
+                          {% if p.action == 'Draft' %}
+                          <a class="btn btn-outline-warning btn-sm" href="{% url 'change_action' p.id %}" id="sts">{{p.action}}</a>
+                          {% endif %}
+                          <a class="btn btn-outline-warning btn-sm" href="" data-toggle="modal" data-target="#commentModal2" data-toggle="tooltip" title="history">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                          </a>
+                            <a class="btn btn-outline-warning dropdown-toggle btn-sm" href="#" role="button" title="share" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true"
+                            data-toggle="tooltip" aria-expanded="false">
+                              <i class="fa-solid fa-share-nodes"></i>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                              <a class="dropdown-item" href="#" data-toggle="modal" title="upload" data-target="#commentModal4" data-toggle="tooltip" title="comment">Mail</a>
+                              <a class="dropdown-item" href="#" onclick="shareViaWhatsApp()">whatsapp</a>
+                            </div>
+                        </div>
+                        
+                      </div><br>
+            
+                      <div id="printdiv" style="color:black;" >
+                        <div class="row " id="div-to-pdf" style="background-color: #fffffffd; margin-left:1px; margin-right: 1rem; ">
+                          <br>
+                          <div class="row">
+                            <div class="col-3 mt-3" >
+                             
+                            </div>
+                            <div class="col-6 mt-3">
+                              <div class="row text-center">
+                                <h2  >Godown Details</h2>
+                              </div>
+                            </div>
+                            <div class="col-3 mt-3" style="text-align: right;">
+                              
+                            </div>
+                          </div>
+                          <div class="row text-center">
+                            <h2 >
+                              <hr>
+                            </h2>
+                          </div>
+                          <div class="gen-info col-sm " style="padding-left: 3rem;  ">
+                            <div class="row mt-1">
+                              <div class="col-2"></div>
+                              <div class="col-6" style="text-align: center; ">
+                                
+                              </div>
+                            </div><br>
+                            <div class="row mt-1">
+                              <div class="col-5"><p for=""> Date : </p></div>
+                              <div class="col-7">
+                                <p class="bold"  style="max-width: 15rem;word-wrap: break-word;">{{p.date}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5"><p  for="">Item:</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.item.item_name}}</p>
+                              </div>
+                            </div>
+                           
+                              <div class="row mt-2">
+                                <div class="col-5"><p  for="">HSN :</p></div>
+                                <div class="col-7">
+                                  <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.hsn}}</p>
+                                </div>
+                              </div>
+                     
+                            <div class="row mt-2">
+                              <div class="col-5"><p  for="">Stock in Hand :</p></div>
+                              <div class="col-7">
+                                <p class="bold" style="max-width: 15rem;word-wrap: break-word;">{{p.stock_in_hand}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5"><p  for="">Godown Name :</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.godown_name}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-2">
+                              <div class="col-5"><p  for="">Godown Address :</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.godown_address}}</p>
+                              </div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                              <div class="col-5"><p  for="">Stock Keeping:</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.stock_keeping}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-1">
+                              <div class="col-5"><p  for="">Distance:</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.distance}}</p>
+                              </div>
+                            </div>
+                            <div class="row mt-1">
+                              <div class="col-5"><p  for="">Status:</p></div>
+                              <div class="col-7">
+                                <p class="bold " style="max-width: 15rem;word-wrap: break-word;">{{p.status}}</p>
+                              </div>
+                            </div>
+                            
+              
+                          </div>
+                          
+                        </div>       
+                      </div>
+                    </div>
+                    
+                    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="background-color: #3b3b3b;">
+                          <div class="modal-header">
+                            <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+                            <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                            </button>
+                          </div>
+                          <form action="{% url 'AddComment' p.id %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-body" style="background-color: #3b3b3b;">
+                              <textarea type="text" class="form-control text-light" name="comments" required></textarea>
+                              <div class="container-fluid">
+                                <table class="table  text-white" style="margin:3px; background-color: #000000;">
+                                  <thead>
+                                    <tr>
+                                      <th style="text-align: center; font-size: large;">sl no.</th>
+                                      <th style="text-align: center; font-size: large;">Comments</th>
+                                      <th style="text-align: center; font-size: large;">By</th>
+                                      <!-- <th style="text-align: center; font-size: large;">Edit</th> -->
+                                      <th style="text-align: center; font-size: large;">Delete</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for c in comment %}
+                                      <tr class="table-row">
+                                        <td style="text-align: center;">{{forloop.counter }}</td>
+                                        <td style="text-align: center;">{{c.comment}}</td>
+                                        <td style="text-align: center;">{{c.login_details.first_name}} {{c.login_details.last_name}}</td>
+                                        <!-- <td style="text-align: center;">
+                                          <a class="text-warning" href=""><i class="fa fa-edit" style="font-size:20px;"></i></a>
+                                        </td> -->
+                                        <td style="text-align: center;">
+                                          <a class="text-danger" href="{% url 'DeleteComment' c.id %}"><i class="fa fa-trash" style="font-size:20px;"></i></a>
+                                        </td>
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-outline-warning">Save</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!--------------------------------------------------------------------->
+                    <div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="background-color: #3b3b3b;">
+                          <div class="modal-header">
+                            <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+                            <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                          <div class="container " >
+                            <table class="table text-light  " style="margin:3px; background-color: #000000;">
+                              <thead>
+                                <tr>
+                                  <th>
+                                    sl
+                                  </th>
+                                  <th>
+                                    Date
+                                  </th>
+                                  <th>
+                                    Action
+                                  </th>
+                                  <th>
+                                    By
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for i in godown_history %}
+                                <tr class="table-row">
+                                  <td>{{forloop.counter}}</td>
+                                  <td>{{i.date}}</td>
+                                  <td>{{i.action}}</td>
+                                  <td>{{i.login_details.first_name}} {{i.login_details.last_name}}</td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+  
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--------------------------------------------------------------------------------------->
+                  <div class="modal fade" id="commentModal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content" style="background-color: #3b3b3b;">
+                        <div class="modal-header">
+                          <h3 class="modal-title text-light" id="exampleModalLabel">Add FILE</h3>
+                          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                          </button>
+                        </div>
+                        <form action="{% url 'AddFile' p.id %}" method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="modal-body">
+                            <input type="file" name="file" required class="form-control" accept="file/*">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-outline-warning">Save</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <!-------------------------------------------------------------------------------------------------------->
+                  <div class="modal fade" id="commentModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content" style="background-color: #3b3b3b;">
+                        <div class="modal-header">
+                          <h3 class="modal-title text-light" id="exampleModalLabel">Share details</h3>
+                          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                          </button>
+                        </div>
+                        <form action="{% url 'ShareEmail' p.id %}" method="POST" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="modal-body">
+                            <input type="email" name="email" placeholder="Email ID" required style="color:white;" class="form-control">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-outline-warning">Share</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+              
+            <!----------------------------------------------------------end--------------------------------->    
+            
+           
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+</div>
+      
+<script>
+  function shareViaWhatsApp() {
+    // Replace 'Hello, this is a shared message!' with your desired message
+    var message = encodeURIComponent(window.location.href);
+
+    // Create the WhatsApp share link
+    var whatsappLink = 'https://wa.me/?text=' + message;
+
+    // Open the link in a new tab/window
+    window.open(whatsappLink, '_blank');
+  }
+</script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script>
+  function exportToPDF(){
+    console.log("myTable1");
+
+// Use the correct selector to get the element by ID
+var element = document.getElementById('div-to-pdf') 
+
+        var opt =
+        {
+            margin: 0.5,
+            filename: 'overviewpage' + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 4 },
+            jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait', }
+        };
+        html2pdf().set(opt).from(element).save();
+        
+
+  }
+</script>
+
+<script>
+  function printSelectedArea(){
+    var printContents = $("#printdiv").clone(); // Clone the content-div to avoid modifying the original content
+    printContents.find('.hideon-print').remove(); // Remove columns by class name
+
+    var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
+    $printerDiv.html(printContents.html());
+    $('body').append($printerDiv).addClass("printingContent");
+    var h1Element = document.createElement("h1");
+    var head = document.getElementById("printContainer");
+    head.insertBefore(h1Element, head.firstChild);
+    window.print();
+    $printerDiv.remove();
+    $('body').removeClass("printingContent");
+
+    
+  }
+</script>
+
+<script>
+  const rows = document.querySelectorAll('.clickable');
+  rows.forEach(row => {
+      row.addEventListener('click', () => {
+        var currentURL = window.location.href
+        const rowId = row.id;
+        var newURL = currentURL.replace(/\d+$/, rowId);
+        window.location.href = newURL;
+      });
+  });
+</script>
+
+<script>
+  var $rows = $('#myTable tbody tr');
+  $('#search').keyup(function() {
+    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+    $rows.hide().filter(function() {
+      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return ~text.indexOf(val);
+    }).show();
+  });
+</script>
+
+<script>
+  function sortTable() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 0; i < rows.length - 1; i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("b")[0];
+        y = rows[i + 1].getElementsByTagName("b")[0];
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+      if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+      }
+    }
+  }
+
+  function sortTablebal() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("myTable");
+    switching = true;
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < rows.length - 1; i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("td")[2].textContent.trim();
+            y = rows[i + 1].getElementsByTagName("td")[2].textContent.trim();
+            console.log("x:", x);
+            console.log("y:", y);
+            // Convert dates to Date objects for comparison
+            var dateX = new Date(x.split('-').reverse().join('-'));
+            var dateY = new Date(y.split('-').reverse().join('-'));
+            console.log("dateX:", dateX);
+            console.log("dateY:", dateY);
+            if (dateX > dateY) {
+                shouldSwitch = true;
+                break;
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
+  }
+
+  function applyFilter(currentFilter) {
+    var rows = $("#myTable tbody tr");
+    rows.show();
+    if (currentFilter === "Saved" || currentFilter === "Draft") {
+      rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+    }
+  }
+</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% for msg in messages %}
+    swal({
+    title: "{{msg}}",
+    text: "{{msg.tags}}",
+    icon: "{{msg.tags}}",
+  });
+    {% endfor %}
+   </script>
+{% endblock %}

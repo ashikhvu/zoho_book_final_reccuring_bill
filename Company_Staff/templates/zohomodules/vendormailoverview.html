@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <div>
+    <div >
+    <p style="text-align: center;">Vendor Details</p>
+    <p style="text-align: left;"><b>{{vendor_obj.company_name}}</b></p>
+    <p style="text-align:right;"><b>Status : {{vendor_obj.vendor_status}}</b></p>
+  </div>
+    <hr style="color:rgb(0, 0, 0);">
+    <div  style="float: left; width: 50%; ">
+      <a href=" " >
+        {% if p.image != '' %}
+        <img class="img-fluid rounded-circle" style="border: 2px rgb(199, 119, 0) solid;" src="{{p.image.url}}" alt="profile pic"  name="img" >
+        {% else %}
+        <img class="img-fluid" alt="profile pic" name="img">
+        {% endif %}
+        <br><br>
+        <p class="text-dark fs-5 b" >{{vendor_obj.title}} &nbsp;{{vendor_obj.first_name}} &nbsp;{{vendor_obj.last_name}}
+        </p>
+      </a>
+      <p style="text-align: left;"> Email :{{vendor_obj.vendor_email}} </p>
+      <p style="text-align: left;"> phone:{{vendor_obj.phone}} </p>
+      <p style="text-align: left;"> Mobile :{{vendor_obj.mobile}} </p>
+      <h3 style="text-align: center;">More Info</h3>
+      <hr style="color:  black;">
+      <p style="text-align: left;"> Website:{{vendor_obj.website}} </p>
+     
+      <h3 style="text-align: center;">General Information</h3>
+      <hr style="color:  black;">
+      <p style="text-align: left;"> GST Treatment :{{vendor_obj.gst_treatment}} </p>
+      <p style="text-align: left;"> GST Number :{{vendor_obj.gst_number}} </p>
+     
+      <p style="text-align: left;"> PAN Number :{{vendor_obj.pan_number}} </p>
+      <p style="text-align: left;">Source Of Supply  :{{vendor_obj.source_of_supply}} </p>
+      <p style="text-align: left;"> Opening Balance Type :{{vendor_obj.opening_balance_type}} </p>
+      <p style="text-align: left;"> Opening Balance Amount  :{{vendor_obj.opening_balance}} </p>
+      <p style="text-align: left;"> Payment Terms  :{{vendor_obj.payment_term.term_name}} </p>
+
+
+    </div>
+    <div style="float: left; width: 50%;">
+      
+      {% if p.isTDS  %}
+      <p style="text-align: left;"> TDS Applicable :{{p.isTDS}} </p>
+      
+      <p style="text-align:left;">TDS Amount :{{p.TDS}}</p>{% endif %}
+      {% if p.acc_no %}
+      <h3 style="text-align: center;">Bank Info</h3>
+      <hr style="color:  black;">
+    {% if p.acc_no %}  <p style="text-align:left;">Account Number:{{p.acc_no}}</p>{% endif %}
+    {% if p.IFSC %}  <p style="text-align: left;">Ifsc{{p.IFSC}}</p>{% endif %}
+      {% if p.bank_name %}<p style="text-align: left;"> Bank:{{p.bank_name}}</p>{% endif %}
+      {% if p.branch %}<p style="text-align: left;">Branch:{{p.branch}}</p>{% endif %}{% endif %}
+      
+    
+     
+     {% if p.UAN %} <span style="text-align: left;">Universal Account No:{{p.UAN}}</span>{% endif %}
+
+   
+      {% if p.PRAN %}<span style="text-align: left;">PR Account No:{{p.PRAN}}</span>{% endif %}
+        <br>
+      {% if p.PFN %}<span style="text-align: left;">Pf Account No:{{p.PFN}}</span>{% endif %}
+   
+    </div>
+  </div>
+ 
+</body>
+</html>

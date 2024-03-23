@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>Bank Name : {{ bnk.bnk_name }}</h1>
+  <h1>IFSC Code : {{ bnk.bnk_ifsc }}</h1>
+  <h1>Account Number : {{ bnk.bnk_acno }}</h1>
+  <h1>Balance: {{bnk.bnk_bal}} Rs</h1>
+
+  <table>
+    <br>
+    <thead>
+      <tr style="font-weight: bold; border: 1px solid black;">
+        <th style="width: 10%;"><h1><br>#</h1></th>
+        <th style="width: 15%;"><h1><br>DATE</h1></th>
+        <th><h1><br>NAME</h1></th>
+        <th><h1><br>TYPE</h1></th>
+        <th style="width: 15%;"><h1><br>AMOUNT</h1></th>
+        <th style="width: 15%;"><h1><br>BALANCE</h1></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr></tr>
+      {% for t in trans %}
+      <tr style="text-align: center;">
+        <td><h2>{{ forloop.counter }}</h2></td>
+        <td><h2>{{ t.trans_adj_date|date:'d-m-Y' }}</h2></td>
+        <td><h2>{{ t.trans_type }}</h2></td>
+        <td><h2>{{ t.trans_adj_type }}</h2></td>
+        <td><h2>{{ t.trans_amount }} Rs</h2></td>
+        <td><h2>{{ t.trans_adj_amount }} Rs</h2></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table> 
+  
+</body>
+</html>

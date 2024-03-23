@@ -1,0 +1,559 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+{% load social_share %}
+<style>
+    
+    
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border-bottom: 1px solid black;
+        padding: 1.92vh; 
+        text-align: center;
+        font-size: 2.88vh; 
+    }
+
+    .details-container {
+        background-color: #c4c1c1fd;
+        margin-top: 3vh;
+        border-radius: 1.6vh;
+        padding: 4.8vh; 
+    }
+
+    .table-container {
+        background-color: rgb(61, 61, 61);
+        border-radius: 1.6vh;
+        padding: 4.8vh; 
+        margin-top: 3.2vh; 
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 3.74vh;
+    }
+
+    p {
+        font-size: 2.56vh; 
+    }
+    .left-side{
+
+        border-right: .5vh solid  rgb(61, 61, 61);
+    }
+    @media print {
+        body * {
+            visibility: hidden;
+            color: black;
+        }
+    
+        .details-container,
+        .details-container * {
+            visibility: visible;
+        }
+    
+        .details-container {
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            gap: 20px;
+        }
+    
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+    
+        th,
+        td {
+            border-bottom: 1px solid black;
+            padding: 12px;
+            text-align: center;
+            font-size: 18px;
+        }
+    
+        .details-container {
+            background-color: #6a6a6afd;
+            margin-top: 3%;
+            border-radius: 10px;
+            padding: 30px;
+        }
+    
+        .table-container {
+            background-color: rgb(61, 61, 61);
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+    
+        h2 {
+            text-align: center;
+            font-size: 24px;
+            color: black;
+        }
+    
+        p {
+            font-size: 16px;
+        }
+    }
+    
+    
+    @media (max-width: 767px) {
+        .left-side {
+            border-right: 0; 
+            border-bottom: .5vh solid ;
+            padding-bottom: 2.4vh; 
+        }
+        
+    }
+</style>
+
+
+
+<body>
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-light">
+                    {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning">All price lists</a></li>
+                    <li class="breadcrumb-item" aria-current="page">Over view</li>
+                </ol>
+            </nav>
+            <div>
+                <div class="row p-4 rounded bg-black" style=" border-radius: 5px">
+                    
+                    <!------------- overview left side ------------------->
+                    <div class="left-side col-md-4 p-2 border-right border-warning" >
+                        <h4 class="text-light mb-4">All Price Lists</h4>
+                        <div class="  d-flex mb-3 ">
+                            <div class="input-group">
+                                <input type="text" id="search"  class="form-control text-dark bg-light " placeholder="Search..." autocomplete="off">
+                            </div>
+                            <div class="input-group-append ms-1">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-sort"></i> 
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
+                                    <a class="dropdown-item text-dark" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item text-dark" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
+                                    <a class="dropdown-item text-dark" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
+                                </div>
+                            </div>
+                            <div class="input-group-append ms-1">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa fa-filter"></i> 
+                                </button>
+                                <div class="dropdown-menu text-dark">
+                                    <a class="dropdown-item text-dark" href="?filter=all{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item text-dark" href="?filter=active{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                    <a class="dropdown-item text-dark" href="?filter=inactive{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                </div>
+                            </div>
+                            <a class="btn btn-outline-warning  ms-1" href="{% url 'create_price_list' %}" role="button"> New </a>
+                        </div>
+                        <ul id="priceListNames">
+                            {% for pl in price_lists %}
+                            <li class="border-bottom">
+                                <a href="{% url 'price_list_details' price_list_id=pl.id %}" class="text-light">
+                                    <div class="col-md-12 col-sm-12  row p-3">
+                                        <div class="col-md-6 col-sm-4 ">
+                                            <b style="font-size:larger;">{{ pl.name }}</b>
+                                            <br><br>
+                                            {{ pl.date }}
+                                        </div>
+                                        <div class="col-md-6 col-sm-4 text-right">
+                                            {{ pl.status }}
+                                            <br><br>
+                                            {{ pl.type }}
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    
+                    <!--------- overview right side ------------------->
+                    <div class="col-md-8 "> 
+                        {% if price_lists %}
+                        <h2 class="text-light mb-4">{{ price_list.name }}</h2>
+                        
+                        
+                        <!------------------------- buttons --------------------------------------->
+                        <div class=" d-flex justify-content-end">
+                            <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o " aria-hidden="true"></i></a>
+                            
+                            <!-- share dropdown -->
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </button>
+                                <div class="dropdown-menu text-black">
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#EmailModal" >Share to Email</a>
+                                    <li class="dropdown-item text-dark text-decoration-none">{% post_to_whatsapp object_or_url "Share to WhatsApp" %}</li>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-outline-warning ms-2" onclick="printPriceList()"><i class="fa fa-print" aria-hidden="true"></i></button>
+                            
+                            <a href="{% url 'price_list_pdf' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fa fa-file-pdf"></i></a>
+                            
+                            <!-- comment  -->
+                            <a class="btn btn-outline-warning ms-2" data-toggle="modal" data-target="#addCommentModal"><i class="fa-regular fa-comment"></i></a>
+                            
+                            <!-- attachment dropdown -->
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#attachFileModal">Attach File</a>
+                                    <a class="dropdown-item text-dark" href="{% if price_list.attachment %}{{ price_list.attachment.url }}{% else %}#{% endif %}" download="{% if price_list.attachment %}{{ price_list.attachment.name }}{% endif %}" {% if not price_list.attachment %}style="display: none;"{% endif %}>Download File</a>
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fas fa-trash"></i></a>
+                            <a class="btn btn-outline-warning ms-2 " href="#" data-toggle="modal" data-target="#TransactionHistory"><i class="fa-solid fa-clock-rotate-left"></i></a>
+                            <button id="toggleStatusButton" class="btn btn-outline-warning ms-2 " data-status="{{ price_list.status }}" onclick="toggleStatus()">
+                                {% if price_list.status == 'Active' %}
+                                Active
+                                {% elif price_list.status == 'Inactive' %}
+                                Inactive
+                                {% endif %}
+                            </button>
+                        </div>
+                        <!------------------------- buttons end--------------------------------------->
+                        
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                            {% endfor %}
+                        {% endif %}
+
+
+                        <div class="details-container col-md-12">
+                            <div class="inner-container text-black">
+                                <h2><b>{{ price_list.name }}</b> </h2>
+                    
+                                <div class="col-md-12 row mt-4">
+                                    <!-- pl Type Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Type:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.type }}</p>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Description Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Description:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.description }}</p>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Details Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Details:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            {% if price_list.item_rate_type == 'Percentage' %}
+                                            <p>{{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                                            {% elif price_list.item_rate_type == 'Each Item' %}
+                                            <p>Each Item</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Rounding Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Rounding:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.round_off }}</p>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Currency Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Currency:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.currency }}</p>
+                                        </div>
+                                    </div>
+                                
+                                </div>
+                                
+                    
+                                <div class="table-container">
+                                    <h2 class="text-light">Items in Price List</h2>
+                                    <table class="table table-responsive table-sm rounded text-light p-2 ">
+                                        <thead>
+                                            <tr>
+                                                <!-- <th>#</th> -->
+                                                <th>Item Name</th>
+                                                <th>Standard Rate</th>
+                                                <th>Custom Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in items %}
+                                                <tr>
+                                                    <!-- <td>{{ forloop.counter }}</td> -->
+                                                    <td>{{ item.item.item_name }}</td>
+                                                    <td>{{ item.standard_rate }}</td>
+                                                    <td>{{ item.custom_rate }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!--------- Modal for attaching file ---------->
+                        <div class="modal fade" id="attachFileModal" tabindex="-1" role="dialog" aria-labelledby="attachFileModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="attachFileModalLabel">Attach File</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post" action="{% url 'attach_file' price_list.id %}" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="attachment">Choose File:</label>
+                                                <input type="file" name="attachment" id="attachment" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-warning mt-3">Attach File</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!----------- modal for email -------------->
+                        <div class="modal fade" id="EmailModal">
+                            <div class="modal-dialog modal-xl">
+                              <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                                <div class="modal-header" style="background: rgb(32, 35, 37);">
+                                  <h5 class="m-3 text-uppercase" id="EmailModalLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
+                                  <button type="button" class="close text-danger" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+                                      aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body" style="background: rgb(32, 35, 37);">
+                                  <div class="card p-3 m-3">
+                                    <form action="{% url 'email_pricelist' price_list.id %}" method="post" class="needs-validation"
+                                      id="share_to_email_form" autocomplete="off">
+                                      {% csrf_token %}
+                                      <div class="form-group">
+                                        <label for="emailIds" style="color: #000;">Email IDs</label>
+                                        <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+                                          placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                                      </div>
+                                      <div class="form-group mt-2">
+                                        <label for="item_unitname"  style="color: #000;">Message(optional)</label>
+                                        <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
+                                          rows="4" placeholder="This message will be sent along with details."></textarea>
+                                      </div>
+                               
+                                  </div>
+                                  <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                                    <input type="submit" id="share_with_email"
+                                      class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+                                  </div>
+                                </div>
+                              </form>
+                              </div>
+                            </div>
+                          </div>
+                          <!--------- add comment ---------------->
+                          <div class="modal fade mt-5" id="addCommentModal" tabindex="-1" role="dialog" aria-labelledby="addCommentModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content" style="background-color: #3b3b3b;">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-light" id="addCommentModalLabel">Comments</h5>
+                                        <a type="button" class="close text-light "  data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body ">
+                                        <form method="post" action="{% url 'add_pricelist_comment' price_list.id %}">
+                                            {% csrf_token %}
+                                            <label class="text-light" for="comment_text">Add Comment:</label>
+                                            <input type="text" class="form-control  text-light" name="comment_text" class="form-control" required>
+                        
+                                            <!-- Comment Table -->
+                                            <table class="table rounded mt-3 text-light text-center">
+                                                <thead>
+                                                    <tr class="font-weight-bold ">
+                                                        <th scope="col" class="border-light">NO.</th>
+                                                        <th scope="col" class="border-light">COMMENTS</th>
+                                                        <th scope="col" class="border-light">BY</th>
+                                                        <th scope="col" class="border-light">DATE</th>
+                                                        <th scope="col" class="border-light">DELETE</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for comment in comments %}
+                                                        <tr>
+                                                            <td class="border-light">{{ forloop.counter }}</td>
+                                                            <td class="border-light">{{ comment.comment }}</td>
+                                                            <td class="border-light">{{comment.login_details.first_name}} {{comment.login_details.last_name}}</td>
+                                                            <td class="border-light">{{ comment.date_added }}</td>
+                                                            <td class=" border-light">
+                                                                <a class="btn text-danger" onclick="deleteComment('{{ comment.id }}', '{{ price_list.id }}')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            <!-- End Comment Table -->
+                        
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-outline-warning">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-------- display transaction history ----------->
+                        <div class="modal fade mt-5" id="TransactionHistory" tabindex="-1" role="dialog" aria-labelledby="TransactionHistoryModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg " role="document">
+                                <div class="modal-content " style="background-color: #3b3b3b; color: white;">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-light" id="TransactionHistoryModalLabel">Transaction History</h5>
+                                        <a type="button" class="close text-light "  data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                                        </a>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% if transaction_history %}
+                                            <table class="table rounded bg-black text-white text-center p-2" >
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col" class="border-bottom border-dark"><b>NO.</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>DATE</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>ACTION</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>BY</b></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for transaction in transaction_history %}
+                                                        <tr>
+                                                            <td class="border-bottom border-dark">{{ forloop.counter }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.date }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.action }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.login_details.username }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <p>No price list selected.</p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>  
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
+<script src="https://kit.fontawesome.com/76ed4bac95.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<script>
+    function deleteComment(commentId, priceListId) {
+        if (confirm('Are you sure you want to delete this comment?')) {
+            window.location.href = `/delete_pricelist_comment/${commentId}/${priceListId}/`;
+        }
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+        var $li = $('#priceListNames li'); 
+        $('#search').keyup(function() {
+            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+            $li.show().filter(function() {
+                var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+                return !~text.indexOf(val);
+            }).hide();
+        });
+    });
+</script>
+
+      <script>
+        function sortPriceLists() {
+            var $ul = $('#priceListNames ul');
+            var items = $ul.children('li').get();
+            items.sort(function(a, b) {
+                var keyA = $(a).text();
+                var keyB = $(b).text();
+                return keyA.localeCompare(keyB);
+            });
+            $ul.append(items);
+        }
+          function filterPriceLists() {
+              var $ul = $('#priceListNames ul');
+              var filter = 'Active'; 
+              $ul.children('li').hide().filter(function() {
+                  return $(this).text().includes(filter);
+              }).show();
+          }
+      </script>
+    <script>
+
+        function printPriceList() {
+            window.print();
+        }
+
+        function toggleStatus() {
+            const priceListId = {{ price_list.id }};
+            window.location.href = `/toggle_price_list_status/${priceListId}/`;
+        }
+    </script>
+
+</body>
+</html>
+
+{% endblock %}

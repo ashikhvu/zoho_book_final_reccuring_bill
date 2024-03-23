@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debitnote</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+        .table2 {
+            text-align: center;
+            padding-top: 6px;
+            font-size: 1.1em;
+            background-color: rgb(221, 247, 247);
+
+        }
+
+        .table-head {
+            color: rgb(52, 49, 58);
+        }
+
+        .table2 .tbody tr {
+            margin-bottom: 3px;
+        }
+
+        .table3 {
+            width: 75px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        body {
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <div class="my-5 page" size="A4">
+        <div class="p-5">
+            <div id="ember2512" class="row tooltip-container ember-view ribbon text-ellipsis"
+                style="display: flex; justify-content: space-between;">
+                <div class="col-md-4 ribbon-inner ribbon-open" style="
+                margin-right: 600px;
+                color: white;
+                text-align: center;
+                padding-top: 10px;
+              ">
+                </div>
+                <div class="col-md-4">
+                    <h3>
+                        <center class="text-black"><b>Payslip</b></center>
+                    </h3>
+                </div>
+                <div class="col-md-4 graphic-path" style="
+                  text-align: right;
+                  padding-top: 10px;
+                  margin-left: 550px;
+                  text-align: center;
+                  color: rgb(0, 0, 0);
+                ">
+
+
+                </div>
+            </div>
+            <table class="table1 table-bordered" style="border-color: black;">
+                <tbody>
+                    <tr style="font-weight: bolder">
+                        <td></td>
+                        <td></td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>Employee Name: {{employee.employee.first_name | upper}} {{employee.employee.last_name | upper}}</p>
+                            <p>Employee Code: {{employee.employee.employee_id}}</p>
+                            <p>Month-Year: {{employee.month}}-{{employee.year}}</p>
+                            <p>Designation: {{employee.employee.designation}}</p>
+                        </td>
+                        <td></td>
+                        <td>
+                            <p>Location: {{employee.employee.company.city}}</p>
+                                <p>Date of joining: {{employee.employee.joindate |date:"d-m-Y"}}</p>
+                                <p> No of working days: {{employee.total_working_days}}</p>
+                                <p>leave: {{attendance}}</p>
+
+
+
+
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr />
+            <section class="product-area mt-4">
+                <div>
+                    <div class="col-md-4">
+                        <h3>
+                            <center class="text-black"><b>CONFIRMED SALARY</b></center>
+                        </h3>
+                    </div>
+                    <table class="table table-hover" id="myTable" style="border-collapse: collapse; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="border: 1px solid #ddd; padding: 8px;">Particulars</th>
+                                <th scope="col" style="border: 1px solid #ddd; padding: 8px;">Gross Amount (RS)</th>
+                                <th scope="col" style="border: 1px solid #ddd; padding: 8px;">Deduction</th>
+                                <th scope="col" style="border: 1px solid #ddd; padding: 8px;">Amount (Rs)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Basic Salary</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{{allowance_amounts.Basic_Salary}}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    {% if attendance > 0 %}
+                                        Leave Deduction
+                                    {% else %}
+                                         
+                                    {% endif %}
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{{allowance_amounts.basic_salary_deduction}}</td>
+                            </tr>
+
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;"> Conveyance Allowance</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1></h1>{{allowance_amounts.Conveyance_Allowance}}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    <h1>  </h1>
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1>  </h1></td>
+                            </tr>
+
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">HRA</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{{allowance_amounts.HRA}}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    <h1>  </h1>
+                                </td> 
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1>  </h1></td>
+                            </tr>
+
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Other Allowance</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">{{allowance_amounts.Other_Allowance}}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    <h1>  </h1>
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"> <h1>  </h1></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1>  </h1></td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1>  </h1></td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">
+                                    Total Deduction
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 8px;"><h1></h1> {{ allowance_amounts.basic_salary_deduction}} </td></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px; height: 100px;"><h1></h1></td>
+                                <td style="border: 1px solid #ddd; padding: 8px; height: 100px;"><h1></h1></td>
+                                <td style="border: 1px solid #ddd; padding: 8px; height: 100px;"><h1></h1></td>
+                                <td style="border: 1px solid #ddd; padding: 8px; height: 100px;"><h1></h1></td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+
+
+        </div>
+    </div>
+</body>
+
+</html>

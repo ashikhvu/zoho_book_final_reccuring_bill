@@ -1,0 +1,956 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb"> 
+            <ol class="breadcrumb">
+                {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                <li class="breadcrumb-item"><a href="{% url 'list_bankholder' %}" class="text-warning-emphasis">Bankholder_list</a></li>
+                <li class="breadcrumb-item" aria-current="page">Edit_bankholder</li>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1200px;">
+                    <div class="row mt-4">
+                        <section>
+                            <div class="container pl-5" style="color:white;">
+                                <div class="header">
+                                    <h2 style="text-align: center;color:white;">EDIT BANK HOLDER</h2>
+                                    <hr class="text-warning font-weight-bold">
+                                    {% for message in messages %}
+                                    <h5>
+                                        <div class="alert alert-danger message">
+                                            {{ message }}
+                                        </div>
+                                    </h5>
+                                    {% endfor %}
+                                </div>
+                                
+                                <form method="POST" action="{% url 'do_bankholder_edit' bankholder.id %}" enctype="multipart/form-data" id="myForm" >
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="left col-lg-6 col-sm-6">
+                                            <h4 class="text-center py-2 text-light">Bank Account Holder Form</h4>
+                                            <div class="row pb-3">
+                                                
+                                                <div class="col-4">
+                                                    <label for="">Name</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="customer_name" id="customer_name" value="{{bankholder.customer_name}}" required >
+                                                <div id="nameerror"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Alias</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="alias" id="alias" value="{{bankholder.alias}}" placeholder="Optional" >
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Contact Number</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="number" class="form-control text-dark bg-light" name="phone_number" id="phone_number" value="{{bankholder.phone_number}}" required>
+                                                    <div id="pherror" ></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Email</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="email"  class="form-control text-dark bg-light" name="email" id="email" value="{{bankholder.email}}">
+                                                    <div id="emailerror" ></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Account Type</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select class="form-control text-dark bg-light" name="account_type" id="dropId3" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="BankAccount" {% if bankholder.account_type == 'BankAccount' %}selected{% endif %}>Bank Account</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-sm-6">
+                                            <h4 class="text-center py-2 text-light">Bank Account Form</h4>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Bank Name</label>
+                                                </div>
+                                                <div class="col-6">
+                                                    <select name="bank_name" id="bank_select" class="form-control text-dark bg-light" required>
+                                                        <option value="{{bankholder.bank.id}}">{{ bankholder.bankname }}</option>
+                                                        {% for bank in bankobjects %}
+                                                            <option value="{{ bank.id }}">{{ bank.bnk_name }} (...{{bank.bnk_acno|slice:"-4:"}})  </option>
+                                                        {% endfor %}
+                                                        
+                                                    </select> 
+                                                </div>
+                                                <div class="col-2">
+                                                    <a class="btn btn-outline-warning py-2" style="cursor: pointer;" data-toggle="modal" data-target="#bank_creation" style="height: 38px; margin-right: 3px;">+</a>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Account Number</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="accountNumber" id="accountNumber" value="{{bankholder.account_number}}" required>
+
+                                                    <div id="accerror"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">IFSC Code</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="ifscCode" id="ifscCode" value="{{bankholder.ifsc_code}}" required>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Swift Code</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="swiftCode" id="swiftCode" value="{{bankholder.swift_code}}" placeholder="Optional" >
+                                                </div>
+                                            </div>
+                                            
+                                            
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Branch Name</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="branch_name" id="branch_name" value="{{bankholder.branch_name}}" readonly required> 
+                                                </div>
+                                            </div>  
+                                        </div>
+                                    </div>
+                                    <br><br>
+                                    <div class="row">
+                                        <div class="left col-lg-6 col-sm-6">
+                                            <h4 class="text-center py-2 text-light">Bank Configuration Form</h4>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Check Book Range</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select class="form-select text-dark bg-light" name="c_range" id="c_range" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="Yes" {% if bankholder.cheque_book_range == 'Yes' %}selected{% endif %}>Yes</option>
+                                                        <option value="No" {% if bankholder.cheque_book_range == 'No' %}selected{% endif %}>No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Enable Check Print</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select class="form-select text-dark bg-light" name="c_print" id="c_print" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="Yes" {% if bankholder.enable_cheque_printing == 'Yes' %}selected{% endif %}>Yes</option>
+                                                        <option value="No" {% if bankholder.enable_cheque_printing == 'No' %}selected{% endif %}>No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Check Print Configuration</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select class="form-select text-dark bg-light" name="c_print_confg" id="c_print_confg" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="Yes" {% if bankholder.cheque_printing_configuration == 'Yes' %}selected{% endif %}>Yes</option>
+                                                        <option value="No" {% if bankholder.cheque_printing_configuration == 'No' %}selected{% endif %}>No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <br><br>
+                                            <h4 class="text-center py-2 text-light">Tax Registration Form</h4>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="" id="pan_label">Pan Number</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="pan" id="pan" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$" placeholder="ABCDE0051C" value="{{bankholder.pan_number}}" required>
+                                                    <div id="panerror"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label id="id_registration_type_label">Registration Type</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select name="id_registration_type" id="id_registration_type" class="form-control text-dark bg-light" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="regular" {% if bankholder.registration_type == 'regular' %}selected{% endif %}>Regular</option>
+                                                        <option value="composition" {% if bankholder.registration_type == 'composition' %}selected{% endif %}>Composition</option>
+                                                        <option value="consumer" {% if bankholder.registration_type == 'consumer' %}selected{% endif %}>Consumer</option>
+                                                        <option value="unregistered" {% if bankholder.registration_type == 'unregistered' %}selected{% endif %}>Unregistered</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label id="id_gstin_un_label">GST Number</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" id="id_gstin_un" name="id_gstin_un" class="form-control text-dark bg-light" pattern="^[0-9A-Z]{15}$" value="{{bankholder.gst_num}}" required>
+                                                    <div id="gsterror"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Alter GST Details</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select class="form-select text-dark bg-light" name="alt_gst" id="alt_gst" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="Yes" {% if bankholder.alter_gst_details == 'Yes' %}selected{% endif %}>Yes</option>
+                                                        <option value="No" {% if bankholder.alter_gst_details == 'No' %}selected{% endif %}>No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-sm-6">
+                                            <h4 class="text-center py-2 text-light">Mailing Address Form</h4>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Mailing Name</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="m_name" id="m_name" value="{{bankholder.mailing_name}}" required >
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Address</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="m_address" id="m_address" value="{{bankholder.address}}" required >
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Country</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="m_country" id="m_country" value="{{bankholder.country}}" required >
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">State</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <select type="text" class="form-select text-dark bg-light" id="m_state" name="m_state" required>
+                                                        <option value="{{bankholder.state}}" selected>{{bankholder.state}}</option>
+                                                        <option value="Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option> 
+                                                        <option value="Andhra Pradesh">[AD]-Andhra Pradesh</option>
+                                                        <option value="Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> 
+                                                        <option value="volvo">[AS]-Assam</option>
+                                                        <option value="Bihar">[BR]-Bihar</option> <option value="volvo">[CH]-	Chandhigarh</option>
+                                                        <option value="Chattisgarh">[CG]-Chattisgarh</option>
+                                                        <option value="Daman Diu">[DD]-Daman Diu</option><option value="volvo">[DL]-	Delhi</option>
+                                                        <option value="Goa">[GA]-Goa</option> <option value="Gujarat">[GJ]-Gujarat</option>
+                                                        <option value="Haryana">[HR]-Haryana</option> <option value="Himachal Pradesh">[HP]-Himachal Pradesh</option>
+                                                        <option value="Jammu And Kashmir">[JK]-Jammu And Kashmir</option><option value="Jharkand">[JH]-Jharkand</option>
+                                                        <option value="Karnataka">[KA]-Karnataka</option><option value="Kerala">[KL]-Kerala</option>
+                                                        <option value="Ladakh">[LA]-Ladakh</option><option value="Lakshadweep">[LD]-Lakshadweep</option>
+                                                        <option value="Madhyapradesh">[MP]-Madhyapradesh</option><option value="Maharashtra">[MH]-Maharashtra</option>
+                                                        <option value="[MN]-Manipur">[MN]-Manipur</option>  <option value="Meghalaya">[ML]-Meghalaya</option>
+                                                        <option value="Mizoram">[MZ]-Mizoram</option> <option value="Nagaland">[NL]-Nagaland</option> 
+                                                        <option value="Odisha">[OD]-Odisha</option><option value="Puducherry">[PY]-Puducherry</option>
+                                                        <option value="Punjab">[PB]-Punjab</option><option value="Rajasthan">[RL]-Rajasthan</option>
+                                                        <option value="Sikkim">[SK]-Sikkim</option><option value="Tamilnadu">[TN]-Tamilnadu</option>
+                                                        <option value="Telenghana">[TS]-Telenghana</option><option value="Tripura">[TR]-Tripura</option>
+                                                        <option value="Uttar Pradesh">[UP]-Uttar Pradesh</option>
+                                                        <option value="Utharakhand">[UK]-Utharakhand</option><option value="West Bengal">[WB]-West Bengal</option>
+                                                        <option value="Other Territory">[OT]-Other Territory</option>
+                                                    </select></div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Pin Code</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="text" class="form-control text-dark bg-light" name="m_pin" id="m_pin" value="{{bankholder.pin}}" required >
+                                                </div>
+                                            </div>
+                                            <br><br>
+                                            <h4 class="text-center py-2 text-light">Opening Balance Form</h4>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Date</label>
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="date" class="form-control text-dark bg-light" name="date" id="date" value="{{bankholder.date}}" required >
+                                                </div>
+                                            </div>
+                                            <div class="row pb-3">
+                                                <div class="col-4">
+                                                    <label for="">Amount</label>
+                                                </div>
+                                                <div class="col-3">
+                                                    <select class="form-select text-dark bg-light" name="tamt" id="tamt" required>
+                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="credit" {% if bankholder.amount_type == 'credit' %}selected{% endif %}>Credit</option>
+                                                        <option value="debit" {% if bankholder.amount_type == 'debit' %}selected{% endif %}>Debit</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-5">
+                                                    <input type="number" class="form-control text-dark bg-light" id="amount" name="amount" value="{{bankholder.amount}}" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <br>
+                                </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="col-md-6 form-check">
+                                            <input type="checkbox" class="form-check-input" id="termsCheckbox" name="terms" required>
+                                            <label class="form-check-label" for="termsCheckbox">Agree to terms and conditions</label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align: center;">
+                                            <div class="col-md-12 text-center">
+                                                <button class="btn text-light" type="submit" style="background-color: chocolate; width: 150px; font-size: medium;" >Add</button>
+                                                <button class="btn btn-danger" type="reset" style="background-color: chocolate; width: 150px; font-size: medium;" onclick="goToTop()">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br><br>
+                                </form>
+                                
+
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            
+
+<!-- -------Modal------------------------bank------------------------------------------- -->
+           
+<!-- -------Modal------------------------bank------------------------------------------- -->
+<!-- -------Modal------------------------bank------------------------------------------- -->
+<div class="modal fade" id="bank_creation" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="dynamic">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background: black; border-radius: 2px;">
+            <div class="modal-header" style="background: black">
+                <h2 class="modal-title text-light" id="excelModalLabel">CREATE BANK</h2>
+                <button type="button" class="btn close" id="bnkcancel1" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background: black;">
+                <div class="card" style="background-color: black;">
+                    <form action="" method="POST" enctype="multipart/form-data" id="bankform">
+                        {% csrf_token %}
+                        <div class="form-group mt-3" style="margin-left: 2vh;">
+                            <br><br>
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="dt"  style="font-size: medium;color: aliceblue;">Date </label> <br><br>
+                                </div>
+                                <div class="col-md-8" style="margin-left: 2vh;">
+                                    <input type="date" class="form-control text-dark bg-light" name="bdate" id="bdate"  required >
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="bank_Name"  style="font-size: medium;color: aliceblue;">Bank Name </label> <br><br>
+                                </div>
+                                <div class="col-md-8" style="margin-left: 2vh;">
+                                    <input type="text" class="form-control text-dark bg-white" name="bankName" id="bank_Name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="account_number" style="font-size: medium; color: aliceblue; ">Account Number </label> <br><br>
+                                </div>
+                                <div class="col-md-8" style="margin-left: 2vh;">
+                                    <input type="number" class="form-control text-dark bg-white" name="accountnumber" id="accnumber"  required>
+                                    <span id="success-message-id" class=" mt-1 text-success" style="font-size: 10px;"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="opbal" style="font-size: medium; color: aliceblue; ">Opening Balance</label> <br><br>
+                                </div>
+                                <div class="col-md-2" style="margin-left: 2vh;">
+                                    <select class="form-control form-select text-dark bg-light" id="bal_type" name="bal_type">
+                                        <option value="Credit">Credit</option>
+                                        <option value="Debit" selected>Debit</option>
+                                      </select>
+                                    </div>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control text-dark bg-light" id="opn_bal" name="opn_bal">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="ifs_code" style="font-size: medium;color: aliceblue;">IFSC Code </label> <br><br>
+                                </div>
+                                <div class="col-md-8" style="margin-left: 2vh;">
+                                    <input type="text" class="form-control text-dark bg-white" name="ifsc_code" id="if_code" placeholder="ABCD0123456" pattern="^[A-Z]{4}0[A-Z0-9]{6}$" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mt-2">
+                                    <label for="brnch_name" style="font-size: medium; color: aliceblue; ">Branch Name </label> <br><br>
+                                </div>
+                                <div class="col-md-8" style="margin-left: 2vh;">
+                                    <input type="text" class="form-control text-dark bg-white" name="branch_name" id="brh_name" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn text-center pt-2 btn-outline-warning" data-dismiss="modal" id="banksave" >SAVE</button>
+                            <button type="button" class="btn text-center pt-2 btn-outline-warning" id="bnkcancel" data-dismiss="modal">CANCEL</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            
+            <!---modal of bank durationend-->
+        <script>
+            var defaultDate = new Date();
+
+            // Formatting the date to YYYY-MM-DD
+            var formattedDate = defaultDate.toISOString().split('T')[0];
+
+            // Setting the value of the input field
+            document.getElementById("date").value = formattedDate;
+        </script>
+        <script>
+            var defaultDate = new Date();
+
+            // Formatting the date to YYYY-MM-DD
+            var formattedDate = defaultDate.toISOString().split('T')[0];
+
+            // Setting the value of the input field
+            document.getElementById("bdate").value = formattedDate;
+        </script>
+        
+       
+        <script>
+            $(document).ready(function () {
+                var bankAlreadyTaken = false; // Set to false initially
+            
+                $("#bank_select").change(function () {
+                    var id = $(this).val();
+                   
+                    console.log(id)
+        
+                    $.ajax({
+                        url: 'bankholder_checkbank',
+                        data: {
+                            'id': id
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.is_tak) {
+                                // Loan already taken
+                                alert("Bank account already taken.");
+                                bankAlreadyTaken = true;
+                                clearbankDetails(); // Clear employee details
+                            } else {
+                                // Loan not taken
+                                bankAlreadyTaken = false;
+                                fetchbankDetails();
+                            }
+                        }
+                    });
+                });
+            
+                $('#bank_select').on('change', function () {
+                    if (bankAlreadyTaken) {
+                        // If loan already taken, fetch employee details
+                        fetchbankDetails();
+                    }
+                });
+            
+                function fetchbankDetails() {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{% url 'bankholder_listbank' %}",
+                        data: {
+                            id: $('#bank_select').val(),
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                        },
+                        success: function (data) {
+                           console.log("success");
+                            updateFormFields(data);
+                        }
+                    });
+                }
+            
+                function updateFormFields(data) {
+                    console.log(data.bnk_acno);
+                    document.getElementById('accountNumber').value = data.bnk_acno;
+                    console.log(data.bnk_ifsc);
+                    document.getElementById('ifscCode').value = data.bnk_ifsc;
+                    console.log(data.bnk_branch);
+                    document.getElementById('branch_name').value = data.bnk_branch;
+                }
+            
+                function clearbankDetails() {
+                    // Clear employee details from the form fields
+                    updateFormFields({
+                        bnk_acno: '',
+                        bnk_ifsc: '',
+                        bnk_branch: '',
+                        
+                    });
+                }
+            });
+            
+            </script>
+            <script>
+                $(document).ready(function(){
+                  // Function to clear fields
+                 
+                  
+                  // Clear fields when "Clear Fields" button is clicked
+                  $('#bnkcancel1').click(function() {
+                    clearModalFields(); // Call function to clear fields
+                  });
+                });
+            
+                function clearModalFields() {
+                    $("#bank_Name").val('');
+                $("#accnumber").val('');
+                $("#bal_type").val('');
+                $("#opn_bal").val('');
+                $("#if_code").val('');
+                $("#brh_name").val(''); // Clear input field
+            
+                $('#bank_creation').modal('hide');
+            
+                  }
+                  
+                </script>
+            <script>
+                $(document).ready(function(){
+                  // Function to clear fields
+                 
+                  
+                  // Clear fields when "Clear Fields" button is clicked
+                  $('#bnkcancel').click(function() {
+                    clearModalFields(); // Call function to clear fields
+                  });
+                });
+            
+                function clearModalFields() {
+                    $("#bank_Name").val('');
+                $("#accnumber").val('');
+                $("#bal_type").val('');
+                $("#opn_bal").val('');
+                $("#if_code").val('');
+                $("#brh_name").val(''); // Clear input field
+            
+                $('#bank_creation').modal('hide');
+            
+                  }
+                  
+                </script>
+        
+            <!--Modal of employee saving -->
+        <script>
+        
+        $(document).on("click", "#banksave", function(e) {
+            e.preventDefault();  // Prevent default form submission
+            console.log("adding");
+
+            if (!validateform()) {
+                $('#bank_creation').modal('show');
+            return; // If validation fails, do not proceed further
+            }
+    
+        $.ajax({
+            type: "POST",
+            url: "{% url 'bankholder_addbank' %}",
+            data: {
+                
+                bdate: $("#bdate").val(),
+                bankName: $("#bank_Name").val(),
+                accnumber: $("#accnumber").val(),
+                bal_type: $("#bal_type").val(),
+                opn_bal: $("#opn_bal").val(),
+                if_code: $("#if_code").val(),
+                brh_name: $("#brh_name").val(),
+                
+                
+
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+                
+
+            },
+            success: function(response) {
+                
+                // If success, show success message
+                alert(response.success);
+                // Optionally, you can redirect to another page or perform other actions
+                console.log("added")
+                
+            
+                $("#bank_Name").val('');
+                $("#accnumber").val('');
+                $("#bal_type").val('');
+                $("#opn_bal").val('');
+                $("#if_code").val('');
+                $("#brh_name").val('');
+
+
+                console.log("cleared")
+                
+                
+                reload_bank();
+                $('#bank_creation').modal('hide');
+                console.log("reloaded")
+            },
+            error: function(xhr, status, error) {
+                $('#bank_creation').modal('show');
+                // If error, show error message
+                var jsonResponse = JSON.parse(xhr.responseText);
+                alert(jsonResponse.error);
+            
+
+            }
+            
+        });
+    });
+    function reload_bank() {
+    $.ajax({
+          url: "{% url 'addbnk_refresh' %}",
+          type: "GET",
+          dataType: "json",
+          data: $(this).serialize(),
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        
+          success: function(data) {
+            var dropdown = $('#bank_select');
+      
+            $.each(data, function(key, value) {
+         
+                dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
+      
+            });
+      
+          },
+       
+        });
+        }
+
+    
+
+    </script>
+            </script>
+            <!-- modal of employee saving end-->
+   
+
+
+
+</script>
+
+<script>
+    function validateform() { 
+            var bankname = document.getElementById('bdate').value;
+            var bankname = document.getElementById('bank_Name').value;
+            var bankname = document.getElementById('bank_Name').value;
+            var bankname = document.getElementById('bank_Name').value;
+            var acno = document.getElementById('accnumber').value;
+            var ifsc = document.getElementById('if_code').value;
+            var brnch = document.getElementById('brh_name').value;
+
+            var acnoPattern = /^\d{14,}$/;
+            var ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+
+            if (bankname === "" || acno === "" || ifsc === "" || brnch === "" || bdate === "" || bal_type === "" || opn_bal === "") {
+                    alert("Please fill in all fields.");
+                    return false;
+                }
+                if (!acnoPattern.test(acno)) {
+                    alert("Please enter a valid 14-digit account number.");
+                    
+                    return false;
+                }
+
+                // Check if IFSC code matches the pattern
+                if (!ifscPattern.test(ifsc)) {
+                    alert("Please enter a valid IFSC code in the format: ABCD0123456.");
+                    
+                    return false;
+                }
+
+                return true; 
+            }
+
+        $('#customer_name').on('input', function(){
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                var customerName = $(this).val();
+                var regex = /[A-Za-z]$/;
+                if(regex.test(customerName)) {
+                    $('#nameerror').text('Name is valid.').css('color', 'green');
+                    // Name is valid, call AJAX to check if it exists
+                    $.ajax({
+                    url: "{% url 'bankholder_checkname' %}",
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    type: 'POST',
+                    data: {customerName: customerName},
+                    success: function(response) {
+                        if (response.status == 'exists') {
+                            $('#nameerror').text('Name already exists.').css({
+                                'color': 'red',
+                                'font-size': '12px'
+                            });
+                        } else {
+                            $('#nameerror').text('Name is available.').css({
+                                'color': 'green',
+                                'font-size': '12px'
+                            });
+                        }
+                    }
+                    });
+                } else {
+                    $('#nameerror').text('Please enter a valid name.').css({
+                        'color': 'red',
+                        'font-size': '12px'
+                    });
+                }
+            });
+
+            $('#id_gstin_un').on('input', function(){
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                var gstNumber = $(this).val();
+                var regex = /^[0-9A-Z]{15}$/;
+                if(regex.test(gstNumber)) {
+                    $('#gsterror').text('GST number is valid.').css('color', 'green');
+                    // PAN number is valid, call AJAX to check if it exists
+                    $.ajax({
+                    url: "{% url 'bankholder_checkgst' %}", // Change this line
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    type: 'POST',
+                    data: {gstNumber: gstNumber},
+                    success: function(response) {
+                        if (response.status == 'exists') {
+                            $('#gsterror').text('Gst number already exists.').css({
+                                'color': 'red',
+                                'font-size': '12px'
+                            });
+                            
+                        }
+                    }
+                    });
+                } else {
+                    $('#gsterror').text('Please enter a valid Gst number.').css({
+                        'color': 'red',
+                        'font-size': '12px'
+                    });
+                }
+            });
+            $('#pan').on('input', function(){
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                var panNumber = $(this).val();
+                var regex = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                if(regex.test(panNumber)) {
+                    $('#panerror').text('PAN number is valid.').css('color', 'green');
+                    // PAN number is valid, call AJAX to check if it exists
+                    $.ajax({
+                    url: "{% url 'bankholder_checkpan' %}", // Change this line
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    type: 'POST',
+                    data: {panNumber: panNumber},
+                    success: function(response) {
+                        if (response.status == 'exists') {
+                            $('#panerror').text('PAN number already exists.').css({
+                                'color': 'red',
+                                'font-size': '12px'
+                            });
+                            
+                        }
+                    }
+                    });
+                } else {
+                    $('#panerror').text('Please enter a valid PAN number.').css({
+                        'color': 'red',
+                        'font-size': '12px'
+                    });
+                }
+            });
+            $('#email').on('input', function(){
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                var email = $(this).val();
+                var regex = /^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.com$/;
+                if(regex.test(email)) {
+                    $('#emailerror').text('Email is valid.').css('color', 'green');
+                    // PAN number is valid, call AJAX to check if it exists
+                    $.ajax({
+                    url: "{% url 'bankholder_checkemail' %}", // Change this line
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    type: 'POST',
+                    data: {email: email},
+                    success: function(response) {
+                        if (response.status == 'exists') {
+                            $('#emailerror').text('Email already exists.').css({
+                                'color': 'red',
+                                'font-size': '12px'
+                            });
+                            
+                        }
+                    }
+                    });
+                } else {
+                    $('#emailerror').text('Please enter a valid Email.').css({
+                        'color': 'red',
+                        'font-size': '12px'
+                    });
+                }
+            });
+
+            $('#phone_number').on('input', function(){
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                var phoneNumber = $(this).val();
+                var regex = /^[6-9]\d{9}$/;
+                if(regex.test(phoneNumber)) {
+                    $('#pherror').text('Phone number is valid.').css('color', 'green');
+                    // PAN number is valid, call AJAX to check if it exists
+                    $.ajax({
+                    url: "{% url 'bankholder_checkphone' %}", // Change this line
+                    headers: {'X-CSRFToken': csrftoken}, 
+                    type: 'POST',
+                    data: {phoneNumber: phoneNumber},
+                    success: function(response) {
+                        if (response.status == 'exists') {
+                            $('#pherror').text('Phone number already exists.').css({
+                                'color': 'red',
+                                'font-size': '12px'
+                            });
+                            
+                        }
+                    }
+                    });
+                } else {
+                    $('#pherror').text('Please enter a valid Phone number.').css({
+                        'color': 'red',
+                        'font-size': '12px'
+                    });
+                }
+            });
+
+    </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let registrationTypeField = document.querySelector('#id_registration_type');
+                let gstNumberField = document.querySelector('#id_gstin_un');
+                let gstNumberLabel = document.querySelector('#id_gstin_un_label');
+                
+                function toggleGstNumberField() {
+                    let registrationType = registrationTypeField.value;
+                    if (registrationType === 'consumer' || registrationType === 'unregistered') {
+                        gstNumberField.style.display = 'none';
+                        gstNumberLabel.style.display = 'none';
+                        gstNumberField.required = false; // Remove the required attribute
+                    } else {
+                        gstNumberField.style.display = '';
+                        gstNumberLabel.style.display = '';
+                        gstNumberField.required = true; // Add the required attribute back
+                    }
+                }
+                
+                toggleGstNumberField();
+                
+                registrationTypeField.addEventListener('change', toggleGstNumberField);
+        });
+            
+        </script>
+        
+        <script>
+            const input = document.getElementById("an");
+            input.addEventListener("input", () => input.value = formatNumber(input.value.replaceAll(" ", "")));
+            const formatNumber = (number) => number.split("").reduce((seed, next, index) => {
+                if (index !== 0 && !(index % 4)) seed += " ";
+                return seed + next;
+            }, "");
+        </script>
+        
+        <script>
+            var loadFile = function (event) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var output = document.getElementById('img');
+                    output.src = reader.result;
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            };
+        </script>
+        
+        <script>
+            function goToTop() {
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE, and Opera
+            }
+        
+            
+        
+
+        </script>
+        
+
+    </div>
+</div>
+
+
+
+<script>
+    // Function to make the alert blink
+    function blink() {
+        $('#alertMessage').fadeOut(1000).fadeIn(1000, blink);
+    }
+
+    // Call the blink function when the page loads
+    $(document).ready(function() {
+        blink();
+    });
+</script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    {% for msg in messages %}
+    swal({
+    title: "{{msg}}",
+    text: "{{msg.tags}}",
+    icon: "{{msg.tags}}",
+  });
+    {% endfor %}
+   </script>
+
+{% endblock %}

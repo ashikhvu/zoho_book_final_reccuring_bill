@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    table {
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    th, td {
+    border: 1px solid #dddddd;
+    padding: 5px 2px;
+    /* text-align: left; */
+    }
+
+    th {
+    background-color: #f2f2f2;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .invoice_data {
+        font-size: 1.2rem;
+    }
+
+    .data_row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .data_1, .data_2 {
+        font-weight: bold;
+    }
+
+    .data_value {
+        flex: 1;
+        text-align: right;
+    }
+
+    .balance_info{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .balance_info .bal_head{
+        width: 48%;
+    }
+
+    .bal_value{
+        width: 48%;
+        flex: 1;
+        text-align: right;
+    }
+
+
+
+
+
+</style>
+
+<body>
+    <div class="my-5 page" size="A4">
+        <div class="p-5">
+            <div id="ember2512" class="row tooltip-container ember-view text-ellipsis" style="display: flex; justify-content: space-between;">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <center style="color: black;">
+                        <b>
+                            <p style="font-size: 1.3rem;">INVOICE</p>
+                        </b>
+                        <p> {{cmp.company_name}}<br>
+                            {{cmp.address}} <br>
+                            {{cmp.city}},
+                            {{cmp.state}}<br>
+                            {{cmp.login_details.email}}
+                        </p>
+                    </center>
+                </div>
+                <hr>
+                <div style="width: 100%;">
+                    <div class="invoice_data">
+                        <div class="data_row">
+                            <div class="data_1">Invoice No: {{invoice.invoice_number}}</div>
+                            <div class="data_2 data_value">Invoice Date: {{invoice.date}}</div>
+                        </div>
+                        <div class="data_row">
+                            <div class="data_1 data_value">Shipment Date: {{invoice.expiration_date}}</div>
+                            <div class="data_2"></div>
+                        </div>
+                        <div class="data_row">
+                            <div class="data_1">Customer:<br><b>{{invoice.customer.title}}. {{invoice.customer.first_name}} {{invoice.customer.last_name}}</b><br>{{invoice.customer.billing_address|linebreaksbr}}</div>
+                            <div class="data_2 data_value"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <section class="mt-4">
+                <table class="table2">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; text-transform:uppercase;">Item</th>
+                            <th style="text-align: center; text-transform:uppercase;">HSN</th>
+                            <th style="text-align: center; text-transform:uppercase;">Price</th>
+                            <th style="text-align: center; text-transform:uppercase;">Tax</th>
+                            <th style="text-align: center; text-transform:uppercase;">Discount</th>
+                            <th style="text-align: center; text-transform:uppercase;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for itm in invItems %}
+                        <tr>
+                            <td style="text-align: center;">{{itm.Items.item_name}}</td>
+                            <td style="text-align: center;">{{itm.hsn}}</td>
+                            <td style="text-align: center;">{{itm.price}}</td>
+                            <td style="text-align: center;">{{itm.tax_rate}}</td>
+                            <td style="text-align: center;">{{itm.discount}}</td>
+                            <td style="text-align: center;">{{itm.total}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            <section style="margin-top: 1rem; display: flex; justify-content: right;">
+                <div style="width: 50%;" >
+                    <div class="invoice_data">
+                        <div class="data_row">
+                            <div class="data_1 data_value">Sub Total &nbsp;&nbsp;&nbsp;: {{invoice.sub_total}}</div>
+                            <div class="data_2 data_value">TAX Amount&nbsp;&nbsp;&nbsp;: {{invoice.tax_amount_or_IGST}}</div>
+                        </div>
+                        <div class="data_row">
+                            {% if invoice.tax_amount_or_IGST != 0 %}
+                            <div class="data_1 data_value">IGST/TAX Amount&nbsp;&nbsp;&nbsp;&nbsp;: {{invoice.tax_amount_or_IGST}}</div>
+                            {% elif invoice.CGST != 0 %}
+                            <div class="data_2 data_value">CGST&nbsp;&nbsp;&nbsp;&nbsp;: {{invoice.CGST}}</div>
+                            {% elif invoice.SGST != 0 %}
+
+                            <div class="data_2 data_value">SGST&nbsp;&nbsp;&nbsp;&nbsp;: {{invoice.SGST}}</div>
+                            {% endif %}
+                        </div>
+                        <div class="data_row">
+                            {% if invoice.adjustment != 0 %}
+                            <div class="data_1 data_value">Adjustment&nbsp;&nbsp;&nbsp;: {{invoice.adjustment}}</div>
+                            {% endif %}
+                            {% if invoice.shipping_charge != 0 %}
+                            <div class="data_1 data_value">Shipping  &nbsp;&nbsp;&nbsp;: {{invoice.shipping_charge}}</div>
+                            {% endif %}
+                        </div>
+                        <br>
+                        <div class="data_row">
+                            <div class="data_1 data_value"><b>GRAND TOTAL</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{invoice.grand_total}}</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link href='https://unpkg.com/css.gg@2.0.0/icons/css/trash.css' rel='stylesheet'>
+<script src="https://cdn.jsdelivr.net/bootstrap.datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
+
+<style>
+    .card{
+        background: none;
+    }
+    
+    tbody tr td{
+        border: none;
+        border-top: none;
+        border-style: none;
+        color:azure;
+        justify-content: center;
+    }
+
+    tbody tr:hover{
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    a{
+        list-style: none;
+        color: azure;
+    }
+
+    a:hover{
+        color: rgb(218, 164, 48);
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px; 
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+</style>
+
+<div class="body-wrapper">
+    <div class="container-fluid" >   
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'bank_list' %}" class="text-warning-emphasis">Banking</a></li>
+              <li class="breadcrumb-item" aria-current="page">Transaction History</li>
+            </ol>
+          </nav>
+        <div class="row pt-5">
+            <div class="col-md-12">
+                <div class="card mb-5 p-5" style="background-color: black;">
+                    <div class="d-flex justify-content-between">
+                        <h1 style="color: white; font-weight: bolder;">Banking Transaction History</h1><br>
+                        <a href="{% url 'bank_view' id %}"><i class="fa fa-close" style="color: white; font-size: large;"></i></a>
+                    </div>
+                    <br>
+                    <div class="table-responsive">
+                        <table class="table mt-4" id="table">
+                            <thead>
+                                <tr class="text-center" style="color: white;">
+                                    <th>#</th>
+                                    <th>BANK NAME</th>
+                                    <th>ACCOUNT NUMBER</th>
+                                    <th>AMOUNT BEFORE</th>
+                                    <th>AMOUNT ADJUSTED</th>
+                                    <th>AMOUNT AFTER</th>
+                                    <th>ADJUSTED BY</th>
+                                    <th>ADJUSTED ON</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in thist %}
+                                <tr class="text-center">
+                                    <td hidden>{{ t.transaction.trans_adj_type }}</td>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ t.transaction.banking.bnk_name }}</td>
+                                    <td>{{ t.transaction.banking.bnk_acno }}</td>
+                                    <td>&#8377; {{ t.hist_cur_amount }}</td>
+                                    <td>&#8377; <span class="amount"> {{ t.hist_amount }} </span></td>
+                                    <td>&#8377; {{ t.hist_adj_amount }}</td>
+                                    <td class="text-capitalize">{{ t.login_details.first_name }} {{ t.login_details.last_name }}</td>
+                                    <td>{{ t.hist_adj_date|date:'d-m-Y' }}</td>
+                                    <td>{{ t.hist_action }}</td>
+                                </tr>
+                                {% endfor %}  
+                            </tbody>
+                        </table>
+                    </div>
+                </div>  
+            </div>
+        </div>  
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var table = document.getElementById('table');
+    var rows = table.querySelectorAll('tbody tr');
+    rows.forEach(function(row) {
+      var cells = row.querySelectorAll('td');
+      if (cells[0].innerText == 'Balance Decrease'){
+        text = cells[5].querySelector('.amount').innerText
+        cells[5].querySelector('.amount').innerText = -text
+      }
+    });
+  });
+</script>
+
+{%endblock%}

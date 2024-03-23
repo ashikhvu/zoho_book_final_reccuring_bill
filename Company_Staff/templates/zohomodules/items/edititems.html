@@ -1,0 +1,960 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-ez8n5b/9F3JpKCEY6zIp+Hg7IbU8d7Q5ST78iEiRaP2mNPjkDps8I+1i0fblDOoh" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-xxxxxx" crossorigin="anonymous" />
+
+<style>
+                                    /* form style */
+
+
+*{
+    color: aliceblue;
+    
+}
+input {
+    color: white;
+}
+</style>
+<style>         /* SEARCH STYLE */
+  /* Style the Select2 search input */
+  .select2-search__field {
+    width: 100%; /* Set the width as needed */
+    padding: 8px; /* Adjust padding as needed */
+    border: 1px solid #92acc6; /* Add border color */
+    border-radius: 4px; /* Add border-radius for rounded corners */
+    outline: none; /* Remove the outline */
+    color: #000;
+  }
+/*   
+  .select2-container .select2-selection--single{box-sizing:border-box;cursor:pointer;display:block;height:35px;user-select:none;color: black;
+    -webkit-user-select:none;background-color: #fff;} */
+.select2-container .select2-selection--single .select2-selection__rendered{border: 1px solid white; border-radius: 6px; display:block;padding-left:20px;padding-right:20px; height: 35px;color: rgb(252, 252, 252);background-color: #000000;border-radius: 2px;box-shadow: #fcfcfc;border-color: #f2e8e8;}
+    .select2-dropdown{background-color:rgb(0, 0, 0);color: rgb(253, 253, 253);position:absolute;left:-100000px;width:100%;z-index:1051;color: rgb(255, 255, 255);border-color: #f2e8e8;}
+    .select2-results{display:block;border: #ced4da;border-color: #f2e8e8;}
+    .select2-results__options{list-style:none;margin:0;padding:0;color: rgb(255, 255, 255);background-color: #030303;padding-left: 20px;border-color: #f2e8e8;} 
+    .select2-results__option[aria-selected]{cursor:pointer;color: rgb(251, 251, 251);background-color: #0c0c0c;border-color: #f2e8e8;}
+    .select2-container--open .select2-dropdown{left:0;color: rgb(255, 255, 255);background-color: #000000;border-color: #f2e8e8;}
+
+    .select2-hidden-accessible{background-color: #000000;border:2px !important;clip:rect(0 0 0 0) !important;-webkit-clip-path:inset(50%) !important;clip-path:inset(50%) !important;height:0px !important;padding:0 !important;position:absolute !important;width:1px !important;white-space:nowrap !important;color: rgb(250, 250, 250)} 
+    /* .select2-container--default .select2-selection--single{background-color:#000000;border:1px solid #000000;border-radius:4px;color: rgb(0, 0, 0);background-color: #ede4e4;} */
+/* .select2-hidden-accessible{background-color: #fff;border:0 !important;clip:rect(0 0 0 0) !important;-webkit-clip-path:inset(50%) !important;clip-path:inset(50%) !important;height:1px !important;overflow:hidden !important;padding:0 !important;position:absolute !important;width:1px !important;white-space:nowrap !important;color: black}  */
+.select2-container--default .select2-selection--single:focus, .select2-container--default .select2-selection--single .select2-search__field:focus, .typeahead:focus, .tt-query:focus, .tt-hint:focus {
+    border: 1px solid rgba(250, 250, 250, 0.5);
+    background-color: #d3bcbc;
+}
+</style>
+<style> /* MODAL STYLE */
+  .modal {
+ z-index: 9999;
+ overflow: scroll;
+}
+
+.modal-content {
+ background-color: #fefefe;
+ margin: 15% auto;
+ padding: 20px;
+ border: 1px solid #888;
+ width: 80%;
+}
+
+</style>
+<style>   /* ACCOUNT STYLE */
+  /*.modal {
+    z-index: 9999;
+    overflow: scroll;
+  }*/
+li{
+  color: #000;
+}
+  a {
+      color: rgb(0, 0, 0);
+  }
+
+  a:hover {
+      color: rgb(214, 141, 5);
+  }
+
+  tr:hover {
+      background-color: #92929242;
+      font-weight: bold;
+  }
+
+  /* width */
+  /*::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  /*::-webkit-scrollbar-track {
+    background: rgb(252, 236, 217);
+
+  }
+
+  /* Handle */
+  /*::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  /*::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }*/
+
+  /*#selected-area {
+    font-size: 20px;
+  }
+
+
+
+  /* .......................................... search box1.............. */
+  .select-box1 {
+      position: relative;
+      width: 100%;
+  }
+  
+
+  .select-option1 {
+      position: relative;
+      
+  }
+
+  .select-option1 input {
+      width: 100%;
+      cursor: pointer;
+      background-color: white;
+      color: black;
+      border-radius: 7px;
+      padding: 10px 15px;
+      border: 0 !important;
+      outline: 0 !important;
+  }
+
+  .select-option1:after {
+      content: "";
+      border-top: 12px solid #000;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      margin-top: -8px;
+
+  }
+
+  .content1 {
+      background-color: white;
+      position: absolute;
+      color: black;
+      border-radius: 7px;
+      margin-top: 15px;
+      width: 100%;
+      z-index: 999;
+      padding: 20px;
+      display: none;
+  }
+
+  .search1 input {
+      width: 100%;
+      font-size: 17px;
+      padding: 15px;
+      outline: 0;
+      border: 1px solid #b3b3b3;
+      border-radius: 5px;
+  }
+
+  .options1 {
+      margin-top: 10px;
+      max-height: 150px;
+      overflow-y: scroll;
+      padding: 0;
+  }
+
+  /* .options1::-webkit-scrollbar{
+      width: 5px;
+     
+    } */
+  .options1 li {
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid gray;
+  }
+
+  .select-box1.active .content1 {
+      display: block;
+  }
+
+  .select-box1.active .select-option1:after {
+      transform: rotate(-180deg);
+  }
+</style>
+
+
+
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'items_list' %}" class="text-warning-emphasis">Items</a></li>
+              <li class="breadcrumb-item" aria-current="page">Edit Items</li>
+            </ol>
+        </nav>
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
+                
+               <br>
+               <!-- <div style="background-color: rgb(0, 0, 0); border-radius: 10px; width:80% ;margin-left: 18%;"> -->
+                <div >
+                  <h4 id="selected_customer_heading" class="text" style="color: white; margin-left: 2%; padding-top: 20px;"><b>EDIT ITEM</b></h4>
+                </div>
+             <br>
+             <div class="container-fluid"> 
+              <form action="{% url 'edititems' item.id %}" method="POST" id="add" style="padding-left: 20px;">
+                {% csrf_token%}
+                <br>  
+                <!-- <h3 class="mb-3 text-white mt-4" style="font-size: 2rem;">EDIT ITEM</h3> -->
+                <br>
+                <fieldset class="form-group" >
+                    <div class="row">
+                    
+                        <div class="col-12 col-md-10">
+                          <label class="col-12 col-md-2 col-form-label pt-3" style="color: aliceblue;">Type  &nbsp;&nbsp;<i
+                            class="fa fa-question-circle"></i></label>
+                            <div class="form-check form-check-inline">
+                                <input required class="form-check-input" type="radio" name="type" id="gridRadios1" value="Goods"  {% if item.item_type == "Goods" %}checked{% endif %}>
+                                <label class="form-check-label text-white" for="gridRadios1" >Goods</label>
+                            </div> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                            <div class="form-check form-check-inline ml-md-3">
+                                <input required class="form-check-input" type="radio" name="type" id="gridRadios2" value="Services" {% if item.item_type == "Services" %}checked{% endif %}>
+                                <label class="form-check-label text-white" for="gridRadios2">Services</label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <br>
+                
+                <div class="form-group row">
+                    <label  class="col-sm-2 col-form-label " style="color: aliceblue;">Name *</label>
+                    <div class="col-sm-10 col-md-7 col-9" style="margin-left: -2.2rem;">
+                      <input required type="text" class="form-control" name="name" id="nameInput" style="color: aliceblue;" placeholder="Enter Item Name" value="{{item.item_name}}">  
+                    </div>
+                  </div>
+                  <br>
+                  <div class="form-group row">
+                    <label class="col-sm-2 col-form-label" style="color: aliceblue;">Unit <i class="fa fa-question-circle"></i></label>
+                    <div class="col-sm-10 col-md-7 col-9" style="margin-left: -2.2rem;">
+                        <div class="d-flex align-items-center">
+                            <select name="unit" class="form-control" id="selunit"  style="background-color: black; color: white;"  >
+                                <option>--Select Unit--</option>
+                              {% for i in units %}
+                                <option value={{i.id}}  {% if item.unit.unit_name == i.unit_name %}Selected{% endif %} >{{i.unit_name}}</option>
+                              {% endfor %}
+                        
+                            </select>
+                            <script>
+                              $(document).ready(function() {
+                                // Initialize select2
+                                $('#selunit').select2();
+                              });
+                              </script>                        
+                               <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" defer ></script>
+                               <a class="btn btn-outline-warning py-2" style="cursor: pointer;" data-toggle="modal" data-target="#unitmodal" style="height: 38px; margin-right: 3px;">+</a>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label" style="color: aliceblue;">HSN Code</label>
+                    <div class="col-sm-10 col-md-7 col-9" style="margin-left: -2.2rem;">
+                        <input required type="text" class="form-control" name="hsn" id="myInputField" style="color: aliceblue;" placeholder="Enter six digit HSN code" value="{{item.hsn_code}}" oninput="validateInput()">
+                        <div id="validationResult"></div>
+                    </div>
+                </div>
+                <br>
+                <fieldset class="form-group" >
+                    <div class="row">
+                      
+                        <div class="col-12 col-md-10">
+                          <label class="col-12 col-md-2 col-form-label pt-3" style="color: aliceblue;">Tax Preference: &nbsp;&nbsp;</label>
+                            <div class="form-check form-check-inline">
+                                <input required class="form-check-input" type="radio" name="radio" id="gridRadios1" onclick="showAllSelect()" value="taxable"  {% if item.tax_reference == "taxable" %}checked{% endif %}>
+                                <label class="form-check-label text-white" for="gridRadios1">Taxable</label>
+                            </div> &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                            <div class="form-check form-check-inline ml-md-3">
+                                <input required class="form-check-input" type="radio" name="radio" id="gridRadios2"  onclick="hideAllSelect()" value="None-Taxable"  {% if item.tax_reference == "None-Taxable" %}checked{% endif %}>
+                                <label class="form-check-label text-white" for="gridRadios2"> None-Taxable</label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+              
+      <br>
+      
+                  <div class="row">
+                    <div class="col-md-3">
+                  
+                      <div id="select1_div" style="display: block;">
+                        <label for="select1">Intra-State TAX</label><br> <br>
+                        <select name="intra" class="form-control" id="select1" style="background-color: black; color: white;">
+                            <option value="0"  {% if item.intrastate_tax == 0 %}Selected{% endif %} >GST0[0%]</option>
+                            <option value="3" {% if item.intrastate_tax == 3 %}Selected{% endif %}>GST3[3%]</option>
+                            <option value="5" {% if item.intrastate_tax == 5 %}Selected{% endif %}>GST5[5%]</option>
+                            <option value="12" {% if item.intrastate_tax == 12 %}Selected{% endif %}>GST12[12%]</option>
+                            <option value="18" {% if item.intrastate_tax == 18 %}Selected{% endif %}>GST18[18%]</option>
+                            <option value="28" {% if item.intrastate_tax == 28 %}Selected{% endif %}>GST28[28%]</option>
+                        </select>
+                        
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div id="select2_div"  style="display: block;">
+                        <label for="select2">Inter-State TAX</label> <br><br>
+                        <select name="inter" class="form-control " id="select2" style="background-color: black; color: white;">
+                          <option value="0"  {% if item.interstate_tax == 0 %}Selected{% endif %}>IGST0[0%]</option>
+                          <option value="3"  {% if item.interstate_tax == 3 %}Selected{% endif %}>IGST3[3%]</option>
+                          <option value="5"  {% if item.interstate_tax == 5 %}Selected{% endif %}>IGST5[5%]</option>
+                          <option value="12"  {% if item.interstate_tax == 12 %}Selected{% endif %}>IGST12[12%]</option>
+                          <option value="18"  {% if item.interstate_tax == 18 %}Selected{% endif %}>IGST18[18%]]</option>
+                          <option value="28"  {% if item.interstate_tax == 28 %}Selected{% endif %}>IGST28[28%]</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+               
+                  <br>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <input  type="checkbox" name="selling" checked> <label >selling  information</label><br><br>
+                      <div class="form-group row">
+                        <br>
+                        <label class="col-sm-2 col-form-label" style="color: aliceblue;">Selling price </label>
+                        <div class="col-sm-12 col-md-7 col-9 ml-5">
+                          <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                              <div class="input-group-text text-white" style="background-color: black;">INR</div>
+                            </div>
+                            <input required type="text" style="color: aliceblue;" name="sel_price" class="form-control" value="{{item.selling_price}}">
+                          </div>
+                        </div>
+                      </div>
+                      <br>
+                      <div class="form-group row">
+                        <label  class="col-sm-2 col-form-label" style="color: aliceblue;">Account *</label>
+                        <div class="col-sm-10 col-md-7 col-9 ml-5">
+                          <select name="sel_acc" class="form-control " style="background-color: black; color: white;">
+                            <option >--Select Account--</option>
+                            <option value="General Income" {% if item.sales_account == "General Income" %}Selected{% endif %} >General Income</option>
+                            <option value="Interest Income" {% if item.sales_account == "Interest Income" %}Selected{% endif %} >Interest Income</option>
+                            <option value="Late Fee  Income" {% if item.sales_account == "Late Fee  Income" %}Selected{% endif %} >Late Fee  Income</option>  
+                            <option value="Discount Income" {% if item.sales_account == "Discount Income" %}Selected{% endif %} >Discount Income</option>
+                            <option value="Other Charges" {% if item.sales_account == "Other Charges" %}Selected{% endif %} >Other Charges</option>
+                            <option value="Shipping Charge" {% if item.sales_account == "Shipping Charge" %}Selected{% endif %} >Shipping Charge</option>
+                        
+                          </select>                              
+                        </div>
+                      </div>
+                      <br>
+      
+                      <div class="form-group row">
+                        <label  class="col-sm-2 col-form-label" style="color: aliceblue;">Description </label>
+                        <div class="col-sm-10 col-md-7 col-9 ml-5">
+                          <input  type="text" name="sel_desc" style="color: aliceblue;" class="form-control " placeholder="Enter Discription" value="{{item.sales_description}}">
+                        </div>
+                      </div>
+                                            
+                    </div>
+                    <div class="col-md-6">
+                      <input type="checkbox" name="purchase" checked> <label for="">Purchase information</label><br><br>
+                      <div class="form-group row">
+                        <br>
+                        <label  class="col-sm-2 col-form-label" style="color: aliceblue;">Cost Price*</label>
+                        <div class="col-sm-10 col-md-7 col-9">
+                          <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                              <div class="input-group-text text-white" style="background-color: black;">INR</div>
+                            </div>
+                            <input required type="text" class="form-control " style="color: aliceblue;" name="cost_price" value="{{item.purchase_price}}" >
+                          </div>
+                        </div>
+                      </div>
+                      <br>
+                      <br>
+                      <div class="form-group row in">
+                        <label class="col-sm-2 col-form-label" style="color: aliceblue;">Account*</label>
+                        <div class="col-sm-10 col-md-7 col-5">
+                            <div class="d-flex align-items-center">
+                                <select name="cost_acc" class="form-control " id="myaccount" style="color: #fefefe;background-color: #000;">
+                               
+                                  <optgroup label="Expense">
+                             
+                                  {% for i in accounts %}
+      
+                                  {% if i.account_type == 'Expense' %}
+                                
+                                    <option value="{{i.account_name}}" {% if item.purchase_account == i.account_name %}Selected{% endif %}  >{{i.account_name}}</option>
+                            
+                                  {% endif %}
+                                  {% endfor %}
+                                </optgroup>
+                                <optgroup id="costofgoods" label="Cost Of Goods Sold">
+                                  {% for i in accounts %}
+                                  {% if i.account_type == 'Cost Of Goods Sold' %}
+                            
+                                  <option value="{{i.account_name}}" {% if item.purchase_account == i.account_name %}Selected{% endif %}>{{i.account_name}}</option>
+                                    
+                                    {% endif %}
+                                    {% endfor %}
+                                  </optgroup>
+                                  <optgroup label="Other Expense">
+                                  {% for i in accounts %}
+                                  {% if i.account_type == 'Other Expense' %}
+                            
+                                    <option value="{{i.account_name}}" {% if item.purchase_account == i.account_name %}Selected{% endif %}>{{i.account_name}}</option>
+                                    
+                                    {% endif %}
+                                    {% endfor %}
+                                  </optgroup>
+                      
+                                 
+                              
+                                </select>
+                                <a class="btn btn-outline-warning py-2" style="cursor: pointer;" data-toggle="modal" data-target="#account" style="height: 38px; margin-right: 3px;">+</a>
+         
+                            </div>
+                           
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group row in">
+                      
+                        <label class="col-sm-2 col-form-label" style="color: aliceblue;">Description</label>
+                        <div class="col-sm-10 col-md-7 col-5">
+                            <div class="d-flex align-items-center">
+                                <input  type="text" name="pur_desc" class="form-control " style="color: aliceblue;" placeholder="Enter Discription" value="{{item.purchase_description}}">
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                      <label class="col-sm-2 col-form-label" style="color: aliceblue;">Minimum Stock to maintain :</label>
+                        <div class="col-sm-10 col-md-7 col-9 d-flex align-items-center" style="margin-left: -2.2rem;">
+                          <input type="text" name="minimum_stock" style="color: aliceblue;" class="form-control mx-auto" placeholder="Enter Minimum Stock" value="{{item.minimum_stock_to_maintain}}">
+                        </div>
+                      </div>
+                      <br>
+                
+                    <br><br>
+
+                    <div class="row" >
+                      <div class="col-md-10">
+                        {% comment %} <label style="color: aliceblue;"><input type="checkbox" value="trackstate" name="trackstate" onclick="toggleForm()" style="display: none;">
+                       Track Inventory for this item</label> {% endcomment %}
+                        {% comment %} <input type="hidden" name="trackState" id="trackState" value="" unchecked> {% endcomment %}
+                        <label style="color: aliceblue;">
+                       
+                          <input type="checkbox" {% if item.track_inventory == 1 %}checked{% endif %} name="trackstate" value="trackstate" class=" "   onclick="toggleFormFields()">
+                          Track Inventory for this item
+                        </label>   <br>   <br>
+                        <div id="formFields" > 
+                          <div class="form-group row" >
+                            <label class="col-sm-2 col-form-label" style="color: aliceblue;">Inventory Account *</label>
+                            <div class="col-sm-10 col-md-7 col-9" style="margin-left: -1rem;">
+                              <select class="form-select form-select-sm mt-3 " name="invacc" style="background-color: black; color: white;">
+                                <option>Choose..</option>
+                                <option value="inventory assets"  {% if item.inventory_account == "inventory assets" %}Selected{% endif %}>Inventory Asset</option>
+                              </select>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="form-group row ">
+                            <label class="col-sm-2 col-form-label" style="color: aliceblue;">Opening Stock</label>
+                            <div class=" col-md-5">
+                              <input  type="number" class="form-control " style="color: aliceblue;"  name="openstock" value="{{item.opening_stock}}" >
+                            </div>
+                            </div>
+                            <br>
+                            <div class="form-group row ">
+                                <label class="col-sm-2 col-form-label" style="color: aliceblue;">Opening Stock Rate per Unit</label>
+                                <div class=" col-md-5">
+                                    <input type="number" class="form-control" style="color: aliceblue;" name="rate"  value="{{item.opening_stock_per_unit}}">
+                                </div>
+                                </div>
+                            <!-- <div class="col-md-5  "> -->
+                           
+                          
+                          
+      
+                          </div>
+                        </div>
+                      </div>
+                      
+                    <div class="form-inline " style="margin-bottom: 200px;padding-bottom: 20px;">
+                        <button type="submit"  class="mr-3 btn" style="background-color: chocolate;color: aliceblue;" value="Save">Save</button>
+                        <button type="button" class="mr-3 btn" onclick="resetForm()" value="Cancel" style="margin-left:10px;background-color: chocolate;color: aliceblue;">Cancel</button>
+                      </div>   
+                      
+                    </div>
+      
+            </form>
+            </div>
+            </div>
+            </div>
+            
+            {% comment %} <div id="total-bill-amount" class="mt-3" style="color: white;"></div> {% endcomment %}
+            <div>
+                <div id="noDataMessage" style="display: none; color: white;">No data found for selected dates.</div>	
+                <br><br><br><br><br>
+            </div>
+        
+      </div>
+      <div class="form-inline " style="margin-bottom: 200px;"></div>                <div class="form-inline " style="margin-bottom: 200px;padding-bottom: 20px;"></div>
+      
+      
+      </div>
+              </div>
+          </div>
+      </section>
+      </div>
+      </body>
+      <!-- HSN CODE VALIDATION SCRIPT -->
+      
+      <script>
+          function validateSixDigits(field) {
+              // Define the regular expression pattern for exactly six digits
+              var pattern = /^\d{6}$/;
+      
+              // Check if the field matches the pattern
+              return pattern.test(field);
+          }
+      
+          function validateInput() {
+              var inputField = document.getElementById("myInputField");
+              var inputValue = inputField.value;
+      
+              var validationResultDiv = document.getElementById("validationResult");
+      
+              if (validateSixDigits(inputValue)) {
+                  validationResultDiv.textContent = "Valid";
+              } else {
+                  validationResultDiv.textContent = "Invalid: The field does not contain six digits.";
+              }
+          }
+      </script>
+        <!-- HSN CODE VALIDATION SCRIPT END -->
+      
+      <!-- TAXABLE SCRIPT0 -->
+              <script>
+                  function showAllSelect() {
+                  var select1_div = document.getElementById("select1_div");
+                  var select2_div = document.getElementById("select2_div");
+                  select1_div.style.display = "block";
+                  select2_div.style.display = "block";
+                  }
+        
+                  function hideAllSelect() {
+                  var select1_div = document.getElementById("select1_div");
+                  var select2_div = document.getElementById("select2_div");
+                  select1_div.style.display = "none";
+                  select2_div.style.display = "none";
+                  }
+                  </script>
+      
+      <!-- TAXABLE SCRIPT0  end-->
+      
+       <!-- TRACK INVENTORY SCRIPT -->
+       <script>
+        function toggleFormFields() {
+    var formFields = document.getElementById("formFields");
+    var checkbox = document.querySelector("input[name=trackstate]");
+
+    if (checkbox.checked) {
+        formFields.style.display = "block";
+    } else {
+        formFields.style.display = "none";
+    }
+}
+
+// Trigger the click event on page load
+window.onload = function() {
+    // Use the same function that is called on the checkbox click event
+    toggleFormFields();
+};
+        </script>
+      
+         <!-- TRACK INVENTORY SCRIPT END -->
+      
+      
+         <!-- FORM RESET SCRIPT -->
+      
+         <script>
+          function resetForm() {
+            document.getElementById("add").reset();
+          }
+        </script>
+      
+         <!-- FORM RESET SCRIPT END -->
+      
+      
+         <div class="modal fade" id="unitmodal">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+              <div class="modal-header" style="background: rgb(32, 35, 37);">
+                <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #eeeaea;">Add Unit</h5>
+                <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-body" style="background: rgb(32, 35, 37);">
+                <div class="card p-3 m-3" style="background-color: #000;">
+                
+             <div id="error-message-container" style="color: chocolate;"></div>
+                  <form action="" class="needs-validation" novalidate autocomplete="off" id="unitform">
+                    {% csrf_token %}
+           
+                    <h1 class="text-dark"></h1>
+              
+                    <label class="text-dark" for="unit"><b>Unit Name</b></label>
+                    <input type="text" class="form-control text-white"  placeholder="Enter unit" id="unitName" name="unit_name" required>
+                    <p class="text-white">eg:KL,PCS,BOX,LTR</p>
+              
+                    <button type="submit"  id="UnitSave2" class="btn submit text-white" style="border-color: #ced4da;">Add</button>
+                </form>
+        
+        
+            </div>
+          </div>
+        </div>
+        </div></div>
+      
+        <script>
+        
+          $(document).on("click", "#UnitSave2", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+          
+            $.ajax({
+              type: 'POST',
+              url: "{% url 'add_unit' %}",
+              data: {
+                units: $("#unitName").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+              },
+              success: function(response) {
+                if (response.message === 'success') {
+                  document.getElementById("unitform").reset();
+                  reloadUnit();
+                } else {
+                  $("#error-message-container").text("Unit with the same name exists");
+                }
+              },
+            });
+          });
+          
+          
+          
+           
+            
+            
+            function reloadUnit() {
+          
+            $.ajax({
+              url: "{% url 'unit_dropdown' %}",
+              type: "GET",
+              dataType: "json",
+              data: $(this).serialize(),
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+            
+              success: function(data) {
+                var dropdown = $('#selunit');
+          
+                $.each(data, function(key, value) {
+             
+                    dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
+          
+                });
+          
+              },
+           
+            });
+            }
+            </script>
+      
+      <div class="modal fade" id="account">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+            <div class="modal-header" style="background: rgb(32, 35, 37);">
+              <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #eeeaea;">New Account</h5>
+              <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+                  aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" style="background: rgb(32, 35, 37);">
+              <div class="card p-3 m-3" style="background-color: #000;">
+              
+               
+                  <form action="" method="post"  style="color: #000000;" id="newaccount">
+                    {% csrf_token %}
+                    {% for m in messages %}
+                    <p style="color: chocolate;">{{m}}</p>
+                    {% endfor %}
+                      <div class="d-flex align-items-center">
+                          <h5 style="font-size: 25px;color: aliceblue;">Create Account</h5>
+                        
+                      </div>
+                      <div id="error-message-container2" style="color: chocolate;"></div>
+                      <hr>
+                      <div class="row ">
+                          <div class="col">
+                              <div class="row">
+                                  <div class="col-sm-4">
+                                      <label for="">Account Type:</label>
+                                  </div>
+                                  <div class="col-sm-8">
+                                      <div class="select-box1" onclick="message()">
+                                          <div class="select-option1">
+                                              <input type="text" placeholder="select" style="width: 100%;"  id="soValue1" name="account_type"readonly>
+                                          </div>
+                                          <div class="content1" id="myDropdown1">
+                                              <div class="search1">
+                                                  <input type="text" placeholder="search" id="myInput1" onkeyup="filterFunction1()">
+                                              </div>
+                                              <ul class="options1" style="color: #000000;">
+                                                  <div class="opt" style="color: #000000;">
+                                                      <span style="font-weight: bold;">Assets</span>
+                                                      <li style="color: #000000;">Other Assets</li>
+                                                      <li>Other Current Assets</li>
+                                                      <li>Cash</li>
+                                                      <li>Bank</li>
+                                                      <li>Fixed Asset</li>
+                                                      <li>Stock</li>
+                                                      <li>Payment Clearing</li>
+                                                  </div>
+              
+                                                  <div class="opt">
+                                                      <span style="font-weight: bold;">Liability</span>
+                                                      <li>Other Liability</li>
+                                                      <li>Other Current Liability</li>
+                                                      <li>Credit Card</li>
+                                                      <li>Long Term Liability</li>
+                                                      <li>Overseas Tax Payable</li>
+                                                  </div>
+              
+                                                  <div class="opt">
+                                                      <span style="font-weight: bold;">Equity</span>
+                                                      <li>Equity</li>
+                                                  </div>
+              
+                                                  <div class="opt">
+                                                      <span style="font-weight: bold;">Income</span>
+                                                      <li>Income</li>
+                                                      <li>Other Income</li>
+                                                  </div>
+              
+                                                  <div class="opt">
+                                                      <span style="font-weight: bold;">Expense</span>
+                                                      <li>Expense</li>
+                                                      <li>Cost Of Goods Sold</li>
+                                                      <li>Other Expense</li>
+                                                  </div>
+                                              </ul>
+              
+              
+              
+                                          </div>
+                                      </div>
+              
+                                  </div>
+              
+                                  <script>
+                                      const selectBox1 = document.querySelector('.select-box1');
+                                      const selectOption1 = document.querySelector('.select-option1');
+                                      const optionsList1 = document.querySelectorAll('.options1 li');
+                                      const soValue1 = document.querySelector('#soValue1');
+              
+                                      selectOption1.addEventListener('click', function () {
+                                          selectBox1.classList.toggle('active')
+                                      })
+              
+                                      optionsList1.forEach(function (optionsListSingle) {
+                                          optionsListSingle.addEventListener('click', function () {
+                                              text = this.textContent;
+                                              soValue1.value = text;
+                                              selectBox1.classList.remove('active')
+              
+                                          })
+                                      })
+                                  </script>
+                              </div>
+                              <div id="name" style="display: block;">
+                                  <div class="row mt-3">
+                                      <div class="col-sm-4">
+                                          <label for="">Account Name:</label>
+                                      </div>
+                                      <div class="col-sm-8">
+                                          <input type="text" class="form-control text-dark bg-light" name="account_name"
+                                              id="account_name" style="width: 100%;" required>
+                                      </div>
+                                  </div>
+                              </div>
+              
+                              <div id="credit" style="display: none;">
+                                  <div class="row mt-3">
+                                      <div class="col-sm-4">
+                                          <label for="">Credit Card Name:</label>
+                                      </div>
+                                      <div class="col-sm-8">
+                                          <input type="text" class="form-control text-dark bg-light" style="width: 70%;" name="credit_number"
+                                              id="credit_number">
+                                      </div>
+                                  </div>
+                              </div>
+              
+             
+              
+              
+              
+                              <div class="row mt-3">
+                                  <div class="col-sm-4">
+                                      <label for="">Account Code:</label>
+                                  </div>
+                                  <div class="col-sm-8">
+                                      <input type="text" class="form-control text-dark bg-light" name="account_code"
+                                          id="account_code" style="width: 100%;">
+                                  </div>
+                              </div>
+                              <div style="display: none;" id="acc_bo_div">
+                                  <div class="row mt-3">
+                                      <div class="col-sm-4">
+                                          <label for="">Account Number:</label>
+                                      </div>
+                                      <div class="col-sm-8">
+                                          <input type="text" class="form-control text-dark bg-light" name="account_number"
+                                              id="account_number" style="width: 100%;">
+                                      </div>
+                                  </div>
+                              </div>
+              
+                              <div style="display: none;" id="cr_div">
+                                  <div class="row mt-3">
+                                      <div class="col-sm-4">
+                                          <label for="">Currency:</label>
+                                      </div>
+                                      <div class="col-sm-8">
+                                          <input type="text" class="form-control text-dark bg-light" name="currency" id="currency" style="width: 100%;">
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row mt-3">
+                                  <div class="col-sm-4">
+                                      <label for="">Description:</label>
+                                  </div>
+                                  <div class="col-sm-8">
+                                      <textarea name="description" class="form-control text-dark bg-light" id="description"
+                                          placeholder="Max. 500 characters" style="width: 100%;"></textarea>
+                                  </div>
+                              </div>
+                    
+              
+                          </div>
+              
+                          <div class="col-sm">
+                              <div class="alert alert-warning alert-dismissible fade show" style="width: 50%;" >
+                                  <span id="message_hd" style="color: #000000;">Assets</span> <br>
+                                  <span id="message" style="color: #000000;">Track special assets like goodwill and other intangible assets</span>
+                                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                              </div>
+                          </div>
+                      </div><br><br><br><br><br>
+                      <div class="row">
+                          <div class="col-sm-12">
+                              <input class="btn btn-warning" type="submit" value="Save" id="newaccountsave" style="width: 100px;height: 40px;">
+                              <input class="btn btn-light ml-3" type="reset" value="Cancel" style="width: 100px;height: 40px;">
+                          </div>
+                      </div>
+              </div>
+      
+      
+          </div>
+        </div>
+      </div>
+      </div>
+      
+      <script>
+        $(document).on("click","#newaccountsave",function(){
+          event.preventDefault();
+        $.ajax({
+          
+          type : 'POST',
+          url:"{% url 'add_account' %}",
+      
+          data:{
+              
+              account_type : $("#soValue1").val(),
+              account_name : $("#account_name").val(),
+              account_code : $("#account_code").val(),
+              description : $("#description").val(),
+            
+       
+       
+              csrfmiddlewaretoken: '{{ csrf_token }}'
+              
+            },
+            success: function(response) {
+          if (response.message === 'success') {
+            document.getElementById("newaccount").reset();
+                reloadaccount()
+          } else {
+            $("#error-message-container2").text("Account with the same name exists");
+          }
+        },
+      
+        });        
+      });
+      
+      
+      
+      
+      </script>
+      <script>
+        
+        
+        
+        function reloadaccount() {
+          debugger
+        $.ajax({
+          url: "{% url 'account_dropdown' %}",
+          type: "GET",
+          dataType: "json", 
+          data: $(this).serialize(),
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+        
+          success: function(data) {debugger
+            var dropdown = $('#myaccount');
+            dropdown.empty();
+            dropdown.append($('<option></option>').text('Select account'));
+            
+            $.each(data, function(key, value) {
+       
+                dropdown.append($('<option></option>').attr('value', key).text(value[1]).val(key));
+            });
+      
+          },
+          error: function(xhr, status, error) {
+          console.error(xhr.responseText);
+      
+          }
+        });
+        }
+        </script>
+
+{% endblock %}
