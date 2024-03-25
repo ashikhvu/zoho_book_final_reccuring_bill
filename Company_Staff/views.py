@@ -5604,7 +5604,6 @@ def vendor(request):
         #     Company_Payment_Term.objects.create(company=dash_details, term_name='NET 60',days=60)
         comp_payment_terms=Company_Payment_Term.objects.filter(company=dash_details)
         if log_details.user_type=='Staff':
-
             return render(request,'zohomodules/vendor/create_vendor.html',{'details':dash_details,'allmodules': allmodules,'comp_payment_terms':comp_payment_terms,'log_details':log_details}) 
         else:
             return render(request,'zohomodules/vendor/create_vendor.html',{'details':dash_details,'allmodules': allmodules,'comp_payment_terms':comp_payment_terms,'log_details':log_details}) 
@@ -18080,3 +18079,134 @@ def check_journal_num_valid2(request):
         print('doesnt exist')
         data = {"valid":"valid"}
         return JsonResponse(data)
+
+
+# --------------------------------------   ashikhvu   (start)   -----------------------------------------------
+    
+
+def recurring_bill_listout(request):
+    if 'login_id' in request.session:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+                dash_details = StaffDetails.objects.get(login_details=log_details)
+                item=Items.objects.filter(company=dash_details.company)
+                allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+                content = {
+                        'details': dash_details,
+                        'item':item,
+                        'allmodules': allmodules,
+                }
+                return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',content)
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            item=Items.objects.filter(company=dash_details)
+            allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+            context = {
+                    'details': dash_details,
+                    'item': item,
+                    'allmodules': allmodules,
+            }
+    return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',context)
+
+
+def recurring_bill_create(request):
+    if 'login_id' in request.session:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+                dash_details = StaffDetails.objects.get(login_details=log_details)
+                item=Items.objects.filter(company=dash_details.company)
+                allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+                banks = Banking.objects.filter(company=dash_details.company)
+                vendors = Vendor.objects.filter(company=dash_details.company)
+                customers = Customer.objects.filter(company=dash_details.company)
+                items = Items.objects.filter(company=dash_details.company)
+                pricelist = PriceList.objects.filter(company=dash_details.company,status='Active',type='Purchase')
+                content = {
+                        'details': dash_details,
+                        'item':item,
+                        'allmodules': allmodules,
+                        'banks':banks,
+                        'vendors':vendors,
+                        "customers":customers,
+                        'items':items,
+                        'pricelist':pricelist,
+                }
+                return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',content)
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            item=Items.objects.filter(company=dash_details)
+            allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+            banks = Banking.objects.filter(company=dash_details)
+            vendors = Vendor.objects.filter(company=dash_details)
+            customers = Customer.objects.filter(company=dash_details)
+            pricelist = PriceList.objects.filter(company=dash_details,status='Active',type='Purchase')
+            items = Items.objects.filter(company=dash_details)
+            context = {
+                    'details': dash_details,
+                    'item': item,
+                    'allmodules': allmodules,
+                    'banks':banks,
+                    'vendors':vendors,
+                    "customers":customers,
+                    'items':items,
+                    'pricelist':pricelist,
+            }
+    return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
+
+
+def get_vendors_details_for_recurr(request,pk):
+    vendor_data = Vendor.objects.get(id=pk)
+    data = {
+        'vendor_email':vendor_data.vendor_email,
+        'vendor_gst_treat':vendor_data.gst_treatment,
+        'vendor_gstin': vendor_data.gst_number,
+        'vendor_address': vendor_data.billing_address,
+    }
+    print('SUCCESS')
+    return JsonResponse(data)
+
+def get_customer_details_for_recurr(request,pk):
+    customer_data = Customer.objects.get(id=pk)
+    data = {
+        'customer_email':customer_data.customer_email,
+        'customer_gst_treat':customer_data.GST_treatement,
+        'customer_gstin': customer_data.GST_number,
+        'customer_address': customer_data.billing_address,
+    }
+    print('SUCCESS')
+    return JsonResponse(data)
+
+def createReccuringBill(request):
+    if request.method == "POST":
+        vendor_id = request.POST.get('vendor_id')
+    return redirect('recurring_bill_listout')
+
+def create_repeat_every(request):
+    repeat_name = request.POST['name']
+    repeat_type = request.POST.get('type')
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
+        # repeat_every = ReccuringRepeatEvery()
+    data = {
+        'success':'success'
+    }
+    return JsonResponse(data)
+
+# --------------------------------------   ashikhvu   (end)   -----------------------------------------------

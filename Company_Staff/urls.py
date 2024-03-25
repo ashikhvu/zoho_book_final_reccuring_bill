@@ -442,7 +442,16 @@ urlpatterns = [
     path('Staff/invoice/createNewAccountFromItems',views.createNewAccountFromItems, name='createNewAccountFromItems'),
     path('Staff/invoice/checkAccounts',views.checkAccounts, name='checkAccounts'),
     #End
-    
+
+    # --------------------------------------   ashikhvu   (start)   -----------------------------------------------
+    path('recurring_bill_listout',views.recurring_bill_listout,name='recurring_bill_listout'),
+    path('recurring_bill_create',views.recurring_bill_create,name='recurring_bill_create'),
+    path('get_vendors_details_for_recurr/<int:pk>',views.get_vendors_details_for_recurr,name='get_vendors_details_for_recurr'),
+    path('get_customer_details_for_recurr/<int:pk>',views.get_customer_details_for_recurr,name='get_customer_details_for_recurr'),
+    path('createReccuringBill',views.createReccuringBill,name='createReccuringBill'),
+    path('create_repeat_every',views.create_repeat_every,name='create_repeat_every'),
+    # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
+
 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

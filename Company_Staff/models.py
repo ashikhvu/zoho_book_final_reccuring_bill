@@ -966,3 +966,56 @@ class invoicecomments(models.Model):
     comments = models.CharField(max_length=500,null=True,blank=True)
 
 #End
+    
+
+# --------------------------------------   ashikhvu   (start)   -----------------------------------------------
+    
+class ReccuringRepeatEvery(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    repeat_duration = models.IntegerField(blank=True,null=True,default=0)
+    repeat_type = models.CharField(max_length=255,null=True,blank=True)
+
+class ReccuringCreditPeriod(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    term_name = models.IntegerField(blank=True,null=True,default=0)
+    days = models.IntegerField(null=True,blank=True)
+
+class Recurring_bills(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    
+    vend_name = models.CharField(max_length=255)
+    vend_mail = models.EmailField(null=True,blank=True)
+    vend_gst_treat = models.CharField(max_length=255,null=True,blank=True)
+    vend_gst_no = models.CharField(max_length=220,null=True,blank=True)
+    place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+
+    recc_bill_no= models.CharField(max_length=255)
+    recc_ref_no = models.IntegerField(blank=True,null=True)
+    profile_name = models.CharField(max_length=255,blank=True,null=True)
+    purchase_order_no = models.CharField(max_length=255,null=True,blank=True)
+    repeat_every = models.CharField(max_length=255,null=True,blank=True)
+    repeat_every_id = models.ForeignKey(ReccuringRepeatEvery,on_delete=models.CASCADE,null=True,blank=True)
+    rec_bill_date= models.DateTimeField(null=True,blank=True)
+    expiry_date = models.DateTimeField(null=True,blank=True)
+    credit_period = models.CharField(max_length=255,null=True,blank=True)
+    credit_period_id = models.ForeignKey(ReccuringCreditPeriod,on_delete=models.CASCADE,null=True,blank=True)
+
+    account_bal = models.IntegerField(blank=True,null=True,default=0)
+    vendor_details = models.ForeignKey(Vendor,on_delete=models.CASCADE,null=True,blank=True)
+    customer_details = models.ForeignKey(Customer,on_delete=models.CASCADE,null=True,blank=True)
+
+class RecurringRecievedId(models.Model):
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
+    pattern = models.CharField(max_length=255,null=True)
+    rec_rec_no = models.CharField(max_length=255,null=True)
+    rec_ref_no = models.CharField(max_length=255,null=True)
+    
+
+
+
+
+# --------------------------------------   ashikhvu   (end)   -----------------------------------------------
