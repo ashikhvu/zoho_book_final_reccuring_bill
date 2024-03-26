@@ -288,13 +288,13 @@ input[type="date"] {
             <div class="col-md-3 mt-3">
                 <label class=" text-white">Repeat Every:</label>
                 <div class="d-flex">
-                    <select class="form-control text-white my-select" style=" background-color:rgb(45, 44, 44);" id="" name="payment_method" >
+                    <select class="form-control text-white my-select" style=" background-color:rgb(45, 44, 44);" id="repeat_every_select" name="payment_method" >
                         <option  class="text-white"value="" selected disabled>Select Repeat Every</option>
-                        <option  class="text-white"value="Cash">3 month</option>
-                        <option  class="text-white"value="Cheque">6 month</option>
-                        <option  class="text-white"value="UPI">1 year</option>
-                        {% for b in reoeat_entry %}
-                        <option class="text-white" value="{{ b.bnk_name }}" text="{{ b.id }}">{{ b.bnk_name }}</option>
+                        <option  class="text-white"value="3 month">3 month</option>
+                        <option  class="text-white"value="6 month">6 month</option>
+                        <option  class="text-white"value="1 year">1 year</option>
+                        {% for i in repeat_list %}
+                        <option class="text-white" value="{{ i.repeat_duration }} {{ i.repeat_type }}" text="{{ i.repeat_duration }} {{ i.repeat_type }}">{{ i.repeat_duration }} {{ i.repeat_type }}</option>
                         {% endfor %}
                     </select>
                     <a class="btn btn-outline-warning ml-1" role="button" data-target="#newRepeatEntry" data-toggle="modal" id="termsadd">+</a>
@@ -316,10 +316,15 @@ input[type="date"] {
                         <option value="0">Due on Reciept</option>
                         <option value="30">NET 30</option>
                         <option value="60">NET 60</option>
-                        {% for i in Credit %}
-                            <option class="text-white" value="{{term.id}}" text="{{term.days}}">{{i.Credit}}</option>
+                        {% for i in credits %}
+                            <option class="text-white" value="{{i.days}}" text="{{i.id}}">{{i.credit_name}}</option>
                         {% endfor %}
                     </select>
+                    <script>
+                        $('#credit_period').on('change',function(){
+                            alert($(this).val())
+                        })
+                    </script>
                     <a class="btn btn-outline-warning ml-1" role="button" data-target="#newPaymentTerm" data-toggle="modal" id="termsadd">+</a>
                 </div>
             </div>
@@ -334,11 +339,11 @@ input[type="date"] {
                   <div id="custom_dropdowns1" class="position-relative">
                     <div class="position-absolute bg-success rounded bg-dark text-light  border border-dark" style="margin-top: 3rem;width: 18rem;">
                         <div id="custom-dropdowns">
-                            <div style="overflow-y: auto;max-height: 10rem;" name="account">
+                            <div style="overflow-y: auto;max-height: 10rem;" name="account" id="customer_add">
                             {% if customers %}
                                 {% for i in customers %}
-                                        <p class="account_drop_hovers1 ps-3 p-2 m-0" onclick="get_customer_details(this)">{{ i.first_name }}</p>
-                                        <span hidden>{{ i.id }}</span>
+                                    <p class="account_drop_hovers1 ps-3 p-2 m-0" onclick="get_customer_details(this)">{{ i.first_name }}</p>
+                                    <span hidden>{{ i.id }}</span>
                                 {% endfor %}
                             {% else %}
                                 <h6 class="account_drop_hovers1 ps-3 p-2 m-0 text-light" style="cursor: not-allowed;pointer-events: none;">No Customers are available</h6>
@@ -774,12 +779,12 @@ input[type="date"] {
                         <div class="row mt-2">
                             <div class="col-6">
                                 <label for="name">Duration:</label>
-                                <input type="text" name="term_name" id="repeat_name" class="form-control text-white w-100">
+                                <input type="text" name="term_name" id="repeat_duration" class="form-control text-white w-100">
                             </div>
                             <div class="col-6">
                                 <label for="name">Type</label>
                                 <select name="title" id="repeat_type" style="background-color: #060a0e;color: white;" class="form-control">
-                                    <option value="Month">Week</option>
+                                    <option value="Week">Week</option>
                                     <option value="Month">Month</option>
                                     <option value="Year">Year</option>
                                 </select>
@@ -830,7 +835,7 @@ input[type="date"] {
                         <div class="row mt-4">
                             <div class="col-4"></div>
                             <div class="col-4 d-flex justify-content-center">
-                                <button class="btn btn-outline-warning text-grey w-75" data-dismiss="modal" type="submit" id="savePaymentTerm">Save</button>
+                                <button class="btn btn-outline-warning text-grey w-75" data-dismiss="modal" type="submit" id="saveCreditPeriod">Save</button>
                             </div>
                             <div class="col-4"></div>
                         </div>
@@ -1162,10 +1167,12 @@ input[type="date"] {
                             </div>
                             <div class="col-md-6">
                                 <div class="row">
-                                    <div class="col-md-12 d-flex ">
+                                    <div class="col-md-12 d-flex justify-content-between">
                                         <h5 style="color: white;">Shipping Address </h5>
-                                        <input class="ml-4 ml-5" type="checkbox" onclick="placeShipAddress()" id="shipAddress" name="ship_address">
-                                        <label class="ml-2 mt-1 ml-2" for="shipAddress"> Same As Billing Address</label>
+                                        <div>
+                                            <input class="" class="ml-4 ml-5" type="checkbox" onclick="placeShipAddress()" id="shipAddress" name="ship_address">
+                                            <label class="ml-2 mt-1 ml-2" for="shipAddress"> Same As Billing Address</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -1446,6 +1453,16 @@ input[type="date"] {
                             </div>
 
                             <div class="col-md-4 mt-3">
+                                <label for="validationCustom05">Currency</label>
+                                <div class="d-flex">
+                                    <select name="balance_type" id="bal" class="form-select text-white mr-1" style="background-color: #060a0e; border-radius: 5px;" required>
+                                        <option value="Indian Rupee">Indian Rupee</option>
+                                        <option value="Indian Rupee">Indian Rupee</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mt-3">
                                 <label for="validationCustom05">Opening Balance</label>
                                 <div class="d-flex">
                                     <select name="balance_type" id="bal" class="form-select text-white mr-1" style="background-color: #060a0e; width: 25%; border-radius: 5px;">
@@ -1457,11 +1474,11 @@ input[type="date"] {
                                 </div>
                             </div>
     
-                            <div class="col-md-4 mt-3">
+                            <!-- <div class="col-md-4 mt-3">
                                 <label for="creditLimit">Credit Limit</label>
                                 <input type="text" class="form-control" name="credit_limit" style="background-color: #060a0e;color: white;" step="any" id="creditLimit">
                                 <div class="text-danger m-2" ></div>
-                            </div>
+                            </div> -->
     
                             <div class="col-md-4 mt-3">
                                 <label for="custPaymentTerms">Payment Terms</label>
@@ -2100,48 +2117,48 @@ input[type="date"] {
           });
       });
   
-      $(document).on("click","#savePaymentTerm",function(){
-          var trm = $('#termName').val();
-          var dys = $("#termDays").val();
-          if (trm !="" && dys !=""){
-              $.ajax({
-                  type : 'POST',
-                  url:"{% url 'newCustomerPaymentTerm' %}",
-                  data:{
-                      'term' : trm,
-                      'days' : dys,
-                      csrfmiddlewaretoken: '{{ csrf_token }}'
-                  },
+    //   $(document).on("click","#savePaymentTerm",function(){
+    //       var trm = $('#termName').val();
+    //       var dys = $("#termDays").val();
+    //       if (trm !="" && dys !=""){
+    //           $.ajax({
+    //               type : 'POST',
+    //               url:"{% url 'newCustomerPaymentTerm' %}",
+    //               data:{
+    //                   'term' : trm,
+    //                   'days' : dys,
+    //                   csrfmiddlewaretoken: '{{ csrf_token }}'
+    //               },
                   
-                  success: function(response) {
-                      if(response.status){
-                          document.getElementById("newTermForm").reset();
+    //               success: function(response) {
+    //                   if(response.status){
+    //                       document.getElementById("newTermForm").reset();
                           
-                          var dropdown = $('#paymentTerm');
-                          dropdown.empty();
-                          dropdown.append(`<option value="" selected>Choose</option>`);
-                          $.each(response, function(key, value) {
-                              for(let i=0; i<value.length; i++){
-                                  if(value[i].name == trm){
-                                      dropdown.append($('<option selected></option>').attr('text',value[i].days).text(value[i].name).val(value[i].id))
-                                  }else{
-                                      dropdown.append($('<option></option>').attr('text',value[i].days).text(value[i].name).val(value[i].id))
-                                  }   
-                              }
-                          });
+    //                       var dropdown = $('#paymentTerm');
+    //                       dropdown.empty();
+    //                       dropdown.append(`<option value="" selected>Choose</option>`);
+    //                       $.each(response, function(key, value) {
+    //                           for(let i=0; i<value.length; i++){
+    //                               if(value[i].name == trm){
+    //                                   dropdown.append($('<option selected></option>').attr('text',value[i].days).text(value[i].name).val(value[i].id))
+    //                               }else{
+    //                                   dropdown.append($('<option></option>').attr('text',value[i].days).text(value[i].name).val(value[i].id))
+    //                               }   
+    //                           }
+    //                       });
   
-                          findDueDate();
+    //                       findDueDate();
   
-                      }else{
-                          alert("Something went wrong.!")
-                      }
-                  },         
-              });
-          }
-          else{
-              alert('Invalid')
-          }
-      });
+    //                   }else{
+    //                       alert("Something went wrong.!")
+    //                   }
+    //               },         
+    //           });
+    //       }
+    //       else{
+    //           alert('Invalid')
+    //       }
+    //   });
   
       function findDueDate(){
           var days = parseInt($('#paymentTerm').find(":selected").attr('text'))
@@ -2998,7 +3015,7 @@ $(document).on("click", "#newCustomerSave", function(){
     if(fName != "" && lName != "" && placeSupply != "" && gstType != "" && panNo != "" && Email != "" && Mob != "" && street != "" && city != ""  && pin != "" && country != ""){
         $.ajax({
             type : 'POST',
-            url:"{% url 'createInvoiceCustomer' %}",
+            url:"{% url 'createRecurrCustomer' %}",
             data:{
                 title : $('#title').val(),
                 first_name : fName,
@@ -3031,10 +3048,20 @@ $(document).on("click", "#newCustomerSave", function(){
 
             success: function(response) {
                 if(response.status){
+
                     console.log("AJAX Success",response)
                     document.getElementById("newCustomerForm").reset();
+                    // $('#customer_add').append('<p class="account_drop_hovers1 ps-3 p-2 m-0" onclick="get_customer_details(this)">'+fName+'</p><span hidden>+'+response.id+'</span>')
+                    var paragraph = $('<p>').addClass('account_drop_hovers1 ps-3 p-2 m-0').text(fName).click(function() {
+                    get_customer_details(this);
+                    });
 
-                    reloadCustomer();
+                    // Create a span element
+                    var span = $('<span>').attr('hidden', 'true').text(response.id);
+
+                    // Append the paragraph and span to the div
+                    $('#customer_add').append(paragraph).append(span);
+                    // reloadCustomer();
                 }else{
                     alert(response.message)
                 }
@@ -3587,11 +3614,11 @@ function reloadItems() {
         type: 'GET',
         success: function(response){
             $('#gstType').val(response.vendor_gst_treat)
-            // if(response.vendor_gstin === 'null')
-            // {
-            //     $('#gstInDisplay').hide()
-            // }
-            // else
+            if(response.vendor_gstin === 'null' || response.vendor_gstin === null)
+            {
+                $('#gstInDisplay').hide()
+            }
+            else
             {
                 $('#gstInDisplay').show()
                 $('#gstin').val(response.vendor_gstin)
@@ -3612,11 +3639,12 @@ function reloadItems() {
         type: 'GET',
         success: function(response){
             $('#cust_gstType').val(response.customer_gst_treat)
-            // if(response.customer_gstin === 'null')
-            // {
-            //     $('#cust_gstInDisplay').hide()
-            // }
-            // else
+            $('#account_list1').val(response.customer_first_name)
+            if(response.customer_gstin === null || response.customer_gstin === 'null' )
+            {
+                $('#cust_gstInDisplay').hide()
+            }
+            else
             {
                 $('#cust_gstInDisplay').show()
                 $('#cust_gstin').val(response.customer_gstin)
@@ -3704,26 +3732,64 @@ function reloadItems() {
       $('#credit_period').on('change', function () {
           findDueDate();
       });
-
+      $(document).ready(function(){
+        $('#saveCreditPeriod').on('click',function(){
+            var trm = $('#termName').val();
+            var dys = $("#termDays").val();
+            if (trm !="" && dys !="")
+            {
+                $.ajax({
+                    type:'POST',
+                    url : '{% url "add_new_creadit_period" %}',
+                    data: {
+                        'term_name':trm,
+                        'term_days':dys,
+                        csrfmiddlewaretoken:'{{ csrf_token }}'
+                    },
+                    success:function(response){
+                        $('#credit_period').append($('<option>',{
+                            value:dys,
+                            text:trm,
+                        }))
+                    },
+                    error:function(error){
+                        alert('credit name or days already exist? Enter a diffrent date or name')
+                    }
+                })
+            }
+            else{
+                alert('fill both fields')
+            }
+        })
+      })
       $(document).ready(function(){
         $('#save_repeat_every').on('click',function(){
-            $.ajax({
-            type : 'POST',
-            url:"{% url 'create_repeat_every' %}",
-            data:{
-                'name' : $('#repeat_name').val(),
-                'type' : $('#repeat_type').val(),
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            
-            success: function(response) {
-                if(response.status){
-                    
-                }else{
-                   
-                }
-            },         
-        });
+            var repeat_type = $('#repeat_type').val();
+            var repeat_duration = $("#repeat_duration").val();
+            if (repeat_type !="" && repeat_duration !="")
+            {
+                $.ajax({
+                    type:'POST',
+                    url : '{% url "create_repeat_every" %}',
+                    data: {
+                        'repeat_type':repeat_type,
+                        'repeat_duration':repeat_duration,
+                        csrfmiddlewaretoken:'{{ csrf_token }}'
+                    },
+                    success:function(response){
+                        $('#repeat_every_select').append($('<option>',{
+                            value:repeat_duration+" "+repeat_type,
+                            text: repeat_duration+" "+repeat_type,
+                        }))
+                    },
+                    error:function(error){
+                        alert('Repeat Type with duration already exist? Enter a diffrent Type and duration')
+                    }
+                })
+            }
+            else{
+                alert('fill both fields')
+            }
         })
       })
 </script>

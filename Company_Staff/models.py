@@ -970,42 +970,75 @@ class invoicecomments(models.Model):
 
 # --------------------------------------   ashikhvu   (start)   -----------------------------------------------
     
-class ReccuringRepeatEvery(models.Model):
+class RecurrItemsList(models.Model):
+    item_name = models.CharField(max_length=255)
+    item_hsn = models.IntegerField(null=True,blank=True)
+    qty = models.PositiveBigIntegerField(null=True,blank=True)
+    price = models.PositiveBigIntegerField(null=True,blank=True)
+    text = models.CharField(max_length=255)
+    discount = models.PositiveBigIntegerField(null=True,blank=True)
+    total = models.PositiveBigIntegerField(null=True,blank=True)
+
+class RecurringRepeatEvery(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
     company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
     repeat_duration = models.IntegerField(blank=True,null=True,default=0)
     repeat_type = models.CharField(max_length=255,null=True,blank=True)
 
-class ReccuringCreditPeriod(models.Model):
+class RecurringCreditPeriod(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
     company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
-    term_name = models.IntegerField(blank=True,null=True,default=0)
+    credit_name = models.CharField(max_length=255,blank=True,null=True)
     days = models.IntegerField(null=True,blank=True)
 
 class Recurring_bills(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
     company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
     
+    vendor_details = models.ForeignKey(Vendor,on_delete=models.CASCADE,null=True,blank=True)
     vend_name = models.CharField(max_length=255)
     vend_mail = models.EmailField(null=True,blank=True)
     vend_gst_treat = models.CharField(max_length=255,null=True,blank=True)
     vend_gst_no = models.CharField(max_length=220,null=True,blank=True)
-    place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    vend_place_of_supply = models.CharField(max_length=220,null=True,blank=True)
 
     recc_bill_no= models.CharField(max_length=255)
     recc_ref_no = models.IntegerField(blank=True,null=True)
     profile_name = models.CharField(max_length=255,blank=True,null=True)
     purchase_order_no = models.CharField(max_length=255,null=True,blank=True)
     repeat_every = models.CharField(max_length=255,null=True,blank=True)
-    repeat_every_id = models.ForeignKey(ReccuringRepeatEvery,on_delete=models.CASCADE,null=True,blank=True)
+    repeat_every_id = models.ForeignKey(RecurringRepeatEvery,on_delete=models.CASCADE,null=True,blank=True)
     rec_bill_date= models.DateTimeField(null=True,blank=True)
     expiry_date = models.DateTimeField(null=True,blank=True)
     credit_period = models.CharField(max_length=255,null=True,blank=True)
-    credit_period_id = models.ForeignKey(ReccuringCreditPeriod,on_delete=models.CASCADE,null=True,blank=True)
+    credit_period_id = models.ForeignKey(RecurringCreditPeriod,on_delete=models.CASCADE,null=True,blank=True)
 
-    account_bal = models.IntegerField(blank=True,null=True,default=0)
-    vendor_details = models.ForeignKey(Vendor,on_delete=models.CASCADE,null=True,blank=True)
     customer_details = models.ForeignKey(Customer,on_delete=models.CASCADE,null=True,blank=True)
+    cust_name = models.CharField(max_length=255,null=True)
+    cust_mail = models.EmailField(null=True,blank=True)
+    cust_gst_treat = models.CharField(max_length=255,null=True,blank=True)
+    cust_gst_no = models.CharField(max_length=220,null=True,blank=True)
+    cust_place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    payment_type = models.CharField(max_length=255,null=True,blank=True)
+
+    price_list = models.ForeignKey(PriceList,on_delete=models.CASCADE,null=True,blank=True)
+
+    sub_total = models.FloatField(null=True,blank=True)
+    cgst = models.FloatField(null=True,blank=True)
+    sgst = models.FloatField(null=True,blank=True)
+    text_amount = models.FloatField(null=True,blank=True)
+    shipping_charge = models.FloatField(null=True,blank=True)
+    ajustment = models.FloatField(null=True,blank=True)
+    total = models.FloatField(null=True,blank=True)
+    paid = models.FloatField(null=True,blank=True)
+    bal = models.FloatField(null=True,blank=True)
+    status_type = [
+        ('save','save'),
+        ('draft','draft')
+    ]
+    status = models.CharField(max_length=255,null=True,choices=status_type)
+    note = models.TextField(null=True,blank=True)
+    document=models.FileField(upload_to='docs/',null=True,blank=True)
 
 class RecurringRecievedId(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)

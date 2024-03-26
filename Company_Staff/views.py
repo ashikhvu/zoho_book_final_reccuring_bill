@@ -18091,24 +18091,18 @@ def recurring_bill_listout(request):
             return redirect('/')
         log_details= LoginDetails.objects.get(id=login_id)
         if log_details.user_type == 'Staff':
-                dash_details = StaffDetails.objects.get(login_details=log_details)
-                item=Items.objects.filter(company=dash_details.company)
-                allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-                content = {
-                        'details': dash_details,
-                        'item':item,
-                        'allmodules': allmodules,
-                }
-                return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',content)
-        if log_details.user_type == 'Company':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            item=Items.objects.filter(company=dash_details.company)
+            allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+        elif log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
             item=Items.objects.filter(company=dash_details)
             allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-            context = {
-                    'details': dash_details,
-                    'item': item,
-                    'allmodules': allmodules,
-            }
+        context = {
+                'details': dash_details,
+                'item': item,
+                'allmodules': allmodules,
+        }
     return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',context)
 
 
@@ -18119,26 +18113,17 @@ def recurring_bill_create(request):
             return redirect('/')
         log_details= LoginDetails.objects.get(id=login_id)
         if log_details.user_type == 'Staff':
-                dash_details = StaffDetails.objects.get(login_details=log_details)
-                item=Items.objects.filter(company=dash_details.company)
-                allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-                banks = Banking.objects.filter(company=dash_details.company)
-                vendors = Vendor.objects.filter(company=dash_details.company)
-                customers = Customer.objects.filter(company=dash_details.company)
-                items = Items.objects.filter(company=dash_details.company)
-                pricelist = PriceList.objects.filter(company=dash_details.company,status='Active',type='Purchase')
-                content = {
-                        'details': dash_details,
-                        'item':item,
-                        'allmodules': allmodules,
-                        'banks':banks,
-                        'vendors':vendors,
-                        "customers":customers,
-                        'items':items,
-                        'pricelist':pricelist,
-                }
-                return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',content)
-        if log_details.user_type == 'Company':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            item=Items.objects.filter(company=dash_details.company)
+            allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+            banks = Banking.objects.filter(company=dash_details.company)
+            vendors = Vendor.objects.filter(company=dash_details.company)
+            customers = Customer.objects.filter(company=dash_details.company)
+            items = Items.objects.filter(company=dash_details.company)
+            pricelist = PriceList.objects.filter(company=dash_details.company,status='Active',type='Purchase')
+            credits = RecurringCreditPeriod.objects.filter(company=dash_details.company)
+            repeat_list = RecurringRepeatEvery.objects.filter(company=dash_details.company)
+        elif log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
             item=Items.objects.filter(company=dash_details)
             allmodules= ZohoModules.objects.get(company=dash_details,status='New')
@@ -18147,16 +18132,20 @@ def recurring_bill_create(request):
             customers = Customer.objects.filter(company=dash_details)
             pricelist = PriceList.objects.filter(company=dash_details,status='Active',type='Purchase')
             items = Items.objects.filter(company=dash_details)
-            context = {
-                    'details': dash_details,
-                    'item': item,
-                    'allmodules': allmodules,
-                    'banks':banks,
-                    'vendors':vendors,
-                    "customers":customers,
-                    'items':items,
-                    'pricelist':pricelist,
-            }
+            credits = RecurringCreditPeriod.objects.filter(company=dash_details)
+            repeat_list = RecurringRepeatEvery.objects.filter(company=dash_details)
+        context = {
+                'details': dash_details,
+                'item': item,
+                'allmodules': allmodules,
+                'banks':banks,
+                'vendors':vendors,
+                "customers":customers,
+                'items':items,
+                'pricelist':pricelist,
+                'credits':credits,
+                'repeat_list':repeat_list,
+        }
     return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
 
 
@@ -18174,6 +18163,7 @@ def get_vendors_details_for_recurr(request,pk):
 def get_customer_details_for_recurr(request,pk):
     customer_data = Customer.objects.get(id=pk)
     data = {
+        'customer_first_name':customer_data.first_name,
         'customer_email':customer_data.customer_email,
         'customer_gst_treat':customer_data.GST_treatement,
         'customer_gstin': customer_data.GST_number,
@@ -18188,8 +18178,10 @@ def createReccuringBill(request):
     return redirect('recurring_bill_listout')
 
 def create_repeat_every(request):
-    repeat_name = request.POST['name']
-    repeat_type = request.POST.get('type')
+    repeat_type = request.POST['repeat_type']
+    repeat_duration = request.POST.get('repeat_duration')
+    print(repeat_type)
+    print(repeat_duration)
     if 'login_id' not in request.session:
         return redirect('/')
     else:
@@ -18203,10 +18195,163 @@ def create_repeat_every(request):
         elif log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
             company = dash_details
-        # repeat_every = ReccuringRepeatEvery()
-    data = {
-        'success':'success'
-    }
-    return JsonResponse(data)
+        if RecurringRepeatEvery.objects.filter(repeat_type=repeat_type,company=company).exists() and RecurringRepeatEvery.objects.filter(repeat_duration=repeat_duration,company=company).exists():
+            error_response = {
+                'error':'An error occured',
+                'message':"Day's already exist",
+            }
+            print('both exist')
+            messages.info(request,'Repeat Type with Duration already exist')
+            data={
+                'error':'error',
+            }
+            return JsonResponse(error_response,status =400)
+        else:
+            repeat = RecurringRepeatEvery(
+                login_details=log_details,
+                company=company,
+                repeat_duration=repeat_duration,
+                repeat_type=repeat_type,)
+            repeat.save()
+            print('REPEAT ADDED SUCCESSFULL')
+            data={
+                'success':'success',
+            }
+            return JsonResponse(data)
+
+def add_new_creadit_period(request):
+    credit_name = request.POST['term_name']
+    credit_days = request.POST.get('term_days')
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
+        if not RecurringCreditPeriod.objects.filter(credit_name=credit_name,company=company).exists():
+            if not RecurringCreditPeriod.objects.filter(days=credit_days,company=company).exists():
+                credit = RecurringCreditPeriod(
+                            login_details=log_details,
+                            company=company,
+                            credit_name=credit_name,
+                            days=credit_days,)
+                credit.save()
+                print('CREDIT ADDED SUCCESSFULL')
+                data={
+                    'success':'success',
+                }
+                return JsonResponse(data)
+            else:
+                print('days exiost')
+                error_response = {
+                    'error':'An error occured',
+                    'message':"Day's already exist",
+                }
+                messages.info(request,'Credit period with this day already exist')
+                return JsonResponse(error_response,status =400)
+        else:
+            error_response = {
+                'error':'An error occured',
+                'message':"Day's already exist",
+            }
+            print('name exist')
+            messages.info(request,'Credit period with this name already exist')
+            data={
+                'error':'error',
+            }
+            return JsonResponse(error_response,status =400)
+        
+def createRecurrCustomer(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=log_id)
+            
+        if log_details.user_type == 'Staff':
+                staff = StaffDetails.objects.get(login_details=log_details)
+                com = staff.company
+                    
+        elif log_details.user_type == 'Company':
+                com = CompanyDetails.objects.get(login_details=log_details)
+        fName = request.POST['first_name']
+        lName = request.POST['last_name']
+        gstIn = request.POST['gstin']
+        pan = request.POST['pan_no']
+        email = request.POST['email']
+        phn = request.POST['mobile']
+
+        if Customer.objects.filter(company = com, first_name__iexact = fName, last_name__iexact = lName).exists():
+            res = f"Customer `{fName} {lName}` already exists, try another!"
+            return JsonResponse({'status': False, 'message':res})
+        elif gstIn != "" and Customer.objects.filter(company = com, GST_number__iexact = gstIn).exists():
+            res = f"GSTIN `{gstIn}` already exists, try another!"
+            return JsonResponse({'status': False, 'message':res})
+        elif Customer.objects.filter(company = com, PAN_number__iexact = pan).exists():
+            res = f"PAN No `{pan}` already exists, try another!"
+            return JsonResponse({'status': False, 'message':res})
+        elif Customer.objects.filter(company = com, customer_phone__iexact = phn).exists():
+            res = f"Phone Number `{phn}` already exists, try another!"
+            return JsonResponse({'status': False, 'message':res})
+        elif Customer.objects.filter(company = com, customer_email__iexact = email).exists():
+            res = f"Email `{email}` already exists, try another!"
+            return JsonResponse({'status': False, 'message':res})
+
+        cust = Customer(
+            company = com,
+            login_details = log_details,
+            title = request.POST['title'],
+            first_name = fName,
+            last_name = lName,
+            company_name = request.POST['company_name'],
+            # location = request.POST['location'],
+            place_of_supply = request.POST['place_of_supply'],
+             GST_treatement = request.POST['gst_type'],
+            GST_number = None if request.POST['gst_type'] == "Unregistered Business" or request.POST['gst_type'] == 'Overseas' or request.POST['gst_type'] == 'Consumer' else gstIn,
+            PAN_number = pan,
+            customer_email = email,
+            customer_phone = phn,
+            website = request.POST['website'],
+            # price_list = None if request.POST['price_list'] ==  "" else Price_List.objects.get(id = request.POST['price_list']),
+           
+            company_payment_terms = None if request.POST['payment_terms'] == "" else Company_Payment_Term.objects.get(id = request.POST['payment_terms']),
+            opening_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
+            opening_balance_type = request.POST['balance_type'],
+            current_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
+            credit_limit = 0 if request.POST['credit_limit'] == "" else float(request.POST['credit_limit']),
+            billing_address = request.POST['street'],
+            billing_city = request.POST['city'],
+            billing_state = request.POST['state'],
+            billing_pincode = request.POST['pincode'],
+            billing_country = request.POST['country'],
+            shipping_address = request.POST['shipstreet'],
+            shipping_city = request.POST['shipcity'],
+            shipping_state = request.POST['shipstate'],
+            shipping_pincode = request.POST['shippincode'],
+            shipping_country = request.POST['shipcountry'],
+            customer_status = 'Active'
+        )
+        cust.save()
+
+        #save transaction
+       
+        CustomerHistory.objects.create(
+            company = com,
+            login_details = log_details,
+            customer = cust,
+            action = 'Created'
+        )
+
+        return JsonResponse({'status': True,'id':cust.id})
+    
+    else:
+        return redirect('/')
 
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------

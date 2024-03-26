@@ -450,6 +450,8 @@ urlpatterns = [
     path('get_customer_details_for_recurr/<int:pk>',views.get_customer_details_for_recurr,name='get_customer_details_for_recurr'),
     path('createReccuringBill',views.createReccuringBill,name='createReccuringBill'),
     path('create_repeat_every',views.create_repeat_every,name='create_repeat_every'),
+    path('add_new_creadit_period',views.add_new_creadit_period,name='add_new_creadit_period'),
+    path('createRecurrCustomer',views.createRecurrCustomer,name='createRecurrCustomer'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 
