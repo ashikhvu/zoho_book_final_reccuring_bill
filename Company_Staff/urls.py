@@ -452,6 +452,9 @@ urlpatterns = [
     path('create_repeat_every',views.create_repeat_every,name='create_repeat_every'),
     path('add_new_creadit_period',views.add_new_creadit_period,name='add_new_creadit_period'),
     path('createRecurrCustomer',views.createRecurrCustomer,name='createRecurrCustomer'),
+    path('check_vendor_work_phone_exist',views.check_vendor_work_phone_exist,name='check_vendor_work_phone_exist'),
+    path('check_vendor_phonenumber_exist',views.check_vendor_phonenumber_exist,name='check_vendor_phonenumber_exist'),
+    path('recurr_vendor_create',views.recurr_vendor_create,name='recurr_vendor_create'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 
