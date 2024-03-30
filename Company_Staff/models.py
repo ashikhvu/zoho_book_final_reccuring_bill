@@ -1000,7 +1000,7 @@ class Recurring_bills(models.Model):
     vend_mail = models.EmailField(null=True,blank=True)
     vend_gst_treat = models.CharField(max_length=255,null=True,blank=True)
     vend_gst_no = models.CharField(max_length=220,null=True,blank=True)
-    vend_place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    vend_source_of_supply = models.CharField(max_length=220,null=True,blank=True)
 
     recc_bill_no= models.CharField(max_length=255)
     recc_ref_no = models.IntegerField(blank=True,null=True)
@@ -1018,15 +1018,21 @@ class Recurring_bills(models.Model):
     cust_mail = models.EmailField(null=True,blank=True)
     cust_gst_treat = models.CharField(max_length=255,null=True,blank=True)
     cust_gst_no = models.CharField(max_length=220,null=True,blank=True)
+    cust_billing_address = models.TextField(null=True,blank=True)
     cust_place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    
     payment_type = models.CharField(max_length=255,null=True,blank=True)
+    check_no = models.CharField(max_length=255,null=True,blank=True)
+    upi_id = models.CharField(max_length=255,null=True,blank=True)
+    bank_id = models.ForeignKey(Banking,on_delete=models.CASCADE,null=True,blank=True)
 
     price_list = models.ForeignKey(PriceList,on_delete=models.CASCADE,null=True,blank=True)
 
     sub_total = models.FloatField(null=True,blank=True)
+    igst = models.FloatField(null=True,blank=True)
     cgst = models.FloatField(null=True,blank=True)
     sgst = models.FloatField(null=True,blank=True)
-    text_amount = models.FloatField(null=True,blank=True)
+    tax_amount = models.FloatField(null=True,blank=True)
     shipping_charge = models.FloatField(null=True,blank=True)
     ajustment = models.FloatField(null=True,blank=True)
     total = models.FloatField(null=True,blank=True)

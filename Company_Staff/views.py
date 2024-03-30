@@ -18273,91 +18273,91 @@ def add_new_creadit_period(request):
             }
             return JsonResponse(error_response,status =400)
         
-def createRecurrCustomer(request):
-    if 'login_id' in request.session:
-        log_id = request.session['login_id']
-        if 'login_id' not in request.session:
-            return redirect('/')
-        log_details= LoginDetails.objects.get(id=log_id)
+# def createRecurrCustomer(request):
+#     if 'login_id' in request.session:
+#         log_id = request.session['login_id']
+#         if 'login_id' not in request.session:
+#             return redirect('/')
+#         log_details= LoginDetails.objects.get(id=log_id)
             
-        if log_details.user_type == 'Staff':
-                staff = StaffDetails.objects.get(login_details=log_details)
-                com = staff.company
+#         if log_details.user_type == 'Staff':
+#                 staff = StaffDetails.objects.get(login_details=log_details)
+#                 com = staff.company
                     
-        elif log_details.user_type == 'Company':
-                com = CompanyDetails.objects.get(login_details=log_details)
-        fName = request.POST['first_name']
-        lName = request.POST['last_name']
-        gstIn = request.POST['gstin']
-        pan = request.POST['pan_no']
-        email = request.POST['email']
-        phn = request.POST['mobile']
+#         elif log_details.user_type == 'Company':
+#                 com = CompanyDetails.objects.get(login_details=log_details)
+#         fName = request.POST['first_name']
+#         lName = request.POST['last_name']
+#         gstIn = request.POST['gstin']
+#         pan = request.POST['pan_no']
+#         email = request.POST['email']
+#         phn = request.POST['mobile']
 
-        if Customer.objects.filter(company = com, first_name__iexact = fName, last_name__iexact = lName).exists():
-            res = f"Customer `{fName} {lName}` already exists, try another!"
-            return JsonResponse({'status': False, 'message':res})
-        elif gstIn != "" and Customer.objects.filter(company = com, GST_number__iexact = gstIn).exists():
-            res = f"GSTIN `{gstIn}` already exists, try another!"
-            return JsonResponse({'status': False, 'message':res})
-        elif Customer.objects.filter(company = com, PAN_number__iexact = pan).exists():
-            res = f"PAN No `{pan}` already exists, try another!"
-            return JsonResponse({'status': False, 'message':res})
-        elif Customer.objects.filter(company = com, customer_phone__iexact = phn).exists():
-            res = f"Phone Number `{phn}` already exists, try another!"
-            return JsonResponse({'status': False, 'message':res})
-        elif Customer.objects.filter(company = com, customer_email__iexact = email).exists():
-            res = f"Email `{email}` already exists, try another!"
-            return JsonResponse({'status': False, 'message':res})
+#         if Customer.objects.filter(company = com, first_name__iexact = fName, last_name__iexact = lName).exists():
+#             res = f"Customer `{fName} {lName}` already exists, try another!"
+#             return JsonResponse({'status': False, 'message':res})
+#         elif gstIn != "" and Customer.objects.filter(company = com, GST_number__iexact = gstIn).exists():
+#             res = f"GSTIN `{gstIn}` already exists, try another!"
+#             return JsonResponse({'status': False, 'message':res})
+#         elif Customer.objects.filter(company = com, PAN_number__iexact = pan).exists():
+#             res = f"PAN No `{pan}` already exists, try another!"
+#             return JsonResponse({'status': False, 'message':res})
+#         elif Customer.objects.filter(company = com, customer_phone__iexact = phn).exists():
+#             res = f"Phone Number `{phn}` already exists, try another!"
+#             return JsonResponse({'status': False, 'message':res})
+#         elif Customer.objects.filter(company = com, customer_email__iexact = email).exists():
+#             res = f"Email `{email}` already exists, try another!"
+#             return JsonResponse({'status': False, 'message':res})
 
-        cust = Customer(
-            company = com,
-            login_details = log_details,
-            title = request.POST['title'],
-            first_name = fName,
-            last_name = lName,
-            company_name = request.POST['company_name'],
-            # location = request.POST['location'],
-            place_of_supply = request.POST['place_of_supply'],
-             GST_treatement = request.POST['gst_type'],
-            GST_number = None if request.POST['gst_type'] == "Unregistered Business" or request.POST['gst_type'] == 'Overseas' or request.POST['gst_type'] == 'Consumer' else gstIn,
-            PAN_number = pan,
-            customer_email = email,
-            customer_phone = phn,
-            website = request.POST['website'],
-            # price_list = None if request.POST['price_list'] ==  "" else Price_List.objects.get(id = request.POST['price_list']),
+#         cust = Customer(
+#             company = com,
+#             login_details = log_details,
+#             title = request.POST['title'],
+#             first_name = fName,
+#             last_name = lName,
+#             company_name = request.POST['company_name'],
+#             # location = request.POST['location'],
+#             place_of_supply = request.POST['place_of_supply'],
+#              GST_treatement = request.POST['gst_type'],
+#             GST_number = None if request.POST['gst_type'] == "Unregistered Business" or request.POST['gst_type'] == 'Overseas' or request.POST['gst_type'] == 'Consumer' else gstIn,
+#             PAN_number = pan,
+#             customer_email = email,
+#             customer_phone = phn,
+#             website = request.POST['website'],
+#             # price_list = None if request.POST['price_list'] ==  "" else Price_List.objects.get(id = request.POST['price_list']),
            
-            company_payment_terms = None if request.POST['payment_terms'] == "" else Company_Payment_Term.objects.get(id = request.POST['payment_terms']),
-            opening_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
-            opening_balance_type = request.POST['balance_type'],
-            current_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
-            credit_limit = 0 if request.POST['credit_limit'] == "" else float(request.POST['credit_limit']),
-            billing_address = request.POST['street'],
-            billing_city = request.POST['city'],
-            billing_state = request.POST['state'],
-            billing_pincode = request.POST['pincode'],
-            billing_country = request.POST['country'],
-            shipping_address = request.POST['shipstreet'],
-            shipping_city = request.POST['shipcity'],
-            shipping_state = request.POST['shipstate'],
-            shipping_pincode = request.POST['shippincode'],
-            shipping_country = request.POST['shipcountry'],
-            customer_status = 'Active'
-        )
-        cust.save()
+#             company_payment_terms = None if request.POST['payment_terms'] == "" else Company_Payment_Term.objects.get(id = request.POST['payment_terms']),
+#             opening_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
+#             opening_balance_type = request.POST['balance_type'],
+#             current_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
+#             credit_limit = 0 if request.POST['credit_limit'] == "" else float(request.POST['credit_limit']),
+#             billing_address = request.POST['street'],
+#             billing_city = request.POST['city'],
+#             billing_state = request.POST['state'],
+#             billing_pincode = request.POST['pincode'],
+#             billing_country = request.POST['country'],
+#             shipping_address = request.POST['shipstreet'],
+#             shipping_city = request.POST['shipcity'],
+#             shipping_state = request.POST['shipstate'],
+#             shipping_pincode = request.POST['shippincode'],
+#             shipping_country = request.POST['shipcountry'],
+#             customer_status = 'Active'
+#         )
+#         cust.save()
 
-        #save transaction
+#         #save transaction
        
-        CustomerHistory.objects.create(
-            company = com,
-            login_details = log_details,
-            customer = cust,
-            action = 'Created'
-        )
+#         CustomerHistory.objects.create(
+#             company = com,
+#             login_details = log_details,
+#             customer = cust,
+#             action = 'Created'
+#         )
 
-        return JsonResponse({'status': True,'id':cust.id})
+#         return JsonResponse({'status': True,'id':cust.id})
     
-    else:
-        return redirect('/')
+#     else:
+#         return redirect('/')
 
 def check_vendor_work_phone_exist(request):
     if request.method == 'GET':
@@ -18385,7 +18385,9 @@ def check_vendor_phonenumber_exist(request):
     else:
         return JsonResponse({'exists': False})
 
+
 def recurr_vendor_create(request):
+   
     if 'login_id' in request.session:
         if request.session.has_key('login_id'):
             log_id = request.session['login_id']
@@ -18407,67 +18409,60 @@ def recurr_vendor_create(request):
             vendor_data=Vendor()
             vendor_data.login_details=log_details
             vendor_data.company=dash_details
-            titl = request.POST.get('title_vendor')
-            vendor_data.title = titl
-            fn = request.POST['first_name']
-            ln = request.POST['last_name']
-            vendor_data.first_name=fn
-            vendor_data.last_name=ln
+            vendor_data.title = request.POST.get('salutation')
+            vendor_data.first_name=request.POST['first_name']
+            vendor_data.last_name=request.POST['last_name']
             vendor_data.company_name=request.POST['company_name']
-            vendor_data.vendor_display_name= titl+" "+fn+" "+ln
-            vendor_data.vendor_email=request.POST['email_vendor']
-            vendor_data.phone=request.POST['wphone_vendor']
-            vendor_data.mobile=request.POST['mphone_vendor']
-            vendor_data.skype_name_number=request.POST['skype_name_vendor']
-            vendor_data.designation=request.POST['designation_vendor']
-            vendor_data.department=request.POST['department_vendor']
-            vendor_data.website=request.POST['website_vendor']
-            vendor_data.gst_treatment=request.POST['gst_type_vendor']
+            vendor_data.vendor_display_name=request.POST['v_display_name']
+            vendor_data.vendor_email=request.POST['vendor_email']
+            vendor_data.phone=request.POST['w_phone']
+            vendor_data.mobile=request.POST['m_phone']
+            vendor_data.skype_name_number=request.POST['skype_number']
+            vendor_data.designation=request.POST['designation']
+            vendor_data.department=request.POST['department']
+            vendor_data.website=request.POST['website']
+            vendor_data.gst_treatment=request.POST['gst']
             vendor_data.vendor_status="Active"
+            vendor_data.remarks=request.POST['remark']
+            vendor_data.current_balance=request.POST['opening_bal']
 
-
-            # vendor_data.remarks=request.POST['remark']
-
-            
-            vendor_data.current_balance=request.POST['open_bal_vendor']
-
-            x=request.POST['gst_type_vendor']
-            if x=="Unregistered Business":
-                vendor_data.pan_number=request.POST['pan_no_vendor']
+            x=request.POST['gst']
+            if x=="Unregistered Business-not Registered under GST":
+                vendor_data.pan_number=request.POST['pan_number']
                 vendor_data.gst_number="null"
             else:
-                vendor_data.gst_number=request.POST['gstin_vendor']
-                vendor_data.pan_number=request.POST['pan_no_vendor']
+                vendor_data.gst_number=request.POST['gst_number']
+                vendor_data.pan_number=request.POST['pan_number']
 
-            vendor_data.source_of_supply=request.POST['source_of_supply_vendor']
-            vendor_data.currency=request.POST['currency_vendor']
+            vendor_data.source_of_supply=request.POST['source_supply']
+            vendor_data.currency=request.POST['currency']
             print(vendor_data.currency)
-            op_type=request.POST.get('open_bal_type_vendor')
+            op_type=request.POST.get('op_type')
             if op_type is not None:
                 vendor_data.opening_balance_type=op_type
             else:
                 vendor_data.opening_balance_type='Opening Balance not selected'
     
-            vendor_data.opening_balance=request.POST['open_bal_vendor']
-            vendor_data.payment_term=Company_Payment_Term.objects.get(id=request.POST['pay_term_vendor'])
+            vendor_data.opening_balance=request.POST['opening_bal']
+            vendor_data.payment_term=Company_Payment_Term.objects.get(id=request.POST['payment_terms'])
 
            
-            # vendor_data.billing_attention=request.POST['battention']
-            vendor_data.billing_country=request.POST['country1']
-            vendor_data.billing_address=request.POST['street1']
-            vendor_data.billing_city=request.POST['city1']
-            vendor_data.billing_state=request.POST['state1_vendor']
-            vendor_data.billing_pin_code=request.POST['pinco1']
-            # vendor_data.billing_phone=request.POST['bphone']
-            # vendor_data.billing_fax=request.POST['bfax']
-            # vendor_data.shipping_attention=request.POST['sattention']
-            # vendor_data.shipping_country=request.POST['s_country']
-            vendor_data.shipping_address=request.POST['shipAddress1']
-            vendor_data.shipping_city=request.POST['shipcity1']
-            vendor_data.shipping_state=request.POST['shipState1']
-            vendor_data.shipping_pin_code=request.POST['shippinco1']
-            # vendor_data.shipping_phone=request.POST['sphone']
-            # vendor_data.shipping_fax=request.POST['sfax']
+            vendor_data.billing_attention=request.POST['battention']
+            vendor_data.billing_country=request.POST['bcountry']
+            vendor_data.billing_address=request.POST['baddress']
+            vendor_data.billing_city=request.POST['bcity']
+            vendor_data.billing_state=request.POST['bstate']
+            vendor_data.billing_pin_code=request.POST['bzip']
+            vendor_data.billing_phone=request.POST['bphone']
+            vendor_data.billing_fax=request.POST['bfax']
+            vendor_data.shipping_attention=request.POST['sattention']
+            vendor_data.shipping_country=request.POST['s_country']
+            vendor_data.shipping_address=request.POST['saddress']
+            vendor_data.shipping_city=request.POST['scity']
+            vendor_data.shipping_state=request.POST['sstate']
+            vendor_data.shipping_pin_code=request.POST['szip']
+            vendor_data.shipping_phone=request.POST['sphone']
+            vendor_data.shipping_fax=request.POST['sfax']
             vendor_data.save()
            # ................ Adding to History table...........................
             
@@ -18480,52 +18475,305 @@ def recurr_vendor_create(request):
             vendor_history_obj.save()
 
     # .......................................................adding to remaks table.....................
-            # vdata=Vendor.objects.get(id=vendor_data.id)
-            # vendor=vdata
-            # rdata=Vendor_remarks_table()
-            # rdata.remarks=request.POST['remark']
-            # rdata.company=dash_details
-            # rdata.vendor=vdata
-            # rdata.save()
+            vdata=Vendor.objects.get(id=vendor_data.id)
+            vendor=vdata
+            rdata=Vendor_remarks_table()
+            rdata.remarks=request.POST['remark']
+            rdata.company=dash_details
+            rdata.vendor=vdata
+            rdata.save()
 
 
      #...........................adding multiple rows of table to model  ........................................................  
         
-            # title =request.POST.getlist('salutation[]')
-            # first_name =request.POST.getlist('first_name[]')
-            # last_name =request.POST.getlist('last_name[]')
-            # email =request.POST.getlist('email[]')
-            # work_phone =request.POST.getlist('wphone[]')
-            # mobile =request.POST.getlist('mobile[]')
-            # skype_name_number =request.POST.getlist('skype[]')
-            # designation =request.POST.getlist('designation[]')
-            # department =request.POST.getlist('department[]') 
-            # vdata=Vendor.objects.get(id=vendor_data.id)
-            # vendor=vdata
+            title =request.POST.getlist('salutation[]')
+            first_name =request.POST.getlist('first_name[]')
+            last_name =request.POST.getlist('last_name[]')
+            email =request.POST.getlist('email[]')
+            work_phone =request.POST.getlist('wphone[]')
+            mobile =request.POST.getlist('mobile[]')
+            skype_name_number =request.POST.getlist('skype[]')
+            designation =request.POST.getlist('designation[]')
+            department =request.POST.getlist('department[]') 
+            vdata=Vendor.objects.get(id=vendor_data.id)
+            vendor=vdata
            
-            # if title != ['Select']:
-            #     if len(title)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_name_number)==len(designation)==len(department):
-            #         mapped2=zip(title,first_name,last_name,email,work_phone,mobile,skype_name_number,designation,department)
-            #         mapped2=list(mapped2)
-            #         print(mapped2)
-            #         for ele in mapped2:
-            #             created = VendorContactPerson.objects.get_or_create(title=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],
-            #                     work_phone=ele[4],mobile=ele[5],skype_name_number=ele[6],designation=ele[7],department=ele[8],company=dash_details,vendor=vendor)
+            if title != ['Select']:
+                if len(title)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_name_number)==len(designation)==len(department):
+                    mapped2=zip(title,first_name,last_name,email,work_phone,mobile,skype_name_number,designation,department)
+                    mapped2=list(mapped2)
+                    print(mapped2)
+                    for ele in mapped2:
+                        created = VendorContactPerson.objects.get_or_create(title=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],
+                        work_phone=ele[4],mobile=ele[5],skype_name_number=ele[6],designation=ele[7],department=ele[8],company=dash_details,vendor=vendor)
                 
+        
+            messages.success(request, 'Data saved successfully!')   
+
             data = {
-                'vendor_first_name':fn,
+                'vendor_first_name':vendor_data.first_name,
                 'vendor_id':vendor_data.id,
             }
         
-            return JsonResponse(data)
+            return redirect('recurring_bill_create')
         
         else:
             messages.error(request, 'Some error occurred !')   
 
-            return redirect('view_vendor_list')
-    data = {
-        'success':'success',
-    }
-    return JsonResponse(data)
+            error = {
+                'error':'error',
+            }
+
+            return redirect('recurring_bill_create')
+
+
+def recurr_customer_create(request):
+   
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+
+            
+        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
+
+        
+
+       
+        if request.method=="POST":
+            customer_data=Customer()
+            customer_data.login_details=log_details
+            customer_data.company=comp_details
+            customer_data.customer_type = request.POST.get('type')
+
+            customer_data.title = request.POST.get('salutation')
+            customer_data.first_name=request.POST['first_name']
+            customer_data.last_name=request.POST['last_name']
+            customer_data.company_name=request.POST['company_name']
+            customer_data.customer_display_name=request.POST['v_display_name']
+            customer_data.customer_email=request.POST['vendor_email']
+            customer_data.customer_phone=request.POST['w_phone']
+            customer_data.customer_mobile=request.POST['m_phone']
+            customer_data.skype=request.POST['skype_number']
+            customer_data.designation=request.POST['designation']
+            customer_data.department=request.POST['department']
+            customer_data.website=request.POST['website']
+            customer_data.GST_treatement=request.POST['cust_gst_type']
+            customer_data.customer_status="Active"
+            customer_data.remarks=request.POST['remark']
+            customer_data.current_balance=request.POST['opening_bal']
+
+            x=request.POST['gst']
+            if x=="Unregistered Business-not Registered under GST":
+                customer_data.PAN_number=request.POST['pan_number']
+                customer_data.GST_number="null"
+            else:
+                customer_data.GST_number=request.POST['cust_gstin']
+                customer_data.PAN_number=request.POST['pan_number']
+
+            customer_data.place_of_supply=request.POST['source_supply']
+            customer_data.currency=request.POST['currency']
+            op_type=request.POST.get('op_type')
+            if op_type is not None:
+                customer_data.opening_balance_type=op_type
+            else:
+                customer_data.opening_balance_type='Opening Balance not selected'
+    
+            customer_data.opening_balance=request.POST['opening_bal']
+            customer_data.company_payment_terms=Company_Payment_Term.objects.get(id=request.POST['payment_terms'])
+            # customer_data.price_list=request.POST['plst']
+            plst=request.POST.get('plst')
+            if plst!=0:
+                 customer_data.price_list=plst
+            else:
+                customer_data.price_list='Price list not selected'
+
+
+
+
+            # customer_data.portal_language=request.POST['plang']
+            plang=request.POST.get('plang')
+            if plang!=0:
+                 customer_data.portal_language=plang
+            else:
+                customer_data.portal_language='Portal language not selected'
+
+            customer_data.facebook=request.POST['fbk']
+            customer_data.twitter=request.POST['twtr']
+            customer_data.tax_preference=request.POST['tax1']
+
+            type=request.POST.get('type')
+            if type is not None:
+                customer_data.customer_type=type
+            else:
+                customer_data.customer_type='Customer type not selected'
+    
+
+
+
+           
+            customer_data.billing_attention=request.POST['battention']
+            customer_data.billing_country=request.POST['bcountry']
+            customer_data.billing_address=request.POST['baddress']
+            customer_data.billing_city=request.POST['bcity']
+            customer_data.billing_state=request.POST['bstate']
+            customer_data.billing_pincode=request.POST['bzip']
+            customer_data.billing_mobile=request.POST['bphone']
+            customer_data.billing_fax=request.POST['bfax']
+            customer_data.shipping_attention=request.POST['sattention']
+            customer_data.shipping_country=request.POST['s_country']
+            customer_data.shipping_address=request.POST['saddress']
+            customer_data.shipping_city=request.POST['scity']
+            customer_data.shipping_state=request.POST['sstate']
+            customer_data.shipping_pincode=request.POST['szip']
+            customer_data.shipping_mobile=request.POST['sphone']
+            customer_data.shipping_fax=request.POST['sfax']
+            customer_data.save()
+           # ................ Adding to History table...........................
+            
+            vendor_history_obj=CustomerHistory()
+            vendor_history_obj.company=comp_details
+            vendor_history_obj.login_details=log_details
+            vendor_history_obj.customer=customer_data
+            vendor_history_obj.date=date.today()
+            vendor_history_obj.action='Completed'
+            vendor_history_obj.save()
+
+    # .......................................................adding to remaks table.....................
+            vdata=Customer.objects.get(id=customer_data.id)
+            vendor=vdata
+            rdata=Customer_remarks_table()
+            rdata.remarks=request.POST['remark']
+            rdata.company=comp_details
+            rdata.customer=vdata
+            rdata.save()
+
+
+     #...........................adding multiple rows of table to model  ........................................................  
+        
+            title =request.POST.getlist('salutation[]')
+            first_name =request.POST.getlist('first_name[]')
+            last_name =request.POST.getlist('last_name[]')
+            email =request.POST.getlist('email[]')
+            work_phone =request.POST.getlist('wphone[]')
+            mobile =request.POST.getlist('mobile[]')
+            skype_name_number =request.POST.getlist('skype[]')
+            designation =request.POST.getlist('designation[]')
+            department =request.POST.getlist('department[]') 
+            vdata=Customer.objects.get(id=customer_data.id)
+            vendor=vdata
+           
+            if title != ['Select']:
+                if len(title)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_name_number)==len(designation)==len(department):
+                    mapped2=zip(title,first_name,last_name,email,work_phone,mobile,skype_name_number,designation,department)
+                    mapped2=list(mapped2)
+                    print(mapped2)
+                    for ele in mapped2:
+                        created = CustomerContactPersons.objects.get_or_create(title=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],
+                                work_phone=ele[4],mobile=ele[5],skype=ele[6],designation=ele[7],department=ele[8],company=comp_details,customer=vendor)
+                
+        
+            messages.success(request, 'Customer created successfully!')   
+            print('CREATE CUSTOMER SUCCESS')
+            data = {
+                'customer_fname':customer_data.first_name,
+                'customer_id':customer_data.id,
+            }
+            return JsonResponse(data)
+        
+        else:
+            messages.error(request, 'Some error occurred !')   
+            print('CREATE CUSTOMER ERROR')
+            error={
+                'error':'error',
+            }
+            return JsonResponse(error,status=400)
+
+
+def add_new_recrring_bill(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+            
+        recurring_bill_data = Recurring_bills()
+        recurring_bill_data.login_details = log_details
+        recurring_bill_data.company = comp_details
+        recurring_bill_data.vendor_details = Vendor.objects.get(id=request.POST.get('vendor_id')) 
+        recurring_bill_data.vend_name = request.POST.get('vendor_name')
+        recurring_bill_data.vend_mail = request.POST.get('vendorEmail')
+        recurring_bill_data.vend_gst_treat = request.POST.get('gst_type')
+        recurring_bill_data.vend_gst_no = request.POST.get('gstin')
+        recurring_bill_data.vend_source_of_supply = request.POST.get('vendor_source_of_suppy')
+        recurring_bill_data.recc_bill_no = request.POST.get('bill_number')
+        recurring_bill_data.recc_ref_no = request.POST.get('reference_number')
+        recurring_bill_data.profile_name = request.POST.get('profile_name')
+        recurring_bill_data.purchase_order_no = request.POST.get('order_number')
+        recurring_bill_data.repeat_every = request.POST.get('repeat_every_recurr')
+        recurring_bill_data.repeat_every_id = RecurringRepeatEvery.objects.get(company=comp_details,repeat_type=request.POST.get('repeat_every_recurr')) 
+        recurring_bill_data.rec_bill_date = request.POST.get('rec_bil_Date')
+        recurring_bill_data.expiry_date = request.POST.get('due_date')
+        recurring_bill_data.credit_period = request.POST.get('credit_period')
+        recurring_bill_data.credit_period_id = RecurringCreditPeriod.objects.get(company=comp_details,credit_name=request.POST.get('credit_period')) 
+
+        recurring_bill_data.customer_details = request.POST.get('account_id')
+        recurring_bill_data.cust_name = request.POST.get('customer_name')
+        recurring_bill_data.cust_mail = request.POST.get('customerEmail')
+        recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
+        recurring_bill_data.cust_gst_no = request.POST.get('cust_gstin')
+        recurring_bill_data.cust_billing_address = request.POST.get('cust_bill_address')
+        recurring_bill_data.cust_place_of_supply = request.POST.get('place_of_supply')
+        
+        recurring_bill_data.payment_type = request.POST.get('payment_method')
+        recurring_bill_data.check_no = request.POST.get('cheque_id')
+        recurring_bill_data.upi_id = request.POST.get('upi_id')
+        recurring_bill_data.bank_id = request.POST.get('bnk_id')
+
+        recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,price_list=request.POST.get(''))
+
+        recurring_bill_data.sub_total = request.POST.get('subtotal')
+        recurring_bill_data.igst = request.POST.get('igst')
+        recurring_bill_data.cgst = request.POST.get('cgst')
+        recurring_bill_data.sgst = request.POST.get('sgst')
+        recurring_bill_data.tax_amount = request.POST.get('taxamount')
+        recurring_bill_data.shipping_charge = request.POST.get('ship')
+        recurring_bill_data.ajustment = request.POST.get('adj')
+        recurring_bill_data.total = request.POST.get('grandtotal')
+        recurring_bill_data.paid = request.POST.get('advance')
+        recurring_bill_data.bal = request.POST.get('balance')
+        if 'Draft' in request.POST:
+            recurring_bill_data.status = 'Draft'
+        elif 'Save' in request.POST:
+            recurring_bill_data.status = 'Save'
+        recurring_bill_data.note = request.POST.get('note')
+        recurring_bill_data.document = request.POST.get('file')
+
+        recurring_bill_data.save()
+
+        print('RECURRING BILL CREATED SUCCESS FULL')
+
+    return redirect('recurring_bill_listout')
 
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
