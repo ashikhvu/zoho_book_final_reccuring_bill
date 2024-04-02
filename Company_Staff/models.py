@@ -1006,12 +1006,16 @@ class Recurring_bills(models.Model):
     recc_ref_no = models.IntegerField(blank=True,null=True)
     profile_name = models.CharField(max_length=255,blank=True,null=True)
     purchase_order_no = models.CharField(max_length=255,null=True,blank=True)
-    repeat_every = models.CharField(max_length=255,null=True,blank=True)
     repeat_every_id = models.ForeignKey(RecurringRepeatEvery,on_delete=models.CASCADE,null=True,blank=True)
+    repeat_every_duration = models.IntegerField(blank=True,null=True)
+    repeat_every_type = models.CharField(max_length=255,null=True,blank=True)
+
     rec_bill_date= models.DateTimeField(null=True,blank=True)
     expiry_date = models.DateTimeField(null=True,blank=True)
     credit_period = models.CharField(max_length=255,null=True,blank=True)
     credit_period_id = models.ForeignKey(RecurringCreditPeriod,on_delete=models.CASCADE,null=True,blank=True)
+    credit_period_termname = models.CharField(max_length=255,blank=True,null=True)
+    credit_period_days = models.IntegerField(blank=True,null=True)
 
     customer_details = models.ForeignKey(Customer,on_delete=models.CASCADE,null=True,blank=True)
     cust_name = models.CharField(max_length=255,null=True)
@@ -1050,8 +1054,8 @@ class RecurringRecievedId(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
     company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
     pattern = models.CharField(max_length=255,null=True)
-    rec_rec_no = models.CharField(max_length=255,null=True)
-    rec_ref_no = models.CharField(max_length=255,null=True)
+    recc_rec_number = models.CharField(max_length=255,null=True)
+    ref_number = models.CharField(max_length=255,null=True)
     
 
 

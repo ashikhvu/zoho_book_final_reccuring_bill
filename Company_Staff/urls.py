@@ -457,6 +457,9 @@ urlpatterns = [
     path('recurr_vendor_create',views.recurr_vendor_create,name='recurr_vendor_create'),
     path('recurr_customer_create',views.recurr_customer_create,name='recurr_customer_create'),
     path('add_new_recrring_bill',views.add_new_recrring_bill,name='add_new_recrring_bill'),
+    path('recurr_overview/<int:pk>',views.recurr_overview,name='recurr_overview'),
+    path('check_rec_bill_no_valid',views.check_rec_bill_no_valid,name='check_rec_bill_no_valid'),
+    path('get_price_list_percentage/<int:pk>',views.get_price_list_percentage,name='get_price_list_percentage'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 

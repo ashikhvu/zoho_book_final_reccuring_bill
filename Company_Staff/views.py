@@ -1068,6 +1068,7 @@ def itemsoverview(request,pk):
                     'est_comments':est_comments
                 }
                 return render(request, 'zohomodules/items/itemsoverview.html',context)
+    
     if log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
        
@@ -18092,18 +18093,23 @@ def recurring_bill_listout(request):
         log_details= LoginDetails.objects.get(id=login_id)
         if log_details.user_type == 'Staff':
             dash_details = StaffDetails.objects.get(login_details=log_details)
-            item=Items.objects.filter(company=dash_details.company)
+            recurr_bills=Recurring_bills.objects.filter(company=dash_details.company)
             allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
         elif log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
-            item=Items.objects.filter(company=dash_details)
+            recurr_bills=Recurring_bills.objects.filter(company=dash_details)
             allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        print('---------------------------------')
+        print(recurr_bills)
+        print('---------------------------------')
         context = {
                 'details': dash_details,
-                'item': item,
+                'recurr_bills': recurr_bills,
                 'allmodules': allmodules,
         }
-    return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',context)
+        return render(request,'zohomodules/recurring_bill/recurring_bill_listout.html',context)
+    else:
+        return redirect('/')
 
 
 def recurring_bill_create(request):
@@ -18114,28 +18120,23 @@ def recurring_bill_create(request):
         log_details= LoginDetails.objects.get(id=login_id)
         if log_details.user_type == 'Staff':
             dash_details = StaffDetails.objects.get(login_details=log_details)
-            item=Items.objects.filter(company=dash_details.company)
-            allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-            banks = Banking.objects.filter(company=dash_details.company)
-            vendors = Vendor.objects.filter(company=dash_details.company)
-            customers = Customer.objects.filter(company=dash_details.company)
-            items = Items.objects.filter(company=dash_details.company)
-            pricelist = PriceList.objects.filter(company=dash_details.company,status='Active',type='Purchase')
-            credits = RecurringCreditPeriod.objects.filter(company=dash_details.company)
-            repeat_list = RecurringRepeatEvery.objects.filter(company=dash_details.company)
-            payments=Company_Payment_Term.objects.filter(company_id = dash_details.company)
+            company = dash_details.company
         elif log_details.user_type == 'Company':
             dash_details = CompanyDetails.objects.get(login_details=log_details)
-            item=Items.objects.filter(company=dash_details)
-            allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-            banks = Banking.objects.filter(company=dash_details)
-            vendors = Vendor.objects.filter(company=dash_details)
-            customers = Customer.objects.filter(company=dash_details)
-            pricelist = PriceList.objects.filter(company=dash_details,status='Active',type='Purchase')
-            items = Items.objects.filter(company=dash_details)
-            credits = RecurringCreditPeriod.objects.filter(company=dash_details)
-            repeat_list = RecurringRepeatEvery.objects.filter(company=dash_details)
-            payments=Company_Payment_Term.objects.filter(company_id = dash_details)
+            company = dash_details
+
+        item=Items.objects.filter(company=company)
+        allmodules= ZohoModules.objects.get(company=company,status='New')
+        banks = Banking.objects.filter(company=company)
+        vendors = Vendor.objects.filter(company=company)
+        customers = Customer.objects.filter(company=company)
+        pricelist = PriceList.objects.filter(company=company,status='Active',type='Purchase')
+        items = Items.objects.filter(company=company)
+        credits = RecurringCreditPeriod.objects.filter(company=company)
+        repeat_list = RecurringRepeatEvery.objects.filter(company=company)
+        payments=Company_Payment_Term.objects.filter(company_id = company)
+        recc_bill_no = RecurringRecievedId.objects.filter(company=company).last()
+
         context = {
                 'details': dash_details,
                 'item': item,
@@ -18148,8 +18149,11 @@ def recurring_bill_create(request):
                 'credits':credits,
                 'repeat_list':repeat_list,
                 'payments':payments,
+                'recc_bill_no':recc_bill_no,
         }
-    return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
+        return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
+    else:
+        return redirect('/')
 
 
 def get_vendors_details_for_recurr(request,pk):
@@ -18701,6 +18705,7 @@ def recurr_customer_create(request):
             return JsonResponse(error,status=400)
 
 
+
 def add_new_recrring_bill(request):
     if 'login_id' in request.session:
         if request.session.has_key('login_id'):
@@ -18731,14 +18736,39 @@ def add_new_recrring_bill(request):
         recurring_bill_data.recc_ref_no = request.POST.get('reference_number')
         recurring_bill_data.profile_name = request.POST.get('profile_name')
         recurring_bill_data.purchase_order_no = request.POST.get('order_number')
-        recurring_bill_data.repeat_every = request.POST.get('repeat_every_recurr')
-        recurring_bill_data.repeat_every_id = RecurringRepeatEvery.objects.get(company=comp_details,repeat_type=request.POST.get('repeat_every_recurr')) 
-        recurring_bill_data.rec_bill_date = request.POST.get('rec_bil_Date')
-        recurring_bill_data.expiry_date = request.POST.get('due_date')
-        recurring_bill_data.credit_period = request.POST.get('credit_period')
-        recurring_bill_data.credit_period_id = RecurringCreditPeriod.objects.get(company=comp_details,credit_name=request.POST.get('credit_period')) 
 
-        recurring_bill_data.customer_details = request.POST.get('account_id')
+        repeat_every = request.POST.get('repeat_every_recurr')
+        if repeat_every == '3 month':
+            recurring_bill_data.repeat_every_duration = 3
+            recurring_bill_data.repeat_every_type = 'month'
+        elif repeat_every == '6 month':
+            recurring_bill_data.repeat_every_duration = 36
+            recurring_bill_data.repeat_every_type = 'month'
+        elif repeat_every == '1 year':
+            recurring_bill_data.repeat_every_duration = 1
+            recurring_bill_data.repeat_every_type = 'year'
+        else:
+            recurring_bill_data.repeat_every_id = RecurringRepeatEvery.objects.get(company=comp_details,id=request.POST.get('repeat_every_recurr')) 
+        
+        unformated_date = request.POST.get('rec_bil_Date')
+        formatted_date = datetime.strptime(unformated_date,'%Y-%m-%d').date()
+        recurring_bill_data.rec_bill_date = formatted_date
+        recurring_bill_data.expiry_date = request.POST.get('due_date')
+
+        credit_period = request.POST.get('credit_period')
+        if credit_period == '0':
+            recurring_bill_data.credit_period_termname = 'Due on Reciept'
+            recurring_bill_data.credit_period_days = 0
+        elif credit_period == '30':
+            recurring_bill_data.credit_period_termname = 'NET 30'
+            recurring_bill_data.credit_period_days = 30
+        elif credit_period == '60':
+            recurring_bill_data.credit_period_termname = 'NET 60'
+            recurring_bill_data.credit_period_days = 60
+        else:
+            recurring_bill_data.credit_period_id = RecurringCreditPeriod.objects.get(company=comp_details,credit_name=request.POST.get('credit_period'))
+
+        recurring_bill_data.customer_details = Customer.objects.get(id=request.POST.get('account_id')) 
         recurring_bill_data.cust_name = request.POST.get('customer_name')
         recurring_bill_data.cust_mail = request.POST.get('customerEmail')
         recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
@@ -18747,11 +18777,15 @@ def add_new_recrring_bill(request):
         recurring_bill_data.cust_place_of_supply = request.POST.get('place_of_supply')
         
         recurring_bill_data.payment_type = request.POST.get('payment_method')
-        recurring_bill_data.check_no = request.POST.get('cheque_id')
-        recurring_bill_data.upi_id = request.POST.get('upi_id')
-        recurring_bill_data.bank_id = request.POST.get('bnk_id')
+        if request.POST.get('cheque_id'):
+            recurring_bill_data.check_no = request.POST.get('cheque_id')
+        if request.POST.get('upi_id'):
+            recurring_bill_data.upi_id = request.POST.get('upi_id')
+        if request.POST.get('bnk_id'):
+            recurring_bill_data.bank_id = Banking.objects.get(id=request.POST.get('bnk_id')) 
 
-        recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,price_list=request.POST.get(''))
+        if request.POST.get('name_latest1'):
+            recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,price_list=request.POST.get('name_latest1'))
 
         recurring_bill_data.sub_total = request.POST.get('subtotal')
         recurring_bill_data.igst = request.POST.get('igst')
@@ -18772,8 +18806,139 @@ def add_new_recrring_bill(request):
 
         recurring_bill_data.save()
 
+        rec_bill_number = request.POST.get('bill_number')
+        if RecurringRecievedId.objects.filter(company=dash_details).exists():
+            recc = RecurringRecievedId.objects.filter(company=dash_details)
+            recc_id = recc.last()
+            recc_id1 = recc.last()
+
+            # Check if there is a second last journal record
+            if recc.exclude(id=recc_id.id).last():
+                recc_id_second_last = recc.exclude(id=recc_id.id).last()
+                pattern = recc_id_second_last.pattern
+            else:
+                recc_id_second_last = recc.first()
+                pattern = recc_id_second_last.pattern
+
+            if rec_bill_number != recc_id.recc_rec_number and rec_bill_number != '':
+                # Creating a new RecurringRecievedId instance
+                recc_id = RecurringRecievedId(company=dash_details)
+                count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                recc_id.pattern = pattern
+                recc_id.save()
+
+                # Using count_for_ref_no + 1 as the reference number
+                ref_num = int(count_for_ref_no) + 2
+                recc_id.ref_number = f'{ref_num:02}'
+
+                recc_id.recc_rec_number = recc_id1.recc_rec_number
+                recc_id.save()
+            else:
+                # Creating a new RecurringRecievedId instance
+                recc_id = RecurringRecievedId(company=dash_details)
+                count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                recc_id.pattern = pattern
+                recc_id.save()
+
+                # Using count_for_ref_no + 1 as the reference number
+                ref_num = int(count_for_ref_no) + 2
+                recc_id.ref_number = f'{ref_num:02}'
+
+                # Incrementing the recc_rec_number
+                recc_rec_num = ''.join(i for i in recc_id1.recc_rec_number if i.isdigit())
+                recc_rec_num = int(recc_rec_num)+1
+                print("#################################")
+                print(f"-----------------{recc_id1}-----------------")
+                recc_id.recc_rec_number = f'{pattern}{recc_rec_num:02}'
+                print(recc_id.recc_rec_number)
+                recc_id.save()
+                
+        else:
+            # Creating a new RecurringRecievedId instance
+            recc_id = RecurringRecievedId(company=dash_details)
+            recc_id.save()
+
+            # Setting initial values for ref_number, pattern, and recc_rec_number
+            recc_id.ref_number = f'{2:02}'
+
+            pattern = ''.join(i for i in rec_bill_number if not i.isdigit())
+            recc_id.pattern = pattern
+            recc_id.recc_rec_number = f'{pattern}{2:02}'
+            recc_id.save()
+
         print('RECURRING BILL CREATED SUCCESS FULL')
 
     return redirect('recurring_bill_listout')
+
+def recurr_overview(request,pk):
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
+        allmodules= ZohoModules.objects.get(company=company,status='New')
+        recurr_list = Recurring_bills.objects.get(id=pk)
+        recurr_lists = Recurring_bills.objects.filter(company=company)
+        context = {
+            'details': dash_details,
+            'allmodules': allmodules,
+            'recurr_list': recurr_list,
+            'recurr_lists':recurr_lists,
+        }
+        return render(request, 'zohomodules/recurring_bill/recurr_overview.html',context)
+    
+
+def check_rec_bill_no_valid(request):
+    login_id = request.session['login_id']
+    if 'login_id' not in request.session:
+        return redirect('/')
+    log_details= LoginDetails.objects.get(id=login_id)
+    if log_details.user_type == 'Staff':
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        company = dash_details.company
+    elif log_details.user_type == 'Company':
+        dash_details = CompanyDetails.objects.get(login_details=log_details)
+        company = dash_details
+    recurr = RecurringRecievedId.objects.filter(company=company)
+    recurr_bill_number = request.POST.get('bill_no')  
+    print(f'================== recurr_bill_number = {recurr_bill_number}  ==================')
+    if recurr.exists():
+        last = recurr.last()
+        last_id = last.recc_rec_number
+        print(f'================== last_id = {last_id}==================')
+        if recurr_bill_number == last_id:
+            data = {"valid":"valid"}
+            return JsonResponse(data)
+        else:
+            data = {"error":"error"}
+            return JsonResponse(data,status=400)
+    else:
+        print('doesnt exist')
+        data = {"valid":"valid"}
+        return JsonResponse(data)
+
+def get_price_list_percentage(request,pk):
+    try:
+        price_list = PriceList.objects.get(id=pk)
+        price_list_percentage =  price_list.percentage_value
+        percentage_type = price_list.percentage_type
+        data = {
+            'price_list_percentage':price_list_percentage,
+            'percentage_type':percentage_type,
+        }
+        return JsonResponse(data)
+    except:
+        error = {
+            'error':'error'
+        }
+        return JsonResponse(error,status=400)
 
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------

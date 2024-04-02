@@ -343,7 +343,8 @@ input[type="date"] {
                     <label class=" text-white">Recurring Bill No.</label><span class="text-danger ml-3" id="invNoErr"></span>
                 </div>
                 <div class="col-xl-7">
-                    <input type="text" class="form-control text-light" name="bill_number"  id="bill_number"  placeholder="{{invNo}}" required>
+                    <input type="text" class="form-control text-light" name="bill_number"  id="bill_number"  placeholder="{{ recc_bill_no.recc_rec_number }}" required>
+                    <small id="invalid_recurr_no_indicator" hidden class="text-center text-danger ps-2">Recurring Bill no is not continues !</small>
                 </div>
             </div>
 
@@ -352,7 +353,7 @@ input[type="date"] {
                     <label class="">Reference Number</label>
                 </div>
                 <div class="col-xl-7">
-                    <input type="text" class="form-control text-light" name="reference_number" value="1"  readonly>
+                    <input type="text" class="form-control text-light" name="reference_number" value="{% if recc_bill_no %}{{ recc_bill_no.ref_number }}{% else %}01{% endif %}"  readonly>
                 </div>
             </div>
         </div>
@@ -396,7 +397,7 @@ input[type="date"] {
                                 <option  class="text-white"value="6 month">6 month</option>
                                 <option  class="text-white"value="1 year">1 year</option>
                                 {% for i in repeat_list %}
-                                <option class="text-white" value="{{ i.repeat_duration }} {{ i.repeat_type }}" text="{{ i.repeat_duration }} {{ i.repeat_type }}">{{ i.repeat_duration }} {{ i.repeat_type }}</option>
+                                <option class="text-white" value="{{ i.id }}" text="{{ i.repeat_duration }} {{ i.repeat_type }}">{{ i.repeat_duration }} {{ i.repeat_type }}</option>
                                 {% endfor %}
                             </select>
                             <a class="btn btn-outline-warning ms-1" role="button" data-target="#newRepeatEntry" data-toggle="modal" id="termsadd">+</a>
@@ -411,7 +412,7 @@ input[type="date"] {
                         <label class=" text-white">Reccuring Bill Date:</label>
                     </div>
                     <div class="col-xl-8">
-                        <input type="date" class="form-control" name="rec_bil_Date" id="rec_bil_Date"  value="{% now 'Y-m-d' %}">
+                        <input type="date" class="form-control" style="background-color: rgb(30, 30, 30);" name="rec_bil_Date" id="rec_bil_Date"  value="{% now 'Y-m-d' %}">
                     </div>
                 </div>
             </div>
@@ -689,7 +690,7 @@ input[type="date"] {
                     </div>
                     <div class="col-xl-8">
                         <select class="form-control mt-2" name="name_latest1" id="price_display" >
-                            <option value="" selected disabled>select price list</option>
+                            <option value="0" selected disabled>select price list</option>
                             {% for i in pricelist %}
                             <option value="{{ i.id }}">{{ i.name }}</option>
                             {% endfor %}
@@ -728,7 +729,7 @@ input[type="date"] {
 
 <div class="row  ">
   <div class="col-md-12 table-responsive-md mt-3">
-      <table class="table table-bordered  mt-3" id="invoiceItemsTable">
+      <table class="table table-bordered  mt-3" id="recurr_item_tabel">
           <thead>
               <tr>
                   <th class="text-center text-warning">#</th>
@@ -830,7 +831,7 @@ input[type="date"] {
   <input class="pb-3"  id="file-upload" type="file" name="file" style="display:none;">
 </div>            
   <div class="col-md-1"></div>
-  <div class="col-md-5 table-responsive-md mt-3 " id="invoiceItemsTableTotal" style="background-color:rgba(0,0,0,.4); border: 1px solid rgba(128, 128, 128, 0.6); margin-left: -2vh;">
+  <div class="col-md-5 table-responsive-md mt-3 " id="recurr_item_tabelTotal" style="background-color:rgba(0,0,0,.4); border: 1px solid rgba(128, 128, 128, 0.6); margin-left: -2vh;">
       <div class="p-3">
           <div class="row container-fluid p-2 m-0">
               <div class="col-sm-4 mt-2"><label class="text-center">Sub Total</label></div>
@@ -878,7 +879,7 @@ input[type="date"] {
 </div>
 <div class="row">
   <div class="col-md-7"></div>
-  <div class="col-md-5 table-responsive-md mt-3 " id="invoiceItemsTablePaid" style="background-color:rgba(0,0,0,.4); border: 1px solid rgba(128, 128, 128, 0.6); margin-left: -2vh;">
+  <div class="col-md-5 table-responsive-md mt-3 " id="recurr_item_tabelPaid" style="background-color:rgba(0,0,0,.4); border: 1px solid rgba(128, 128, 128, 0.6); margin-left: -2vh;">
       <div class="p-3">
           <div class="row container-fluid p-2 m-0">
               <div class="col-sm-4 mt-2"><label for="a" class="text-center text-warning">Paid </label></div>
@@ -2902,7 +2903,7 @@ input[type="date"] {
               const month = isoString.slice(5, 7);
               const year = isoString.slice(0, 4);
   
-              const formattedDate = `${day}-${month}-${year}`;
+              const formattedDate = `${year}-${month}-${day}`;
   
               document.getElementById("dueDate").value = formattedDate;
           } else {
@@ -2992,7 +2993,7 @@ function filterFunction(id){
 function getItemDetails(inpId, value){
     var itm = value;
     var exists = false;
-    var plc = $('#placeOfSupply').val();
+    var plc = $('#place_of_supply').val();
     var PLId = $('#customerPriceListId').val();
     console.log('clicked',value);
 
@@ -3120,7 +3121,7 @@ $(document).ready(function(){
 // calculation---------------------------
 
 function calc() {
-    $('#invoiceItemsTable tbody tr').each(function () {
+    $('#recurr_item_tabel tbody tr').each(function () {
         var html = $(this).html();
         if (html != '') {
             var qty = $(this).find('.qty').val();
@@ -3140,8 +3141,37 @@ function calc() {
                 var tax = $(this).find('.tax_ref_igst').val();
             }
             
-            $(this).find('.total').val((parseFloat(qty) * parseFloat(price)) - parseFloat(dis));
+            var total_amnt = (parseFloat(qty) * parseFloat(price)) - parseFloat(dis)
+
+            $(this).find('.total').val(total_amnt);
             $(this).find('.itemTaxAmount').val(((qty * price)-dis) * (tax / 100));
+
+            var self = this
+            $.ajax({
+                url : '{% url "get_price_list_percentage" 0 %}'.replace('0',parseInt($('#price_display').val())),
+                type : 'GET',
+                data : {
+
+                },
+                success: function(response){
+                    var percentage_val = parseFloat(response.price_list_percentage)
+                    if(response.percentage_type == 'Markup')
+                    {
+                        $(self).find('.total').val(parseFloat(parseFloat(total_amnt) + ((parseFloat(percentage_val) * parseFloat(total_amnt)) / 100)));
+                    }
+                    else if(response.percentage_type == 'Markdown')
+                    {
+                        $(self).find('.total').val(parseFloat(parseFloat(total_amnt) - ((parseFloat(percentage_val) * parseFloat(total_amnt)) / 100)));
+                    }
+                    else{
+                        // alert('evrything wrong')
+                    }
+                },
+                error:function(error){
+                    // alert('error')
+                }
+            })
+
             calc_total();
         }
     });
@@ -4023,7 +4053,7 @@ function reloadItems() {
               const month = isoString.slice(5, 7);
               const year = isoString.slice(0, 4);
   
-              const formattedDate = `${day}-${month}-${year}`;
+              const formattedDate = `${year}-${month}-${day}`;
   
               document.getElementById("dueDate").value = formattedDate;
           } else {
@@ -4183,13 +4213,13 @@ function reloadItems() {
     function change_gst(){
         if($('#vendor_source_of_suppy').val()===$('#place_of_supply').val())
         {
-            $('#taxGST1').css({'display':'block'});
-            $('#taxIGST1').css({'display':'none'});
+            $('.tax_ref_gst').css({'display':'block'});
+            $('.tax_ref_igst').css({'display':'none'});
             
         }
         else{
-            $('#taxGST1').css({'display':'none'});
-            $('#taxIGST1').css({'display':'block'});
+            $('.tax_ref_gst').css({'display':'none'});
+            $('.tax_ref_igst').css({'display':'block'});
         }
     }
 </script>
@@ -4892,6 +4922,38 @@ $('#mphone').on('input', function() {
         });
     });
 });
+
+$(document).ready(function(){
+    $('#bill_number').on('input',function(){
+        $.ajax({
+            url : '{% url "check_rec_bill_no_valid" %}',
+            type : 'POST',
+            data : {
+                'bill_no': $(this).val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response){
+                $('#invalid_recurr_no_indicator').attr('hidden',true)
+            },
+            error:function(error){
+                $('#invalid_recurr_no_indicator').attr('hidden',false)
+            }
+        })
+    })
+})
+$(document).ready(function(){
+    $('#price_display').on('change',function(){
+        calc()
+    })
+})
+$(document).ready(function(){
+    $('#price_enable').on('change',function(){
+        if(!$('#price_enable').prop('checked')){
+            $('#price_display').val('0')
+        }
+        calc()
+    })
+})
 </script>
 <!-- add new customer  script end-->
 
