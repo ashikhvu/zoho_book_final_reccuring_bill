@@ -969,15 +969,6 @@ class invoicecomments(models.Model):
     
 
 # --------------------------------------   ashikhvu   (start)   -----------------------------------------------
-    
-class RecurrItemsList(models.Model):
-    item_name = models.CharField(max_length=255)
-    item_hsn = models.IntegerField(null=True,blank=True)
-    qty = models.PositiveBigIntegerField(null=True,blank=True)
-    price = models.PositiveBigIntegerField(null=True,blank=True)
-    text = models.CharField(max_length=255)
-    discount = models.PositiveBigIntegerField(null=True,blank=True)
-    total = models.PositiveBigIntegerField(null=True,blank=True)
 
 class RecurringRepeatEvery(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
@@ -1057,7 +1048,17 @@ class RecurringRecievedId(models.Model):
     recc_rec_number = models.CharField(max_length=255,null=True)
     ref_number = models.CharField(max_length=255,null=True)
     
-
+class RecurrItemsList(models.Model):
+    item_id = models.ForeignKey(Items,on_delete=models.CASCADE,null=True,blank=True)
+    item_name = models.CharField(max_length=255)
+    item_hsn = models.IntegerField(null=True,blank=True)
+    qty = models.PositiveBigIntegerField(null=True,blank=True)
+    price = models.PositiveBigIntegerField(null=True,blank=True)
+    taxGST = models.CharField(max_length=255,null=True,blank=True)
+    taxIGST = models.CharField(max_length=255,null=True,blank=True)
+    discount = models.PositiveBigIntegerField(null=True,blank=True)
+    total = models.FloatField(null=True,blank=True)
+    recurr_bill_id = models.ForeignKey(Recurring_bills,on_delete=models.CASCADE,null=True,blank=True)
 
 
 

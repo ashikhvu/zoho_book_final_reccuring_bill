@@ -18136,6 +18136,8 @@ def recurring_bill_create(request):
         repeat_list = RecurringRepeatEvery.objects.filter(company=company)
         payments=Company_Payment_Term.objects.filter(company_id = company)
         recc_bill_no = RecurringRecievedId.objects.filter(company=company).last()
+        units = Unit.objects.filter(company=company)
+        accounts=Chart_of_Accounts.objects.filter(company=company)
 
         context = {
                 'details': dash_details,
@@ -18150,6 +18152,8 @@ def recurring_bill_create(request):
                 'repeat_list':repeat_list,
                 'payments':payments,
                 'recc_bill_no':recc_bill_no,
+                'units':units,
+                'accounts':accounts,
         }
         return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
     else:
@@ -18785,7 +18789,7 @@ def add_new_recrring_bill(request):
             recurring_bill_data.bank_id = Banking.objects.get(id=request.POST.get('bnk_id')) 
 
         if request.POST.get('name_latest1'):
-            recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,price_list=request.POST.get('name_latest1'))
+            recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,id=request.POST.get('name_latest1'))
 
         recurring_bill_data.sub_total = request.POST.get('subtotal')
         recurring_bill_data.igst = request.POST.get('igst')
@@ -18805,6 +18809,36 @@ def add_new_recrring_bill(request):
         recurring_bill_data.document = request.POST.get('file')
 
         recurring_bill_data.save()
+
+        item_id = request.POST.getlist('item_id[]')
+        item_name = request.POST.getlist('item_name[]')
+        hsn = request.POST.getlist('hsn[]')
+        qty = request.POST.getlist('qty[]')
+        price = request.POST.getlist('price[]')
+        taxGST = request.POST.getlist('taxGST[]')
+        taxIGST = request.POST.getlist('taxIGST[]')
+        discount = request.POST.getlist('discount[]')
+        total = request.POST.getlist('total[]')
+
+        print('--------------------------------------------------------')
+        print(total)
+        print(len(total))
+        print('--------------------------------------------------------')
+
+        for i in range(len(item_name)) :
+            recurr_item = RecurrItemsList(
+                item_id=Items.objects.get(id=item_id[i]),
+                item_name=item_name[i],
+                item_hsn=hsn[i],
+                qty=qty[i],
+                price=price[i],
+                taxGST=taxGST[i],
+                taxIGST=taxIGST[i],
+                discount=discount[i],
+                total=total[i],
+                recurr_bill_id =recurring_bill_data,
+            )
+            recurr_item.save()
 
         rec_bill_number = request.POST.get('bill_number')
         if RecurringRecievedId.objects.filter(company=dash_details).exists():
@@ -18869,31 +18903,6 @@ def add_new_recrring_bill(request):
         print('RECURRING BILL CREATED SUCCESS FULL')
 
     return redirect('recurring_bill_listout')
-
-def recurr_overview(request,pk):
-    if 'login_id' not in request.session:
-        return redirect('/')
-    else:
-        login_id = request.session['login_id']
-        if 'login_id' not in request.session:
-            return redirect('/')
-        log_details= LoginDetails.objects.get(id=login_id)
-        if log_details.user_type == 'Staff':
-            dash_details = StaffDetails.objects.get(login_details=log_details)
-            company = dash_details.company
-        elif log_details.user_type == 'Company':
-            dash_details = CompanyDetails.objects.get(login_details=log_details)
-            company = dash_details
-        allmodules= ZohoModules.objects.get(company=company,status='New')
-        recurr_list = Recurring_bills.objects.get(id=pk)
-        recurr_lists = Recurring_bills.objects.filter(company=company)
-        context = {
-            'details': dash_details,
-            'allmodules': allmodules,
-            'recurr_list': recurr_list,
-            'recurr_lists':recurr_lists,
-        }
-        return render(request, 'zohomodules/recurring_bill/recurr_overview.html',context)
     
 
 def check_rec_bill_no_valid(request):
@@ -18940,5 +18949,42 @@ def get_price_list_percentage(request,pk):
             'error':'error'
         }
         return JsonResponse(error,status=400)
+
+def recurr_overview(request,pk):
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
+        allmodules= ZohoModules.objects.get(company=company,status='New')
+        recurr_bill = Recurring_bills.objects.get(id=pk)
+        recurr_lists = Recurring_bills.objects.filter(company=company)
+        context = {
+            'details': dash_details,
+            'allmodules': allmodules,
+            'recurr_bill': recurr_bill,
+            'recurr_lists':recurr_lists,
+        }
+        return render(request, 'zohomodules/recurring_bill/recurr_overview.html',context)
+
+def recurr_change_status(request,pk):
+    recurr_bill = Recurring_bills.objects.get(id=pk)
+    if recurr_bill.status == 'Save':
+        recurr_bill.status = 'Draft'
+    elif recurr_bill.status == 'Draft':
+        recurr_bill.status = 'Save'
+    print('---------------------------------')
+    print(recurr_bill.status)
+    print('---------------------------------')
+    recurr_bill.save()
+    return redirect('recurr_overview',pk=pk)
 
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
