@@ -18797,7 +18797,7 @@ def add_new_recrring_bill(request):
         recurring_bill_data.sgst = request.POST.get('sgst')
         recurring_bill_data.tax_amount = request.POST.get('taxamount')
         recurring_bill_data.shipping_charge = request.POST.get('ship')
-        recurring_bill_data.ajustment = request.POST.get('adj')
+        recurring_bill_data.adjustment = request.POST.get('adj')
         recurring_bill_data.total = request.POST.get('grandtotal')
         recurring_bill_data.paid = request.POST.get('advance')
         recurring_bill_data.bal = request.POST.get('balance')
@@ -18900,6 +18900,14 @@ def add_new_recrring_bill(request):
             recc_id.recc_rec_number = f'{pattern}{2:02}'
             recc_id.save()
 
+        # history creation
+        recurr_history = Recurr_history()
+        recurr_history.company = comp_details
+        recurr_history.login_details = log_details
+        recurr_history.Recurr = recurring_bill_data
+        recurr_history.action = 'Created'
+        recurr_history.save()
+
         print('RECURRING BILL CREATED SUCCESS FULL')
 
     return redirect('recurring_bill_listout')
@@ -18950,6 +18958,18 @@ def get_price_list_percentage(request,pk):
         }
         return JsonResponse(error,status=400)
 
+# def recurr_change_status(request,pk):
+#     recurr_bill = Recurring_bills.objects.get(id=pk)
+#     if recurr_bill.status == 'Save':
+#         recurr_bill.status = 'Draft'
+#     elif recurr_bill.status == 'Draft':
+#         recurr_bill.status = 'Save'
+#     print('---------------------------------')
+#     print(recurr_bill.status)
+#     print('---------------------------------')
+#     recurr_bill.save()
+#     return redirect('recurr_overview',pk=pk)
+
 def recurr_overview(request,pk):
     if 'login_id' not in request.session:
         return redirect('/')
@@ -18967,24 +18987,65 @@ def recurr_overview(request,pk):
         allmodules= ZohoModules.objects.get(company=company,status='New')
         recurr_bill = Recurring_bills.objects.get(id=pk)
         recurr_lists = Recurring_bills.objects.filter(company=company)
+        last_history = Recurr_history.objects.filter(Recurr=recurr_bill.id).last()
         context = {
             'details': dash_details,
             'allmodules': allmodules,
             'recurr_bill': recurr_bill,
             'recurr_lists':recurr_lists,
+            'last_history':last_history,
         }
         return render(request, 'zohomodules/recurring_bill/recurr_overview.html',context)
 
-def recurr_change_status(request,pk):
+def delete_recurr_bill(request,pk):
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            company = dash_details.company
+        elif log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            company = dash_details
     recurr_bill = Recurring_bills.objects.get(id=pk)
-    if recurr_bill.status == 'Save':
-        recurr_bill.status = 'Draft'
-    elif recurr_bill.status == 'Draft':
-        recurr_bill.status = 'Save'
-    print('---------------------------------')
-    print(recurr_bill.status)
-    print('---------------------------------')
-    recurr_bill.save()
-    return redirect('recurr_overview',pk=pk)
+    recurr_bill.delete()
+    if Recurring_bills.objects.filter(company=company).exists():
+        first = Recurring_bills.objects.filter(company=company).first()
+        return redirect('recurr_overview',pk=first.id)
+    else:
+        return redirect('recurring_bill_listout')
 
+def recurr_add_item_unit(request):
+    if 'login_id' not in request.session:
+        return redirect('/')
+    else:
+        login_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=login_id)
+        if log_details.user_type == 'Staff':
+            company = StaffDetails.objects.get(login_details=log_details).company
+        elif log_details.user_type == 'Company':
+            company = CompanyDetails.objects.get(login_details=log_details)
+
+        if request.method == "POST":
+            name = request.POST['name'].upper()
+            print('==========================================')
+            print(name)
+            print('==========================================')
+
+            if not Unit.objects.filter(company = company, unit_name__iexact = name).exists():
+                unit = Unit(
+                    company = company,
+                    unit_name = name
+                )
+                unit.save()
+
+                return JsonResponse({'status':True,'unit_name':name,'unit_id':unit.id})
+            else:
+                return JsonResponse({'status':False, 'message':'Unit already exists.!'})
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------

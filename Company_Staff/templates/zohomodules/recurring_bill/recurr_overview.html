@@ -381,7 +381,7 @@
                   <div class="dropdown-menu ">
                       <a class="dropdown-item text-black" href="" >All</a>
                       <a class="dropdown-item text-black" onclick="sortTable(0)">Name</a>
-                      <a class="dropdown-item text-black" onclick="sortTable(1)">RI NO.</a>
+                      <a class="dropdown-item text-black" onclick="sortTable(1)">Rec Bill NO.</a>
                   </div>
   
                   <a class="btn btn-outline-warning small_btn mt-4" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
@@ -389,10 +389,10 @@
                   </a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item text-black" onclick="filterTable('All')">All</a>
-                    <a class="dropdown-item text-black" onclick="filterTable('Saved')">Saved</a>
+                    <a class="dropdown-item text-black" onclick="filterTable('Save')">Saved</a>
                     <a class="dropdown-item text-black" onclick="filterTable('Draft')">Draft</a>
                   </div>
-                  <a class="btn btn-outline-warning small_btn mt-4" role="button" href="">
+                  <a class="btn btn-outline-warning small_btn mt-4" role="button" href="{% url 'recurring_bill_create' %}">
                     <i class="fa fa-plus"></i>
                   </a>
                 </div>
@@ -402,18 +402,30 @@
                     <div class="table-responsive">
                       <table class="table text-white" id="sidetable">
                         <tbody>
-                          {% for inv in allInvoices %}
-                          <tr onclick="window.location.href=``" style="cursor: pointer;">
-                            <td>
-                              <span class="name"><b>{{ inv.customer.title }} {{ inv.customer.first_name }} {{ inv.customer.last_name }}</b></span><br><br>
-                              <span class="invNo">{{ inv.rec_invoice_no }}</span>
+                          {% if recurr_lists %}
+                          {% for i in recurr_lists %}
+                          <tr onclick="window.location.href=`{% url 'recurr_overview' i.id %}`" style="cursor: pointer;">
+                            <td class="justify-content-between align-items-center ">
+                              <label class="text-left d-block"><a class="text-white name"  href="{% url 'recurr_overview' i.id %}">{{ i.profile_name }} </a></label>
+                              <br>
+                              <label class="text-left d-block"><a class="text-white amt"  href="{% url 'recurr_overview' i.id %}">{{i.paid}}</a></label>
+                         
                             </td>
+                            
                             <td>
-                              <span style="float: right;" class="amt">&#8377;{{ inv.balance }}</span><br><br>
-                              <span style="float: right;" class="stat">{{inv.status}}</span>
+                              <label class="text-end d-block"><a class="text-white stat"  href="{% url 'recurr_overview' i.id %}">{{i.status}}</a></label>
+                              <br>
+                              <label class="text-end d-block"><a class="text-white"  href="{% url 'recurr_overview' i.id %}">{{i.rec_bill_date|date:'d-m-Y'}}</a></label>
                             </td>
                           </tr>
                           {% endfor %}
+                          {% else %}
+                          <tr>
+                            <td>
+                              no datas are available right now
+                            </td>
+                          </tr>
+                          {% endif %}
                         </tbody>
                       </table>
                     </div>
@@ -461,7 +473,7 @@
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" title="EDIT" id="edit_btn" href="">
                           <i class="fa fa-pencil"></i>
                         </a>
-                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" href="" onclick="return confirm('Are you sure you want to delete this Recurring Invoice - {{invoice.rec_invoice_no}} ?')" title="DELETE" id="delete_btn">
+                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" href="{% url 'delete_recurr_bill' recurr_bill.id %}" onclick="return confirm('Are you sure you want to delete this Recurring Invoice - {{invoice.rec_invoice_no}} ?')" title="DELETE" id="delete_btn">
                           <i class="fa fa-trash"></i>
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="SHARE" id="share_btn" data-bs-toggle="dropdown" aria-expanded="false">
@@ -516,7 +528,7 @@
                     </div>
                   </div>
                   <div class="row">
-                    <h1 class="text-black mt-3 ps-5" style="text-align: left;"># {{invoice.rec_invoice_no}}</h1>
+                    <h1 class="text-black mt-3 ps-5" style="text-align: left;"># {{recurr_bill.recc_bill_no|upper}}</h1>
                     <hr class="text-black" style="margin-left: 5%; margin-right: 5%">
                     <div class="col-md-6 p-4">
                       <div class="row">
@@ -593,51 +605,51 @@
                         <h4 class="text-white my-3" style="text-align: center;">Recurring Bill Details</h4>
                         <hr class="text-white" style="margin-left: 5%; margin-right: 5%">
                         <div class="d-flex justify-content-between mb-4">
-                            <h6 class="text-white" style="font-weight: 600;">Rec. Invoice Status</h6>
-                            {% if invoice.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
+                            <h6 class="text-white" style="font-weight: 600;">Rec. Bill Status</h6>
+                            {% if recurr_bill.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">Sub Total</h6>
-                            {{ invoice.subtotal }}
+                            {{ recurr_bill.sub_total }}
                         </div>
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">Tax Amount</h6>
-                            {{invoice.tax_amount }}
+                            {{recurr_bill.tax_amount }}
                         </div>
-                        {%if invoice.igst != 0 %}
+                        {%if recurr_bill.igst != 0 %}
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">IGST</h6>
-                            {{ invoice.igst }}
+                            {{ recurr_bill.igst }}
                         </div>
                         {%endif%}
-                        {%if invoice.cgst != 0 %}
+                        {%if recurr_bill.cgst != 0 %}
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">CGST</h6>
-                            {{ invoice.cgst }}
+                            {{ recurr_bill.cgst }}
                         </div>
                         {%endif%}
-                        {%if invoice.sgst != 0 %}
+                        {%if recurr_bill.sgst != 0 %}
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">SGST</h6>
-                            {{ invoice.sgst }}
+                            {{ recurr_bill.sgst }}
                         </div>
                         {%endif%}
-                        {% if invoice.shipping_charge != 0 %}
+                        {% if recurr_bill.shipping_charge != 0 %}
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">Shipping Charge</h6>
-                            {{ invoice.shipping_charge}}
+                            {{ recurr_bill.shipping_charge}}
                         </div>
                         {% endif %}
-                        {% if invoice.adjustment != 0 %}
+                        {% if recurr_bill.adjustment != 0 %}
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">Adjustment</h6>
-                            {{invoice.adjustment }}
+                            {{recurr_bill.adjustment }}
                         </div>
                         {% endif %}
                         <hr class="my-4 text-white">
                         <div class="d-flex justify-content-between mb-4 text-white">
                             <h6 class="text-white">Grand Total</h6>
-                            <span class="font-weight-bold">{{ invoice.grandtotal }}</span>
+                            <span class="font-weight-bold">{{ recurr_bill.total }}</span>
                         </div>
                       </div>
                     </div>
@@ -1602,41 +1614,42 @@
   });
   $('.dropdown-toggle').dropdown();
 
- function sortTable(col) {
-    var table = document.getElementById('sidetable');
-    var tbody = table.querySelector('tbody');
-    var rows = Array.from(tbody.querySelectorAll('tr'));
-    if (col == 1){
-      rows.sort(function(a, b) {
-          var balanceA = parseFloat(a.querySelector('.amt').innerText.replace(/[^\d.-]/g, ''));
-          var balanceB = parseFloat(b.querySelector('.amt').innerText.replace(/[^\d.-]/g, ''));
-          return balanceA - balanceB;
+  function sortTable(col) {
+      var tbody = $('#sidetable tbody');
+      var rows = tbody.find('tr').toArray();
+
+      if (col == 1) {
+          rows.sort(function(a, b) {
+              var balanceA = parseFloat($(a).find('.amt').text().trim());
+              var balanceB = parseFloat($(b).find('.amt').text().trim());
+              return balanceA - balanceB;
+          });
+      } else {
+          rows.sort(function(a, b) {
+              var nameA = $(a).find('.name').text().toLowerCase();
+              var nameB = $(b).find('.name').text().toLowerCase();
+              return nameA.localeCompare(nameB);
+          });
+      }
+
+      $.each(rows, function(index, row) {
+          tbody.append(row);
       });
-    }else{
-      rows.sort(function(a, b) {
-          var nameA = a.querySelector('.name').innerText.toLowerCase();
-          var nameB = b.querySelector('.name').innerText.toLowerCase();
-          return nameA.localeCompare(nameB);
-      });
-    }
-    tbody.innerHTML = '';
-    rows.forEach(function(row) {
-      tbody.appendChild(row);
-    });
   }
 
+
   function filterTable(key) {
-    var rows = document.querySelectorAll('#sidetable tbody tr');
-    rows.forEach(function(row) {
-        var cell = row.querySelector('.stat');
-        var status = cell.innerText.trim();
+    $('#sidetable tbody tr').each(function() {
+        var cell = $(this).find('.stat');
+        var status = cell.text().trim();
         if (key === 'All' || status === key) {
-            row.style.display = '';
+            $(this).show();
         } else {
-            row.style.display = 'none';
+            $(this).hide();
         }
     });
-  }
+}
+
 
   $('#alert_close').click(function(){
     $('#alert_danger').hide()

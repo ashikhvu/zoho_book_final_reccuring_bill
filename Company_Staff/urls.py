@@ -460,7 +460,9 @@ urlpatterns = [
     path('recurr_overview/<int:pk>',views.recurr_overview,name='recurr_overview'),
     path('check_rec_bill_no_valid',views.check_rec_bill_no_valid,name='check_rec_bill_no_valid'),
     path('get_price_list_percentage/<int:pk>',views.get_price_list_percentage,name='get_price_list_percentage'),
-    path('recurr_change_status/<int:pk>',views.recurr_change_status,name='recurr_change_status'),
+    # path('recurr_change_status/<int:pk>',views.recurr_change_status,name='recurr_change_status'),
+    path('delete_recurr_bill/<int:pk>',views.delete_recurr_bill,name='delete_recurr_bill'),
+    path('recurr_add_item_unit',views.recurr_add_item_unit,name='recurr_add_item_unit'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 

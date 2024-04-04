@@ -1029,7 +1029,7 @@ class Recurring_bills(models.Model):
     sgst = models.FloatField(null=True,blank=True)
     tax_amount = models.FloatField(null=True,blank=True)
     shipping_charge = models.FloatField(null=True,blank=True)
-    ajustment = models.FloatField(null=True,blank=True)
+    adjustment = models.FloatField(null=True,blank=True)
     total = models.FloatField(null=True,blank=True)
     paid = models.FloatField(null=True,blank=True)
     bal = models.FloatField(null=True,blank=True)
@@ -1060,6 +1060,15 @@ class RecurrItemsList(models.Model):
     total = models.FloatField(null=True,blank=True)
     recurr_bill_id = models.ForeignKey(Recurring_bills,on_delete=models.CASCADE,null=True,blank=True)
 
-
+class Recurr_history(models.Model):
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, null=True, blank=True)
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE, null=True, blank=True)
+    Recurr = models.ForeignKey(Recurring_bills, on_delete=models.CASCADE)
+    date = models.DateField(auto_now_add=True, null=True)
+    action_choices = [
+        ('Created', 'Created'), 
+        ('Edited', 'Edited')
+    ]
+    action = models.CharField(max_length=10, choices=action_choices, null=True)
 
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
