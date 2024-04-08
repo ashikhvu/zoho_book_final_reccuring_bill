@@ -463,6 +463,14 @@ urlpatterns = [
     # path('recurr_change_status/<int:pk>',views.recurr_change_status,name='recurr_change_status'),
     path('delete_recurr_bill/<int:pk>',views.delete_recurr_bill,name='delete_recurr_bill'),
     path('recurr_add_item_unit',views.recurr_add_item_unit,name='recurr_add_item_unit'),
+    path('recurr_add_item_account',views.recurr_add_item_account,name='recurr_add_item_account'),
+    path('recurr_item_creation',views.recurr_item_creation,name='recurr_item_creation'),
+    path('add_document_recurr/<int:pk>',views.add_document_recurr,name='add_document_recurr'),
+    path('add_comments_recurr/<int:pk>',views.add_comments_recurr,name='add_comments_recurr'),
+    path('delete_comment_recurr/<int:pk>/<int:recurr_id>',views.delete_comment_recurr,name='delete_comment_recurr'),
+    path('share_email_recurr/<int:pk>',views.share_email_recurr,name='share_email_recurr'),
+    path('recurr_bill_edit/<int:pk>',views.recurr_bill_edit,name='recurr_bill_edit'),
+    path('recurr_bill_update/<int:pk>',views.recurr_bill_update,name='recurr_bill_update'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 

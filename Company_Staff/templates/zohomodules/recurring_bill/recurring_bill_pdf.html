@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinsYs</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+</head>
+<style>
+    table {
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    th, td {
+    border: 1px solid #dddddd;
+    padding: 5px 2px;
+    /* text-align: left; */
+    }
+
+    th {
+    background-color: #f2f2f2;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .invoice_data {
+        font-size: 1.2rem;
+    }
+
+    .data_row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .data_1, .data_2 {
+        font-weight: bold;
+    }
+
+    .data_value {
+        flex: 1;
+        text-align: right;
+    }
+
+    .balance_info{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .balance_info .bal_head{
+        width: 48%;
+    }
+
+    .bal_value{
+        width: 48%;
+        flex: 1;
+        text-align: right;
+    }
+
+
+
+
+
+</style>
+
+<body>
+    <div class="my-5 page" size="A4">
+        <div class="p-5">
+            <table style="border: none;">
+                <div style="display: flex;justify-content: space-between;">
+                    <button style="margin: 1.5rem;border: 1px solid black;border-radius: 5px;text-align: start;">{{ recurr_bill.status }}</button>
+                    <h3>RECURRING BILL</h3>
+                    <h3>#{{ recurr_bill.recc_bill_no|upper }}</h3>
+                </div>
+                <thead>
+                    <th><button style="margin: 1.5rem;border: 1px solid black;border-radius: 5px;text-align: start;">{{ recurr_bill.status }}</button></th>
+                    <th><h3>RECURRING BILL</h3></th>
+                    <th><h3>#{{ recurr_bill.recc_bill_no|upper }}</h3></th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            
+                        </td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr />
+            <section class="mt-4">
+                <table class="table2">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; text-transform:uppercase;">Item</th>
+                            <th style="text-align: center; text-transform:uppercase;">HSN</th>
+                            <th style="text-align: center; text-transform:uppercase;">Price</th>
+                            <th style="text-align: center; text-transform:uppercase;">Qty</th>
+                            <th style="text-align: center; text-transform:uppercase;">Tax</th>
+                            <th style="text-align: center; text-transform:uppercase;">Discount</th>
+                            <th style="text-align: center; text-transform:uppercase;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in recurr_lists %}
+                        <tr>
+                            <td style="text-align: center;">{{i.item_name}}</td>
+                            <td style="text-align: center;">{{i.item_hsn}}</td>
+                            <td style="text-align: center;">{{i.price}}</td>
+                            <td style="text-align: center;">{{i.qty}}</td>
+                            <td style="text-align: center;">
+                                {% if i.taxGST != '0' %}
+                                {{i.taxGST}}%
+                                {% endif %}
+                                {% if i.taxIGST != '0' %}
+                                  {{i.taxIGST}}%
+                                {% endif %}</td>
+                            <td style="text-align: center;">{{i.discount}}</td>
+                            <td style="text-align: center;">{{i.total}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+            <section style="margin-top: 1rem; display: flex; justify-content: right;">
+                <div >
+                    <div class="invoice_data">
+                        <div class="data_row">
+                            <div class="data_1 data_value">Sub Total &nbsp;&nbsp;&nbsp;: {{recurr_bill.sub_total}}</div>
+                            <div class="data_2 data_value">TAX Amount&nbsp;&nbsp;&nbsp;: {{recurr_bill.tax_amount}}</div>
+                        </div>
+                        <div class="data_row">
+                            {% if recurr_bill.igst != 0 %}
+                            <div class="data_1 data_value">IGST&nbsp;&nbsp;&nbsp;&nbsp;: {{recurr_bill.igst}}</div>
+                            {% else %}
+                            <div class="data_2 data_value">CGST&nbsp;&nbsp;&nbsp;&nbsp;: {{recurr_bill.cgst}}</div>
+                            <div class="data_2 data_value">SGST&nbsp;&nbsp;&nbsp;&nbsp;: {{recurr_bill.sgst}}</div>
+                            {% endif %}
+                        </div>
+                        <div class="data_row">
+                            {% if recurr_bill.adjustment != 0 %}
+                            <div class="data_1 data_value">Adjustment&nbsp;&nbsp;&nbsp;: {{recurr_bill.adjustment}}</div>
+                            {% endif %}
+                            {% if recurr_bill.shipping_charge != 0 %}
+                            <div class="data_1 data_value">Shipping  &nbsp;&nbsp;&nbsp;: {{recurr_bill.shipping_charge}}</div>
+                            {% endif %}
+                        </div>
+                        <br>
+                        <div class="data_row">
+                            <div class="data_1 data_value"><b>GRAND TOTAL</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{recurr_bill.total}}</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+
+</html>

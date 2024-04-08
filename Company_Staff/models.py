@@ -992,6 +992,7 @@ class Recurring_bills(models.Model):
     vend_gst_treat = models.CharField(max_length=255,null=True,blank=True)
     vend_gst_no = models.CharField(max_length=220,null=True,blank=True)
     vend_source_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    vend_billing_address = models.TextField(null=True,blank=True)
 
     recc_bill_no= models.CharField(max_length=255)
     recc_ref_no = models.IntegerField(blank=True,null=True)
@@ -1013,11 +1014,11 @@ class Recurring_bills(models.Model):
     cust_mail = models.EmailField(null=True,blank=True)
     cust_gst_treat = models.CharField(max_length=255,null=True,blank=True)
     cust_gst_no = models.CharField(max_length=220,null=True,blank=True)
-    cust_billing_address = models.TextField(null=True,blank=True)
     cust_place_of_supply = models.CharField(max_length=220,null=True,blank=True)
+    cust_billing_address = models.TextField(null=True,blank=True)
     
     payment_type = models.CharField(max_length=255,null=True,blank=True)
-    check_no = models.CharField(max_length=255,null=True,blank=True)
+    cheque_no = models.CharField(max_length=255,null=True,blank=True)
     upi_id = models.CharField(max_length=255,null=True,blank=True)
     bank_id = models.ForeignKey(Banking,on_delete=models.CASCADE,null=True,blank=True)
 
@@ -1040,6 +1041,11 @@ class Recurring_bills(models.Model):
     status = models.CharField(max_length=255,null=True,choices=status_type)
     note = models.TextField(null=True,blank=True)
     document=models.FileField(upload_to='docs/',null=True,blank=True)
+    template1_doc = models.FileField(null=True,blank=True,upload_to='docs/')
+
+class recurr_comments(models.Model):
+    recurr = models.ForeignKey(Recurring_bills,on_delete=models.CASCADE,null=True,blank=True)
+    comment = models.TextField(null=True,blank=True)
 
 class RecurringRecievedId(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
@@ -1052,7 +1058,9 @@ class RecurrItemsList(models.Model):
     item_id = models.ForeignKey(Items,on_delete=models.CASCADE,null=True,blank=True)
     item_name = models.CharField(max_length=255)
     item_hsn = models.IntegerField(null=True,blank=True)
-    qty = models.PositiveBigIntegerField(null=True,blank=True)
+    total_qty = models.PositiveBigIntegerField(null=True,blank=True,default=0)
+    qty = models.PositiveBigIntegerField(null=True,blank=True,default=0)
+    bal_qty = models.PositiveBigIntegerField(null=True,blank=True,default=0)
     price = models.PositiveBigIntegerField(null=True,blank=True)
     taxGST = models.CharField(max_length=255,null=True,blank=True)
     taxIGST = models.CharField(max_length=255,null=True,blank=True)

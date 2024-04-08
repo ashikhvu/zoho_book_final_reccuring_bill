@@ -433,7 +433,7 @@
                 </div>
               </div>
             </div>
-            
+           
             <div class="col-md-12 col-lg-8">
               <div style="background-color: black; border-radius: 1vh;">
                 <div class="card-header p-4">
@@ -470,7 +470,7 @@
                           <i class="fa fa-exchange"></i>
                         </a>
                         {% endif %}
-                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" title="EDIT" id="edit_btn" href="">
+                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" title="EDIT" id="edit_btn" href="{% url 'recurr_bill_edit' recurr_bill.id %}">
                           <i class="fa fa-pencil"></i>
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" href="{% url 'delete_recurr_bill' recurr_bill.id %}" onclick="return confirm('Are you sure you want to delete this Recurring Invoice - {{invoice.rec_invoice_no}} ?')" title="DELETE" id="delete_btn">
@@ -490,12 +490,12 @@
                       </a>
                       <div class="dropdown-menu" aria-labelledby="attach_btn">
                           <a class="dropdown-item text-black" data-toggle="modal" data-target="#bnk_files">Add Document</a>
-                          {% if invoice.document != "" %} 
-                          <a class="dropdown-item text-black" download href="{{invoice.document.url}}">Download Document</a>
+                          {% if recurr_bill.document != "" %} 
+                          <a class="dropdown-item text-black" download href="{{recurr_bill.document.url}}">Download Document</a>
                           {% endif %}
                       </div>
                       
-                        <a href="" class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="PDF" id="pdf_btn"> 
+                        <a onclick="convertToPDF()" class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" title="PDF" id="pdf_btn"> 
                           <i class="fa fa-file-pdf"></i>
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2 ms-1" style="display: none;" onclick="slipPdf()" title="SLIP PDF" id="slipPdf_btn"> 
@@ -539,71 +539,76 @@
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Company</h6>
-                        <p class="mb-0 text-right">{{ cmp.company_name}}</p>
+                        <p class="mb-0 text-right">{{ recurr_bill.company.company_name}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Mobile</h6>
-                        <p class="mb-0 text-right">{{ cmp.contact}}</p>
+                        <p class="mb-0 text-right">{{ recurr_bill.company.contact}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Address</h6>
                         <p class="mb-0">
-                          {{ cmp.address}}, {{cmp.city}}<br>
-                          {{cmp.state}} - {{cmp.pincode}} 
+                          {{ recurr_bill.company.address}}, {{recurr_bill.company.city}}<br>
+                          {{recurr_bill.company.state}} - {{recurr_bill.company.pincode}} 
                         </p>
                       </div>
 
                       <div class="row mt-4">
                         <div class="col-md-8">
-                          <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Recurring Invoice Details</h5>
+                          <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Recurring Bill Details</h5>
                         </div>
                         <div class="col-md-4"></div>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">RI No.</h6>
-                        <p class="mb-0 text-right fw-bold">{{invoice.rec_invoice_no}}</p>
+                        <h6 class="mb-0">REC Bill No.</h6>
+                        <p class="mb-0 text-right fw-bold">{{recurr_bill.recc_bill_no}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Start Date</h6>
-                        <p class="mb-0 text-right">{{invoice.start_date}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.rec_bill_date}}</p>
                       </div>
 
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Customer</h6>
-                        <p class="mb-0 text-right fw-bold">{{invoice.customer.first_name}} {{invoice.customer.last_name}}</p>
-                      </div>
+                    <!-- <div class="d-flex px-3 justify-content-between text-black mb-2">
+                      <h6 class="mb-0">Customer</h6>
+                      <p class="mb-0 text-right fw-bold">{{invoice.customer.first_name}} {{invoice.customer.last_name}}</p>
+                    </div> -->
 
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">End Date</h6>
-                        <p class="mb-0 text-right">{{invoice.end_date}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.expiry_date}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Payment Method</h6>
-                        <p class="mb-0 text-right">{{invoice.payment_method}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.payment_type}}</p>
                       </div>
-                      {%if invoice.salesOrder_no %}
+                      {% if recurr_bill.payment_type == 'Cheque' %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Sales Order No.</h6>
-                        <p class="mb-0 text-right">{{invoice.salesOrder_no}}</p>
+                        <h6 class="mb-0">Cheque No.</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cheque_no}}</p>
+                      </div>
+                      {% elif recurr_bill.payment_type == 'UPI' %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">UPI ID</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.upi_id}}</p>
+                      </div>
+                      {% endif %}
+                      {%if recurr_bill.purchase_order_no %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Purchase Order No.</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.purchase_order_no}}</p>
                       </div>
                       {% endif %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Repeat Every</h6>
-                        <p class="mb-0 text-right">{{invoice.repeat_every.repeat_every}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.repeat_every_duration}} {{ recurr_bill.repeat_every_type }}</p>
                       </div>
-                      {% if invoice.billing_address != "" %}
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Address</h6>
-                        <p class="mb-0 text-right">{{invoice.billing_address|linebreaksbr}}</p>
-                      </div>
-                      {% endif %}
                      
                     </div>
 
                     <div class="col-md-6 px-3">
-                      <div class="px-3 py-3 mb-3" style="background-color: #383838; border-radius: 6px;">
-                        <h4 class="text-white my-3" style="text-align: center;">Recurring Bill Details</h4>
-                        <hr class="text-white" style="margin-left: 5%; margin-right: 5%">
+                      <div class="px-3 py-3 mb-3" style="background-color: #191919; border-radius: 6px;">
+                        <h3 class="text-white my-3 text-uppercase" style="text-align: center;">Recurring Bill Details</h3>
+                        <hr class="text-white">
                         <div class="d-flex justify-content-between mb-4">
                             <h6 class="text-white" style="font-weight: 600;">Rec. Bill Status</h6>
                             {% if recurr_bill.status == 'Draft' %} <span class="text-info h5" style="font-weight: 600;">DRAFT</span> {% else %} <span class="text-warning h5"  style="font-weight: 600;">SAVED</span> {% endif %}
@@ -655,6 +660,78 @@
                     </div>
                   </div>
                   <hr class="mx-3">
+                  
+                  <div class="row">
+                    <div class="col-md-12">
+                      <h5 class="fw-bold mb-2 ms-3" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Vendor Details</h5>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Vendor Name</h6>
+                        <p class="mb-0 text-right fw-bold">{{recurr_bill.vend_name}}</p>
+                      </div>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Mail id</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.vend_mail}}</p>
+                      </div>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Gst Treat</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.vend_gst_treat}}</p>
+                      </div>
+                      {% if recurr_bill.vend_gst_no %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Gst No</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.vend_gst_no}}</p>
+                      </div>
+                      {% endif %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Source of Supply</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.vend_source_of_supply}}</p>
+                      </div>
+                      {% if recurr_bill.vendor_details.billing_address %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Billing Address</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.vendor_details.billing_address}}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                    
+                    <div class="col-md-12">
+                      <hr class="mx-3">
+                      <!-- <div class="d-flex justify-content-end"> -->
+                        <h5 class="fw-bold ms-3" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Customer Details</h5>
+                      <!-- </div> -->
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Customer Name</h6>
+                        <p class="mb-0 text-right fw-bold">{{recurr_bill.cust_name}}</p>
+                      </div>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Mail id</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cust_mail}}</p>
+                      </div>
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Gst Treat</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cust_gst_treat}}</p>
+                      </div>
+                      {% if recurr_bill.cust_gst_no %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Gst No</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cust_gst_no}}</p>
+                      </div>
+                      {% endif %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Place of Supply</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cust_place_of_supply}}</p>
+                      </div>
+                      {% if recurr_bill.cust_billing_address %}
+                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                        <h6 class="mb-0">Billing Address</h6>
+                        <p class="mb-0 text-right">{{recurr_bill.cust_billing_address}}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <hr class="mx-3">
+
                   <div class="row mt-1">
                     <div class="row px-4">
                       <div class="col-md-8">
@@ -663,27 +740,33 @@
                       <div class="col-md-4"></div>
                     </div>
                     <div class="row">
-                      {% for item in invItems %}
+                      {% for i in recurr_items %}
                       <div class="col-6">
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">Item</h6>
-                          <p class="mb-0 text-right">{{item.item.item_name}}</p>
+                          <p class="mb-0 text-right">{{i.item_name}}</p>
                         </div>
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">HSN</h6>
-                          <p class="mb-0 text-right">{{item.hsn}}</p>
+                          <p class="mb-0 text-right">{{i.item_hsn}}</p>
                         </div>
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">quantity</h6>
-                          <p class="mb-0 text-right">{{item.quantity}}</p>
+                          <p class="mb-0 text-right">{{i.qty}}</p>
                         </div>
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">Tax</h6>
-                          <p class="mb-0 text-right">{{item.tax_rate}}%</p>
+                          <p class="mb-0 text-right">
+                            {% if i.taxGST != '0' %}
+                            {{i.taxGST}}%
+                            {% endif %}
+                            {% if i.taxIGST != '0' %}
+                              {{i.taxIGST}}%
+                            {% endif %}</p>
                         </div>
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">Total</h6>
-                          <p class="mb-0 text-right">{{item.total}}</p>
+                          <p class="mb-0 text-right">{{i.total}}</p>
                         </div>
                         <hr class="mx-2">
                       </div>
@@ -696,37 +779,37 @@
                 <div id="Slip" class="py-3" style="display: none;">
                   <div class="slip-container bg-white" id="slip_container">
                     <div class="slip text-dark">
-                        <h5 class="text-center text-dark" style="font-weight: bold;">{{cmp.company_name}}</h5>
+                        <h5 class="text-center text-dark" style="font-weight: bold;">{{details.company_name}}</h5>
                         <div class="address text-center">
-                            <p>{{cmp.address}}</p>
-                            <p>{{cmp.state}}, {{cmp.country}}</p>
-                            <p>{{cmp.contact}}</p>
+                            <p>{{details.address}}</p>
+                            <p>{{details.state}}, {{details.country}}</p>
+                            <p>{{details.contact}}</p>
                         </div>
 
                         <div class="divider"></div>
 
                         <div class="ml-4 mt-2" style="color: black;">
-                            <div class="row">
-                                <div class="col-md-6 text-left">Rec. Invoice No:</div>
-                                <div class="col-md-5 text-right">{{invoice.rec_invoice_no}}</div>
+                            <div class="d-flex justify-content-between">
+                                <div class="col-md-6 text-left">Rec Bill No:</div>
+                                <div class="col-md-5 text-right">{{recurr_bill.recc_bill_no|upper}}</div>
                             </div>
-                            {% if invoice.salesOrder_no  %}
-                            <div class="row">
+                            {% if recurr_bill.purchase_order_no  %}
+                            <div class="d-flex justify-content-between">
                                 <div class="col-md-6 text-left">Order No:</div>
-                                <div class="col-md-5 text-right">{{invoice.salesOrder_no}}</div>
+                                <div class="col-md-5 text-right">{{recurr_bill.purchase_order_no}}</div>
                             </div>
                             {% endif %}
-                            <div class="row">
+                            <div class="d-flex justify-content-between">
                                 <div class="col-md-6 text-left">Customer Name:</div>
-                                <div class="col-md-5 text-right">{{invoice.customer.first_name}} {{invoice.customer.last_name}}</div>
+                                <div class="col-md-5 text-right">{{recurr_bill.cust_name}} </div>
                             </div>
-                            <div class="row">
+                            <div class="d-flex justify-content-between">
                                 <div class="col-md-6 text-left">Start Date :</div>
-                                <div class="col-md-5 text-right">{{invoice.start_date | date:'d-m-Y'}}</div>
+                                <div class="col-md-5 text-right">{{recurr_bill.rec_bill_date | date:'d-m-Y'}}</div>
                             </div>
-                            <div class="row">
+                            <div class="d-flex justify-content-between">
                                 <div class="col-md-6 text-left">End Date:</div>
-                                <div class="col-md-5 text-right">{{invoice.end_date | date:'d-m-Y'}}</div>
+                                <div class="col-md-5 text-right">{{recurr_bill.expiry_date | date:'d-m-Y'}}</div>
                             </div>
                         </div>
 
@@ -758,25 +841,29 @@
                                 <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
                             </div>
                         </div>
-                        {% for i in invItems %}
+                        {% for i in recurr_items %}
                         <div class="equal-length-container" style="color: black; font-size: small; word-wrap: break-word; margin-bottom: 1vh;">
                             <div class="equal-length-item"  style="text-align: center; margin-left: 2px;">
-                                {{i.item.item_name}}
+                                {{i.item_name}}
                             </div>
                             <div class="equal-length-item" style="text-align: right;">
-                                {{i.hsn}}
+                                {{i.item_hsn}}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
-                                {{i.quantity}}
+                                {{i.qty}}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
                                 {{i.price}}
                             </div>
                             <div class="equal-length-item" id="tax{{ forloop.counter }}">
-                                {{ i.tax_rate  }}%
+                              {% if i.taxGST != '0' %}
+                              {{ i.taxGST }}%
+                              {% elif i.taxIGST != '0' %}
+                              {{ i.taxIGST }}%
+                              {% endif %}
                             </div>
                             <div class="equal-length-item" style="text-align: center; ">
-                                {{i.total}}
+                              {{i.total}}
                             </div>
                         </div>
                         {% endfor %}
@@ -784,47 +871,47 @@
                         <div class="subtot mt-5">
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>Subtotal</span>
-                                <span><span>&#8377; </span>{{invoice.subtotal}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.sub_total}}</span>
                             </div>
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>Tax Amount</span>
-                                <span><span>&#8377; </span>{{invoice.tax_amount}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.tax_amount}}</span>
                             </div>
                             {% if invoice.igst == 0 %}
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>CGST</span>
-                                <span><span>&#8377; </span>{{invoice.cgst}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.cgst}}</span>
                             </div>
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>SGST</span>
-                                <span><span>&#8377; </span>{{invoice.sgst}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.sgst}}</span>
                             </div>
                             {% else %}
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>IGST</span>
-                                <span><span>&#8377; </span>{{invoice.igst}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.igst}}</span>
                             </div>
                             {% endif %}
-                            {% if invoice.adjustment != 0 %}
+                            {% if recurr_bill.adjustment != 0 %}
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>Adjustment</span>
-                                <span><span>&#8377; </span>{{invoice.adjustment}}</span>
+                                <span><span>&#8377; </span>{{recurr_bill.adjustment}}</span>
                             </div>
                             {% endif %}
                         </div>
                         <div class="divider"></div>
                         <div class="grandtot fw-bold d-flex justify-content-between">
                             <span><strong>TOTAL</strong></span>
-                            <span><strong><span>&#8377; </span>{{invoice.grandtotal}}</strong></span>
+                            <span><strong><span>&#8377; </span>{{recurr_bill.total}}</strong></span>
                         </div>
                         <div class="divider"></div>
                         <div class="paid-by mb-4 d-flex justify-content-between">
                             <span>Paid By:</span>
-                            <span>{{invoice.payment_method}}</span>
+                            <span>{{recurr_bill.payment_type}}</span>
                         </div>
                         <div class="createdby d-flex justify-content-between">
                             <p class="">Created By:</p>
-                            <span>{{created.login_details.first_name}} {{created.login_details.last_name}}</span>
+                            <span>{{last_history.login_details.first_name}} {{last_history.login_details.last_name}}</span>
                         </div>
                         <div class="datetime d-flex justify-content-between">
                             <p class="">Printed On:</p>
@@ -858,13 +945,13 @@
                             <section>
                               <div class="row py-3 bg-warning align-items-center">
                                 <div class="col-3">
-                                  <span class="bg-white text-black px-4 py-2" style="border-radius: 3px;">{{invoice.status}}</span>
+                                  <span class="bg-white text-black px-4 py-2" style="border-radius: 3px;">{{recurr_bill.status}}</span>
                                 </div>
                                 <div class="col-6">
-                                  <h4 class="text-white p-2 fw-bold">RECURRING INVOICE</h4>
+                                  <h4 class="text-white p-2 fw-bold">RECURRING BILL</h4>
                                 </div>
                                 <div class="col-3">
-                                  <span class="fw-bold me-2 h5 text-white float-end">#{{invoice.rec_invoice_no}}</span>
+                                  <span class="fw-bold me-2 h5 text-white float-end">#{{recurr_bill.recc_bill_no|upper}}</span>
                                 </div>
                               </div>
                             </section>
@@ -875,23 +962,28 @@
                                   <div class="col-7">
                                     <p><b class="text-black">From</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.company.company_name }}</h3>
+                                      <h3>{{ recurr_bill.vend_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.company.contact }} <br>
-                                        {{ invoice.company.address }} <br>
-                                        {{ invoice.company.city }} <br>
-                                        {{ invoice.company.state|slice:'5:' }},
-                                        {{ invoice.company.country }} <br>
-                                        {{ invoice.company.pincode }}
+                                        {{ recurr_bill.vendor_details.billing_phone }} <br>
+                                        {{ recurr_bill.vendor_details.billing_address }} <br>
+                                        {{ recurr_bill.vendor_details.billing_city }} <br>
+                                        {{ recurr_bill.vendor_details.billing_state|slice:'5:' }},
+                                        {{ recurr_bill.vendor_details.billing_country }} <br>
+                                        {{ recurr_bill.vendor_details.billing_pin_code }}
                                       </p>
                                     </div>
                                   </div>
                                   <div class="col-5">
                                     <p><b class="text-black">To</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.customer.title }}. {{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</h3>
+                                      <h3>{{ recurr_bill.cust_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.billing_address|linebreaksbr }}
+                                        {{ recurr_bill.customer_details.billing_phone }} <br>
+                                        {{ recurr_bill.customer_details.billing_address }} <br>
+                                        {{ recurr_bill.customer_details.billing_city }} <br>
+                                        {{ recurr_bill.customer_details.billing_state|slice:'5:' }},
+                                        {{ recurr_bill.customer_details.billing_country }} <br>
+                                        {{ recurr_bill.customer_details.billing_pincode }}
                                       </p>
                                     </div>
                                   </div>
@@ -899,11 +991,11 @@
                                 <hr class="mx-3">
                                 <div class="row extra-info pb-3 text-black fw-bold">
                                   <div class="col-6">
-                                      <p>Rec. Invoice Date: <span>{{invoice.start_date | date:'d-m-Y'}}</span></p>
+                                      <p>Rec Bill Date: <span>{{recurr_bill.rec_bill_date | date:'d-m-Y'}}</span></p>
                                   </div>
                                   <div class="col-6">
-                                      <p>End Date : <span>{{invoice.end_date | date:'d-m-Y'}}</span></p>
-                                      <p>Payment Method : <span>{{invoice.payment_method}}</span></p>
+                                      <p>End Date : <span>{{recurr_bill.expiry_date | date:'d-m-Y'}}</span></p>
+                                      <p>Payment Method : <span>{{recurr_bill.payment_type}}</span></p>
                                   </div>
                                 </div>
                                 <hr class="mx-3">
@@ -924,15 +1016,20 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {% for j in invItems %}
+                                  {% for i in recurr_items %}
                                   <tr class="text-black text-center">
-                                    <td style="color:black; text-align: center;">{{j.item.item_name}}</td>
-                                    <td style="color:black">{{j.hsn}}</td>
-                                    <td style="color:black">{{j.price}}</td>
-                                    <td style="color:black">{{j.quantity}}</td>
-                                    <td style="color:black">{{j.tax_rate}} %</td>
-                                    <td style="color:black">{{j.discount}} </td>
-                                    <td style="color:black">{{j.total}}</td>
+                                    <td style="color:black; text-align: center;">{{i.item_name}}</td>
+                                    <td style="color:black">{{i.item_hsn}}</td>
+                                    <td style="color:black">{{i.price}}</td>
+                                    <td style="color:black">{{i.qty}}</td>
+                                    <td style="color:black">
+                                      {% if i.taxGST != '0' %}
+                                      {{ i.taxGST }}%
+                                      {% elif i.taxIGST != '0' %}
+                                      {{ i.taxIGST }}%
+                                      {% endif %}</td>
+                                    <td style="color:black">{{i.discount}} </td>
+                                    <td style="color:black">{{i.total}}</td>
                                   </tr>
                                   {%endfor%}
                                 </tbody>
@@ -948,48 +1045,48 @@
                                               <tr >
                                                   <td style="color: #000;">Sub Total</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.sub_total}}</td>
                                               </tr>
                                               
-                                              {% if invoice.igst != 0 %}
+                                              {% if recurr_bill.igst != 0 %}
                                               <tr >
                                                   <td style="color: #000;">IGST</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.igst}}</td>
                                               </tr>
                                               {% endif %}
-                                              {% if invoice.cgst != 0 %}
+                                              {% if recurr_bill.cgst != 0 %}
                                               <tr>
                                                   <td style="color: #000;">CGST</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.cgst}}</td>
                                                   
                                               </tr>
                                               {% endif %}
-                                              {% if invoice.sgst != 0 %}
+                                              {% if recurr_bill.sgst != 0 %}
                                               <tr>
                                                   <td style="color: #000;">SGST</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.sgst}}</td>
                                               </tr>
                                               {% endif %}
                                               <tr >
                                                   <td style="color: #000;">Tax Amount</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.tax_amount}}</td>
                                               </tr>
-                                              {% if invoice.shipping_charge != 0 %}
+                                              {% if recurr_bill.shipping_charge != 0 %}
                                               <tr >
                                                   <td style="color: #000;">Shipping Charge</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.shipping_charge}}</td>
                                               </tr>
                                               {% endif %}
-                                              {% if invoice.adjustment != 0 %}
+                                              {% if recurr_bill.adjustment != 0 %}
                                               <tr >
                                                   <td style="color: #000;">Adjustment</td>
                                                   <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
+                                                  <td class="text-right" style="color: #000;">{{recurr_bill.adjustment}}</td>
                                               </tr>
                                               {% endif %}
                                           </tbody>
@@ -1001,7 +1098,7 @@
                                               <tr >
                                                   <th style="color: #000;">Grand Total</th>
                                                   <th style="color: #000;">:</th>
-                                                  <th class="text-right" style="color: #000;">{{invoice.grandtotal}} /-</th>
+                                                  <th class="text-right" style="color: #000;">{{recurr_bill.total}} /-</th>
                                               </tr>
                                           </tbody>
                                       </table>
@@ -1022,13 +1119,13 @@
                             <section>
                               <div class="row py-3 align-items-center">
                                 <div class="col-3">
-                                  <span class="bg-warning text-black px-4 py-2" style="border-radius: 3px;">{{invoice.status}}</span>
+                                  <span class="bg-warning text-black px-4 py-2" style="border-radius: 3px;">{{recurr_bill.status}}</span>
                                 </div>
                                 <div class="col-6">
-                                  <h4 class="text-black p-2 fw-bold">RECURRING INVOICE</h4>
+                                  <h4 class="text-black p-2 fw-bold">RECURRING BILL</h4>
                                 </div>
                                 <div class="col-3">
-                                  <span class="fw-bold me-2 h5 text-black float-end"><span class="fw-normal">Rec. Invoice No.</span><br>#{{invoice.rec_invoice_no}}</span>
+                                  <span class="fw-bold me-2 h5 text-black float-end"><span class="fw-normal">Rec Bill No.</span><br>#{{recurr_bill.recc_bill_no|upper}}</span>
                                 </div>
                               </div>
                             </section>
@@ -1039,23 +1136,28 @@
                                   <div class="col-7">
                                     <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">COMPANY ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.company.company_name }}</h3>
-                                      <p class="text-black"> 
-                                        {{ invoice.company.contact }} <br>
-                                        {{ invoice.company.address }} <br>
-                                        {{ invoice.company.city }} <br>
-                                        {{ invoice.company.state|slice:'5:' }},
-                                        {{ invoice.company.country }} <br>
-                                        {{ invoice.company.pincode }}
+                                      <h3>{{ recurr_bill.vend_name }}</h3>
+                                      <p class="text-black">
+                                        {{ recurr_bill.vendor_details.billing_phone }} <br>
+                                        {{ recurr_bill.vendor_details.billing_address }} <br>
+                                        {{ recurr_bill.vendor_details.billing_city }} <br>
+                                        {{ recurr_bill.vendor_details.billing_state|slice:'5:' }},
+                                        {{ recurr_bill.vendor_details.billing_country }} <br>
+                                        {{ recurr_bill.vendor_details.billing_pin_code }}
                                       </p>
                                     </div>
                                   </div>
                                   <div class="col-5">
                                     <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">BILLING ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
-                                      <h3>{{ invoice.customer.title }}. {{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</h3>
+                                      <h3>{{ recurr_bill.vend_name }}</h3>
                                       <p class="text-black"> 
-                                        {{ invoice.billing_address|linebreaksbr }}
+                                        {{ recurr_bill.customer_details.billing_phone }} <br>
+                                        {{ recurr_bill.customer_details.billing_address }} <br>
+                                        {{ recurr_bill.customer_details.billing_city }} <br>
+                                        {{ recurr_bill.customer_details.billing_state|slice:'5:' }},
+                                        {{ recurr_bill.customer_details.billing_country }} <br>
+                                        {{ recurr_bill.customer_details.billing_pincode }}
                                       </p>
                                     </div>
                                   </div>
@@ -1063,12 +1165,12 @@
                                 <hr class="mx-3">
                                 <div class="row extra-info pb-3 text-black fw-bold">
                                   <div class="col-6">
-                                      <p>Rec. Invoice Date: <span>{{invoice.start_date | date:'d-m-Y'}}</span></p>
-                                      <p>Repeat Every: <span>{{invoice.repeat_every.repeat_every}}</span></p>
+                                      <p>Rec Bill Date: <span>{{recurr_bill.rec_bill_date | date:'d-m-Y'}}</span></p>
+                                      <p>Repeat Every: <span>{{recurr_bill.repeat_every_duration}} {{recurr_bill.repeat_every_type}}</span></p>
                                   </div>
                                   <div class="col-6">
-                                      <p>End Date : <span>{{invoice.end_date | date:'d-m-Y'}}</span></p>
-                                      <p>Payment Method : <span>{{invoice.payment_method}}</span></p>
+                                      <p>End Date : <span>{{recurr_bill.expiry_date | date:'d-m-Y'}}</span></p>
+                                      <p>Payment Method : <span>{{recurr_bill.payment_type}}</span></p>
                                   </div>
                                 </div>
                                 <hr class="mx-3">
@@ -1089,15 +1191,20 @@
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {% for j in invItems %}
+                                  {% for i in recurr_items %}
                                   <tr class="text-black text-center">
-                                    <td style="color:black; text-align: center;">{{j.item.item_name}}</td>
-                                    <td style="color:black">{{j.hsn}}</td>
-                                    <td style="color:black">{{j.price}}</td>
-                                    <td style="color:black">{{j.quantity}}</td>
-                                    <td style="color:black">{{j.tax_rate}} %</td>
-                                    <td style="color:black">{{j.discount}} </td>
-                                    <td style="color:black">{{j.total}}</td>
+                                    <td style="color:black; text-align: center;">{{i.item_name}}</td>
+                                    <td style="color:black">{{i.item_hsn}}</td>
+                                    <td style="color:black">{{i.price}}</td>
+                                    <td style="color:black">{{i.qty}}</td>
+                                    <td style="color:black">
+                                      {% if i.taxGST != '0' %}
+                                      {{ i.taxGST }}%
+                                      {% elif i.taxIGST != '0' %}
+                                      {{ i.taxIGST }}%
+                                      {% endif %}</td>
+                                    <td style="color:black">{{i.discount}} </td>
+                                    <td style="color:black">{{i.total}}</td>
                                   </tr>
                                   {%endfor%}
                                 </tbody>
@@ -1110,53 +1217,53 @@
                                   <div class="col-md-5">
                                       <table class="table table-borderless">
                                           <tbody>
-                                              <tr >
-                                                  <td style="color: #000;">Sub Total</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
-                                              </tr>
-                                              
-                                              {% if invoice.igst != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">IGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.cgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">CGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
-                                                  
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.sgst != 0 %}
-                                              <tr>
-                                                  <td style="color: #000;">SGST</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              <tr >
-                                                  <td style="color: #000;">Tax Amount</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
-                                              </tr>
-                                              {% if invoice.shipping_charge != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Shipping Charge</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
-                                              </tr>
-                                              {% endif %}
-                                              {% if invoice.adjustment != 0 %}
-                                              <tr >
-                                                  <td style="color: #000;">Adjustment</td>
-                                                  <td style="color: #000;">:</td>
-                                                  <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
-                                              </tr>
-                                              {% endif %}
+                                            <tr >
+                                                <td style="color: #000;">Sub Total</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.sub_total}}</td>
+                                            </tr>
+                                            
+                                            {% if recurr_bill.igst != 0 %}
+                                            <tr >
+                                                <td style="color: #000;">IGST</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.igst}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if recurr_bill.cgst != 0 %}
+                                            <tr>
+                                                <td style="color: #000;">CGST</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.cgst}}</td>
+                                                
+                                            </tr>
+                                            {% endif %}
+                                            {% if recurr_bill.sgst != 0 %}
+                                            <tr>
+                                                <td style="color: #000;">SGST</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.sgst}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            <tr >
+                                                <td style="color: #000;">Tax Amount</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.tax_amount}}</td>
+                                            </tr>
+                                            {% if recurr_bill.shipping_charge != 0 %}
+                                            <tr >
+                                                <td style="color: #000;">Shipping Charge</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.shipping_charge}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if recurr_bill.adjustment != 0 %}
+                                            <tr >
+                                                <td style="color: #000;">Adjustment</td>
+                                                <td style="color: #000;">:</td>
+                                                <td class="text-right" style="color: #000;">{{recurr_bill.adjustment}}</td>
+                                            </tr>
+                                            {% endif %}
                                           </tbody>
       
                                       </table>
@@ -1166,7 +1273,7 @@
                                               <tr >
                                                   <th style="color: #000;">Grand Total</th>
                                                   <th style="color: #000;">:</th>
-                                                  <th class="text-right" style="color: #000;">{{invoice.grandtotal}} /-</th>
+                                                  <th class="text-right" style="color: #000;">{{recurr_bill.total}} /-</th>
                                               </tr>
                                           </tbody>
                                       </table>
@@ -1185,12 +1292,12 @@
                           <div class="" id="printdiv3">
                               <div class="row">
                                   <div class="col-sm-12 py-3" style="background-image: linear-gradient(#ffae1f, black); color: white;">
-                                      <p style="font-size: 4vh; text-align: center;">RECURRING INVOICE</p>
-                                      <p style=" text-align: center;"> {{cmp.company_name}} <br>
-                                          {{cmp.address}} <br>
-                                          {{cmp.city}},
-                                          {{cmp.state}}<br>
-                                          {{cmp.login_details.email}}
+                                      <p style="font-size: 4vh; text-align: center;">RECURRING BILL</p>
+                                      <p style=" text-align: center;"> {{details.company_name}} <br>
+                                          {{details.address}} <br>
+                                          {{details.city}},
+                                          {{details.state}}<br>
+                                          {{details.login_details.email}}
                                           <br>
                                       </p>
                                   </div>
@@ -1199,8 +1306,13 @@
                                       <!-- <div class="col-md-1"></div> -->
                                       <div class="col-6 py-3 px-5">
                                           <p style="color:black;"> <span style=" font-weight: bold;">To: </span><br>
-                                          {{invoice.customer.title}} {{invoice.customer.first_name}} {{invoice.customer.last_name}}<br>
-                                          {{invoice.billing_address|linebreaksbr }}
+                                            <span>{{ recurr_bill.cust_name }}</span>
+                                            {{ recurr_bill.customer_details.billing_phone }} <br>
+                                            {{ recurr_bill.customer_details.billing_address }} <br>
+                                            {{ recurr_bill.customer_details.billing_city }} <br>
+                                            {{ recurr_bill.customer_details.billing_state|slice:'5:' }},
+                                            {{ recurr_bill.customer_details.billing_country }} <br>
+                                            {{ recurr_bill.customer_details.billing_pincode }}
                                           </p>
                                       </div>
                                       <!-- <div class="col-md-1"></div> -->
@@ -1208,35 +1320,35 @@
                                           <table class="table table-borderless">
                                               <tbody>
                                                   <tr >
-                                                      <td style="color: #000; font-weight: bold;">Rec. Invoice No</td>
+                                                      <td style="color: #000; font-weight: bold;">Rec Bill No</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{ invoice.rec_invoice_no }}</td>
+                                                      <td class="text-right" style="color: #000;">{{ recurr_bill.recc_bill_no }}</td>
                                                   </tr>
-                                                  {%if invoice.salesOrder_no %}
+                                                  {%if recurr_bill.purchase_order_no %}
                                                   <tr >
                                                       <td style="color: #000; font-weight: bold;">Order No</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{ invoice.salesOrder_no }}</td>
+                                                      <td class="text-right" style="color: #000;">{{ recurr_bill.purchase_order_no }}</td>
                                                   </tr>
                                                   {% endif %}
                                                   
                                                   <tr >
                                                       <td style="color: #000; font-weight: bold;">Start Date</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.start_date | date:'d-m-Y'}}<td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.rec_bill_date | date:'d-m-Y'}}<td>
                                                   </tr>
    
                                                   <tr>
                                                       <td style="color: #000; font-weight: bold;">End Date</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.end_date | date:'d-m-Y'}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.expiry_date | date:'d-m-Y'}}</td>
                                                       
                                                   </tr>
 
                                                   <tr>
                                                       <td style="color: #000; font-weight: bold;">Payment Method</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.payment_method}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.payment_type}}</td>
                                                       
                                                   </tr>
                                               </tbody>
@@ -1259,15 +1371,20 @@
                                               </tr>
                                           </thead>
                                           <tbody>
-                                              {% for itm in invItems %}
+                                              {% for i in recurr_items %}
                                                   <tr>
-                                                      <td class="text-center" style="color: black;">{{ itm.item.item_name}}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.hsn }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.quantity }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.price }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.tax_rate }}%</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.discount }}</td>
-                                                      <td class="text-center" style="color: black;">{{ itm.total }}</td>
+                                                      <td class="text-center" style="color: black;">{{ i.item_name}}</td>
+                                                      <td class="text-center" style="color: black;">{{ i.item_hsn }}</td>
+                                                      <td class="text-center" style="color: black;">{{ i.qty }}</td>
+                                                      <td class="text-center" style="color: black;">{{ i.price }}</td>
+                                                      <td class="text-center" style="color: black;">
+                                                        {% if i.taxGST != '0' %}
+                                                        {{ i.taxGST }}%
+                                                        {% elif i.taxIGST != '0' %}
+                                                        {{ i.taxIGST }}%
+                                                        {% endif %}</td>
+                                                      <td class="text-center" style="color: black;">{{i.discount}}</td>
+                                                      <td class="text-center" style="color: black;">{{i.total}}</td>
                                                   </tr>
                                               {% endfor %} 
                                           </tbody>
@@ -1284,48 +1401,48 @@
                                                   <tr >
                                                       <td style="color: #000;">Sub Total</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.sub_total}}</td>
                                                   </tr>
                                                   
-                                                  {% if invoice.igst != 0 %}
+                                                  {% if recurr_bill.igst != 0 %}
                                                   <tr >
                                                       <td style="color: #000;">IGST</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.igst}}</td>
                                                   </tr>
                                                   {% endif %}
-                                                  {% if invoice.cgst != 0 %}
+                                                  {% if recurr_bill.cgst != 0 %}
                                                   <tr>
                                                       <td style="color: #000;">CGST</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.cgst}}</td>
                                                       
                                                   </tr>
                                                   {% endif %}
-                                                  {% if invoice.sgst != 0 %}
+                                                  {% if recurr_bill.sgst != 0 %}
                                                   <tr>
                                                       <td style="color: #000;">SGST</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.sgst}}</td>
                                                   </tr>
                                                   {% endif %}
                                                   <tr >
                                                       <td style="color: #000;">Tax Amount</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.tax_amount}}</td>
                                                   </tr>
-                                                  {% if invoice.shipping_charge != 0 %}
+                                                  {% if recurr_bill.shipping_charge != 0 %}
                                                   <tr >
                                                       <td style="color: #000;">Shipping Charge</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.shipping_charge}}</td>
                                                   </tr>
                                                   {% endif %}
-                                                  {% if invoice.adjustment != 0 %}
+                                                  {% if recurr_bill.adjustment != 0 %}
                                                   <tr >
                                                       <td style="color: #000;">Adjustment</td>
                                                       <td style="color: #000;">:</td>
-                                                      <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
+                                                      <td class="text-right" style="color: #000;">{{recurr_bill.adjustment}}</td>
                                                   </tr>
                                                   {% endif %}
                                               </tbody>
@@ -1337,7 +1454,7 @@
                                                   <tr >
                                                       <th style="color: #000;">Grand Total</th>
                                                       <th style="color: #000;">:</th>
-                                                      <th class="text-right" style="color: #000;">{{invoice.grandtotal}}</th>
+                                                      <th class="text-right" style="color: #000;">{{recurr_bill.total}}</th>
                                                   </tr>
                                                   <tr >
                                               </tbody>
@@ -1379,7 +1496,7 @@
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" id="share_to_email_form" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action='{% url "share_email_recurr" recurr_bill.id %}' method="post" id="share_to_email_form" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="form-group">
               <label for="emailIds">Email IDs</label>
@@ -1417,7 +1534,7 @@
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="{% url 'add_document_recurr' recurr_bill.id %}" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="row mt-2">
             <div class="col-md-3">
@@ -1455,14 +1572,14 @@
         </button>
       </div>
       <div class="modal-body mx-3" style="background-color: #000;">
-        <form action="" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+        <form action="{% url 'add_comments_recurr' recurr_bill.id %}" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
           {%csrf_token%}
           <div class="row mt-2">
             <div class="col-12">
               <textarea type="text" rows="4" class="form-control text-white" name="comment" placeholder="Add Comments.." required></textarea>
-              {% if not comments %}
+              {% if not recurr_comment %}
                 <span class="my-2 font-weight-bold d-flex justify-content-center">No Comments.!</span>
-                {% else %}
+              {% else %}
                 <div class="container-fluid comments-table-container">
                     <table class="table table-borderless mt-4">
                         <thead>
@@ -1473,17 +1590,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for c in comments %}
+                            {% for i in recurr_comment %}
                             <tr class="">
                                 <td class="text-center">{{forloop.counter }}</td>
-                                <td class="text-center">{{c.comments}}</td>
-                                <td class="text-center"><a class="text-danger" href="" onclick="return confirm('Are you sure you want to delete.?')"><i class="fa fa-trash" style="font-size: 1.1rem;"></i></a></td>
+                                <td class="text-center">{{i.comment}}</td>
+                                <td class="text-center"><a class="text-danger" href="{% url 'delete_comment_recurr' i.id recurr_bill.id %}" onclick="return confirm('Are you sure you want to delete this comment ?')"><i class="fa fa-trash" style="font-size: 1.1rem;"></i></a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                {% endif %}
+              {% endif %}
             </div>
           </div>
           <div class="row mt-3">
@@ -1901,5 +2018,57 @@ function slipPrint(){
       $("#templatePrintButton").attr("onclick","printSection('"+templateId+"')");
       document.getElementById('body_wrapper').scrollIntoView();
     }
+</script>
+<script>
+  function convertToPDF() {
+    if( !$('#whatToPrint1').is(':hidden'))
+    {
+      var element = $('#whatToPrint1').html() ;
+    }
+    else if( !$('#whatToPrint2').is(':hidden'))
+    {
+      var element = $('#whatToPrint2').html() ;
+    }
+    else if( !$('#whatToPrint3').is(':hidden'))
+    {
+      var element = $('#whatToPrint3').html() ;
+    }
+      
+      var opt =
+      {
+        margin: 0.5,
+        filename: 'recurring_bill' + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 4 },
+        jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait', }
+      };
+      html2pdf().set(opt).from(element).save();
+  }
+</script>
+
+<script>
+  function share_email_recurr(){
+      $.ajax({
+        url: '{% url "share_email_recurr" recurr_bill.id %}',
+        method: 'POST',
+        contentType: 'application/json',
+        headers: {
+          'X-CSRFToken': csrf_token
+        },
+        data: {
+          'html_content': $('#whatToPrint1').html(),
+          'csrfmiddlewaretoken': csrf_token,
+        }, 
+        success: function(response) {
+            // Handle success, response contains the generated PDF
+            console.log(response);
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error(error);
+        }
+    });
+
+  }
 </script>
 {%endblock%}

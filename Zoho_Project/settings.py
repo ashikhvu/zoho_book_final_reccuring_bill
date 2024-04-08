@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'Company_Staff',
     'django_social_share',
     'django_htmx',
+    'weasyprint',
 ]
 
 MIDDLEWARE = [
@@ -146,5 +147,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'altostechnologies6@gmail.com'
-EMAIL_HOST_PASSWORD = 'jkdpqggohjsmhyay'
+# EMAIL_HOST_USER = 'altostechnologies6@gmail.com'
+# EMAIL_HOST_PASSWORD = 'jkdpqggohjsmhyay'
+EMAIL_HOST_USER = 'vuashikh16@gmail.com'
+EMAIL_HOST_PASSWORD = 'umadpzgmsmsntdcc'
