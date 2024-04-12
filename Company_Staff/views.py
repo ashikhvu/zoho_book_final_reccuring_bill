@@ -18168,6 +18168,7 @@ def get_vendors_details_for_recurr(request,pk):
         'billing_pin_code': vendor_data.billing_pin_code,
         'vendor_source_of_suppy': vendor_data.source_of_supply,
     }
+    print(vendor_data.source_of_supply)
     print('SUCCESS')
     return JsonResponse(data)
 
@@ -18280,91 +18281,6 @@ def add_new_creadit_period(request):
             }
             return JsonResponse(error_response,status =400)
         
-# def createRecurrCustomer(request):
-#     if 'login_id' in request.session:
-#         log_id = request.session['login_id']
-#         if 'login_id' not in request.session:
-#             return redirect('/')
-#         log_details= LoginDetails.objects.get(id=log_id)
-            
-#         if log_details.user_type == 'Staff':
-#                 staff = StaffDetails.objects.get(login_details=log_details)
-#                 com = staff.company
-                    
-#         elif log_details.user_type == 'Company':
-#                 com = CompanyDetails.objects.get(login_details=log_details)
-#         fName = request.POST['first_name']
-#         lName = request.POST['last_name']
-#         gstIn = request.POST['gstin']
-#         pan = request.POST['pan_no']
-#         email = request.POST['email']
-#         phn = request.POST['mobile']
-
-#         if Customer.objects.filter(company = com, first_name__iexact = fName, last_name__iexact = lName).exists():
-#             res = f"Customer `{fName} {lName}` already exists, try another!"
-#             return JsonResponse({'status': False, 'message':res})
-#         elif gstIn != "" and Customer.objects.filter(company = com, GST_number__iexact = gstIn).exists():
-#             res = f"GSTIN `{gstIn}` already exists, try another!"
-#             return JsonResponse({'status': False, 'message':res})
-#         elif Customer.objects.filter(company = com, PAN_number__iexact = pan).exists():
-#             res = f"PAN No `{pan}` already exists, try another!"
-#             return JsonResponse({'status': False, 'message':res})
-#         elif Customer.objects.filter(company = com, customer_phone__iexact = phn).exists():
-#             res = f"Phone Number `{phn}` already exists, try another!"
-#             return JsonResponse({'status': False, 'message':res})
-#         elif Customer.objects.filter(company = com, customer_email__iexact = email).exists():
-#             res = f"Email `{email}` already exists, try another!"
-#             return JsonResponse({'status': False, 'message':res})
-
-#         cust = Customer(
-#             company = com,
-#             login_details = log_details,
-#             title = request.POST['title'],
-#             first_name = fName,
-#             last_name = lName,
-#             company_name = request.POST['company_name'],
-#             # location = request.POST['location'],
-#             place_of_supply = request.POST['place_of_supply'],
-#              GST_treatement = request.POST['gst_type'],
-#             GST_number = None if request.POST['gst_type'] == "Unregistered Business" or request.POST['gst_type'] == 'Overseas' or request.POST['gst_type'] == 'Consumer' else gstIn,
-#             PAN_number = pan,
-#             customer_email = email,
-#             customer_phone = phn,
-#             website = request.POST['website'],
-#             # price_list = None if request.POST['price_list'] ==  "" else Price_List.objects.get(id = request.POST['price_list']),
-           
-#             company_payment_terms = None if request.POST['payment_terms'] == "" else Company_Payment_Term.objects.get(id = request.POST['payment_terms']),
-#             opening_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
-#             opening_balance_type = request.POST['balance_type'],
-#             current_balance = 0 if request.POST['open_balance'] == "" else float(request.POST['open_balance']),
-#             credit_limit = 0 if request.POST['credit_limit'] == "" else float(request.POST['credit_limit']),
-#             billing_address = request.POST['street'],
-#             billing_city = request.POST['city'],
-#             billing_state = request.POST['state'],
-#             billing_pincode = request.POST['pincode'],
-#             billing_country = request.POST['country'],
-#             shipping_address = request.POST['shipstreet'],
-#             shipping_city = request.POST['shipcity'],
-#             shipping_state = request.POST['shipstate'],
-#             shipping_pincode = request.POST['shippincode'],
-#             shipping_country = request.POST['shipcountry'],
-#             customer_status = 'Active'
-#         )
-#         cust.save()
-
-#         #save transaction
-       
-#         CustomerHistory.objects.create(
-#             company = com,
-#             login_details = log_details,
-#             customer = cust,
-#             action = 'Created'
-#         )
-
-#         return JsonResponse({'status': True,'id':cust.id})
-    
-#     else:
-#         return redirect('/')
 
 def check_vendor_work_phone_exist(request):
     if request.method == 'GET':
@@ -18576,7 +18492,7 @@ def recurr_customer_create(request):
             customer_data.designation=request.POST['designation']
             customer_data.department=request.POST['department']
             customer_data.website=request.POST['website']
-            customer_data.GST_treatement=request.POST['cust_gst_type']
+            customer_data.GST_treatement=request.POST['gst']
             customer_data.customer_status="Active"
             customer_data.remarks=request.POST['remark']
             customer_data.current_balance=request.POST['opening_bal']
@@ -18746,7 +18662,7 @@ def add_new_recrring_bill(request):
             recurring_bill_data.repeat_every_duration = 3
             recurring_bill_data.repeat_every_type = 'month'
         elif repeat_every == '6 month':
-            recurring_bill_data.repeat_every_duration = 36
+            recurring_bill_data.repeat_every_duration = 6
             recurring_bill_data.repeat_every_type = 'month'
         elif repeat_every == '1 year':
             recurring_bill_data.repeat_every_duration = 1
@@ -18786,6 +18702,9 @@ def add_new_recrring_bill(request):
         recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
         recurring_bill_data.cust_gst_no = request.POST.get('cust_gstin')
         recurring_bill_data.cust_billing_address = request.POST.get('cust_bill_address')
+        print('--------------------------------------------------')
+        print(request.POST.get('cust_bill_address'))
+        print('--------------------------------------------------')
         recurring_bill_data.cust_place_of_supply = request.POST.get('place_of_supply')
         
         recurring_bill_data.payment_type = request.POST.get('payment_method')
@@ -18794,7 +18713,14 @@ def add_new_recrring_bill(request):
         if request.POST.get('upi_id'):
             recurring_bill_data.upi_id = request.POST.get('upi_id')
         if request.POST.get('bnk_id'):
-            recurring_bill_data.bank_id = Banking.objects.get(id=request.POST.get('bnk_id')) 
+            print('////////////////////////////////////////')
+            print(request.POST.get('bnk_id'))
+            print('////////////////////////////////////////')
+            if Banking.objects.filter(company=comp_details,bnk_acno=request.POST.get('bnk_id')).exists():
+                bank = Banking.objects.filter(company=comp_details,bnk_acno=request.POST.get('bnk_id')).first() 
+                recurring_bill_data.bank_id = bank
+                recurring_bill_data.bank_name = bank.bnk_name
+                recurring_bill_data.bank_acc_no = bank.bnk_acno
 
         if request.POST.get('name_latest1'):
             recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,id=request.POST.get('name_latest1'))
@@ -18837,7 +18763,7 @@ def add_new_recrring_bill(request):
                 item_hsn=hsn[i],
                 total_qty=item.current_stock,
                 qty=qty[i],
-                bal_qty=int(item.current_stock)-int(qty[i]),
+                bal_qty=int(item.current_stock)+int(qty[i]),
                 price=price[i],
                 taxGST=taxGST[i],
                 taxIGST=taxIGST[i],
@@ -18847,13 +18773,13 @@ def add_new_recrring_bill(request):
             )
             recurr_item.save()
 
-            item.current_stock = int(item.current_stock)-int(qty[i])
+            item.current_stock = int(item.current_stock)+int(qty[i])
             item.save()
 
 
         rec_bill_number = request.POST.get('bill_number')
-        if RecurringRecievedId.objects.filter(company=dash_details).exists():
-            recc = RecurringRecievedId.objects.filter(company=dash_details)
+        if RecurringRecievedId.objects.filter(company=comp_details).exists():
+            recc = RecurringRecievedId.objects.filter(company=comp_details)
             recc_id = recc.last()
             recc_id1 = recc.last()
 
@@ -18867,8 +18793,8 @@ def add_new_recrring_bill(request):
 
             if rec_bill_number != recc_id.recc_rec_number and rec_bill_number != '':
                 # Creating a new RecurringRecievedId instance
-                recc_id = RecurringRecievedId(company=dash_details)
-                count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                recc_id = RecurringRecievedId(company=comp_details)
+                count_for_ref_no = RecurringRecievedId.objects.filter(company=comp_details.id).count()
                 recc_id.pattern = pattern
                 recc_id.save()
 
@@ -18880,8 +18806,8 @@ def add_new_recrring_bill(request):
                 recc_id.save()
             else:
                 # Creating a new RecurringRecievedId instance
-                recc_id = RecurringRecievedId(company=dash_details)
-                count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                recc_id = RecurringRecievedId(company=comp_details)
+                count_for_ref_no = RecurringRecievedId.objects.filter(company=comp_details.id).count()
                 recc_id.pattern = pattern
                 recc_id.save()
 
@@ -18900,7 +18826,7 @@ def add_new_recrring_bill(request):
                 
         else:
             # Creating a new RecurringRecievedId instance
-            recc_id = RecurringRecievedId(company=dash_details)
+            recc_id = RecurringRecievedId(company=comp_details)
             recc_id.save()
 
             # Setting initial values for ref_number, pattern, and recc_rec_number
@@ -18921,7 +18847,7 @@ def add_new_recrring_bill(request):
 
         print('RECURRING BILL CREATED SUCCESS FULL')
 
-    return redirect('recurring_bill_listout')
+    return redirect('recurring_bill_listout')   
     
 
 def check_rec_bill_no_valid(request):
@@ -18969,18 +18895,6 @@ def get_price_list_percentage(request,pk):
         }
         return JsonResponse(error,status=400)
 
-# def recurr_change_status(request,pk):
-#     recurr_bill = Recurring_bills.objects.get(id=pk)
-#     if recurr_bill.status == 'Save':
-#         recurr_bill.status = 'Draft'
-#     elif recurr_bill.status == 'Draft':
-#         recurr_bill.status = 'Save'
-#     print('---------------------------------')
-#     print(recurr_bill.status)
-#     print('---------------------------------')
-#     recurr_bill.save()
-#     return redirect('recurr_overview',pk=pk)
-
 def recurr_overview(request,pk):
     if 'login_id' not in request.session:
         return redirect('/')
@@ -19011,6 +18925,7 @@ def recurr_overview(request,pk):
             'last_history':last_history,
             'recurr_comment':recurr_comment,
             'history':history,
+            'company':company,
         }
         return render(request, 'zohomodules/recurring_bill/recurr_overview.html',context)
 
@@ -19249,10 +19164,12 @@ def delete_comment_recurr(request,pk,recurr_id):
     return redirect('recurr_overview',pk=recurr_id)
 
 
+from django.core.mail import send_mass_mail
 def share_email_recurr(request,pk):
     try:
             if request.method == 'POST':
                 emails_string = request.POST['email_ids']
+                
 
                 if 'login_id' not in request.session:
                     return redirect('/')
@@ -19289,13 +19206,32 @@ def share_email_recurr(request,pk):
                 template = get_template(template_path)
                 html  = template.render(context)
                 result = BytesIO()
-                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-                pdf = result.getvalue()
-                filename = f'{recurr_bill.recc_bill_no}details - {recurr_bill.id}.pdf'
-                subject = f"{recurr_bill.profile_name}{recurr_bill.recc_bill_no}  - {recurr_bill.id}-details"
-                email = EmailMessage(subject, f"Hi,\nPlease find the attached employee details - File-{recurr_bill.profile_name}{recurr_bill.recc_bill_no} .\n--\nRegards,\n", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+                # pdf = result.getvalue()
+                # filename = f'{recurr_bill.recc_bill_no}details - {recurr_bill.id}.pdf'
+                # subject = f"{recurr_bill.profile_name}{recurr_bill.recc_bill_no}  - {recurr_bill.id}-details"
+                # body="hi, here is your recurring bill "
+                # email = EmailMessage(
+                #     subject,
+                #     body,
+                #     settings.EMAIL_HOST_USER,
+                #     ["vuashikh16@gmail.com"],
+                # )
+                # email.attach(filename, pdf, "application/pdf")
+                # email.send(fail_silently=False)
+                subject = 'Subject of the Email'
+                body = 'Message Body'
+                filename = 'attachment.pdf' 
+                pdf = open('/home/user/altos_technologies/ALTOS_LIVE_PROJECT/23-03-2024(zoho_book_final_reccuring_bill)/Zoho/Zoho_Project/media/docs/download_da8ctzY.pdf', 'rb').read()  # Replace '/path/to/attachment.pdf' with the path to your attachment
+
+                email = EmailMessage(
+                    subject=subject,
+                    body=body,
+                    from_email="vuashikh16@gmail.com",
+                    to=["vuashikh16@gmail.com"],
+                )
                 email.attach(filename, pdf, "application/pdf")
-                email.send(fail_silently=False)
+                email.send()
                 messages.success(request, 'over view page has been shared via email successfully..!')
                 return redirect('recurr_overview',pk)
     except Exception as e:
@@ -19383,7 +19319,8 @@ def recurr_bill_update(request,pk):
         recurring_bill_data = Recurring_bills.objects.get(id=pk)
         recurring_bill_data.login_details = log_details
         recurring_bill_data.company = comp_details
-        recurring_bill_data.vendor_details = Vendor.objects.get(id=request.POST.get('vendor_id')) 
+        if request.POST.get('vendor_id'):
+            recurring_bill_data.vendor_details = Vendor.objects.get(id=request.POST.get('vendor_id')) 
         recurring_bill_data.vend_name = request.POST.get('vendor_name')
         recurring_bill_data.vend_mail = request.POST.get('vendorEmail')
         recurring_bill_data.vend_gst_treat = request.POST.get('gst_type')
@@ -19400,7 +19337,7 @@ def recurr_bill_update(request,pk):
             recurring_bill_data.repeat_every_duration = 3
             recurring_bill_data.repeat_every_type = 'month'
         elif repeat_every == '6 month':
-            recurring_bill_data.repeat_every_duration = 36
+            recurring_bill_data.repeat_every_duration = 6
             recurring_bill_data.repeat_every_type = 'month'
         elif repeat_every == '1 year':
             recurring_bill_data.repeat_every_duration = 1
@@ -19426,7 +19363,8 @@ def recurr_bill_update(request,pk):
         else:
             recurring_bill_data.credit_period_id = RecurringCreditPeriod.objects.get(company=comp_details,days=request.POST.get('credit_period'))
 
-        recurring_bill_data.customer_details = Customer.objects.get(id=request.POST.get('account_id')) 
+        if request.POST.get('account_id'):
+            recurring_bill_data.customer_details = Customer.objects.get(id=request.POST.get('account_id')) 
         recurring_bill_data.cust_name = request.POST.get('customer_name')
         recurring_bill_data.cust_mail = request.POST.get('customerEmail')
         recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
@@ -19457,12 +19395,14 @@ def recurr_bill_update(request,pk):
         elif request.POST.get('bnk_id'):
             recurring_bill_data.bank_id = Banking.objects.get(id=request.POST.get('payment_method'))
 
-
-        if request.POST.get('name_latest1'):
-            if request.POST.get('name_latest1') == '0':
-                recurring_bill_data.price_list = None
+            
+        if 'price_enable' not in request.POST:
+            recurring_bill_data.price_list = None
+        else:
+            if request.POST.get('name_latest1'):
+                recurring_bill_data.price_list = PriceList.objects.get(id=request.POST.get('name_latest1'))
             else:
-                recurring_bill_data.price_list = PriceList.objects.get(company=comp_details,id=request.POST.get('name_latest1'))
+                recurring_bill_data.price_list = None
 
         recurring_bill_data.sub_total = request.POST.get('subtotal')
         recurring_bill_data.igst = request.POST.get('igst')
@@ -19494,98 +19434,45 @@ def recurr_bill_update(request,pk):
         total = request.POST.getlist('total[]')
 
         # stock reset and  delete item list
-        recurr_item_list = RecurrItemsList.objects.filter(recurr_bill_id=pk)
+        recurr_item_list = RecurrItemsList.objects.filter(recurr_bill_id=pk,item_id__isnull=False)
         
         for i in recurr_item_list:
-            item = Items.objects.get(id=i.item_id.id)
-            item.current_stock = int(item.current_stock)+int(i.qty)
-            item.save()
+            # check if item excist 
+            try:
+                item = Items.objects.get(id=i.item_id.id)
+                item.current_stock = int(item.current_stock)-int(i.qty)
+                item.save()
+            except:
+                pass
  
         recurr_item_list.delete()
 
         # re-create item list
         for i in range(len(item_name)) :
-            item=Items.objects.get(id=item_id[i])
+            try:
+                item=Items.objects.get(id=item_id[i])
 
-            recurr_item = RecurrItemsList(
-                item_id=item,
-                item_name=item_name[i],
-                item_hsn=hsn[i],
-                total_qty=item.current_stock,
-                qty=qty[i],
-                bal_qty=int(item.current_stock)-int(qty[i]),
-                price=price[i],
-                taxGST=taxGST[i],
-                taxIGST=taxIGST[i],
-                discount=discount[i],
-                total=total[i],
-                recurr_bill_id =recurring_bill_data,
-            )
-            recurr_item.save()
+                recurr_item = RecurrItemsList(
+                    item_id=item,
+                    item_name=item_name[i],
+                    item_hsn=hsn[i],
+                    total_qty=item.current_stock,
+                    qty=qty[i],
+                    bal_qty=int(item.current_stock)-int(qty[i]),
+                    price=price[i],
+                    taxGST=taxGST[i],
+                    taxIGST=taxIGST[i],
+                    discount=discount[i],
+                    total=total[i],
+                    recurr_bill_id =recurring_bill_data,
+                )
+                recurr_item.save()
 
-            item.current_stock = int(item.current_stock)-int(qty[i])
-            item.save()
-
-
-        # rec_bill_number = request.POST.get('bill_number')
-        # if RecurringRecievedId.objects.filter(company=dash_details).exists():
-        #     recc = RecurringRecievedId.objects.filter(company=dash_details)
-        #     recc_id = recc.last()
-        #     recc_id1 = recc.last()
-
-        #     # Check if there is a second last journal record
-        #     if recc.exclude(id=recc_id.id).last():
-        #         recc_id_second_last = recc.exclude(id=recc_id.id).last()
-        #         pattern = recc_id_second_last.pattern
-        #     else:
-        #         recc_id_second_last = recc.first()
-        #         pattern = recc_id_second_last.pattern
-
-        #     if rec_bill_number != recc_id.recc_rec_number and rec_bill_number != '':
-        #         # Creating a new RecurringRecievedId instance
-        #         recc_id = RecurringRecievedId(company=dash_details)
-        #         count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
-        #         recc_id.pattern = pattern
-        #         recc_id.save()
-
-        #         # Using count_for_ref_no + 1 as the reference number
-        #         ref_num = int(count_for_ref_no) + 2
-        #         recc_id.ref_number = f'{ref_num:02}'
-
-        #         recc_id.recc_rec_number = recc_id1.recc_rec_number
-        #         recc_id.save()
-        #     else:
-        #         # Creating a new RecurringRecievedId instance
-        #         recc_id = RecurringRecievedId(company=dash_details)
-        #         count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
-        #         recc_id.pattern = pattern
-        #         recc_id.save()
-
-        #         # Using count_for_ref_no + 1 as the reference number
-        #         ref_num = int(count_for_ref_no) + 2
-        #         recc_id.ref_number = f'{ref_num:02}'
-
-        #         # Incrementing the recc_rec_number
-        #         recc_rec_num = ''.join(i for i in recc_id1.recc_rec_number if i.isdigit())
-        #         recc_rec_num = int(recc_rec_num)+1
-        #         print("#################################")
-        #         print(f"-----------------{recc_id1}-----------------")
-        #         recc_id.recc_rec_number = f'{pattern}{recc_rec_num:02}'
-        #         print(recc_id.recc_rec_number)
-        #         recc_id.save()
-                
-        # else:
-        #     # Creating a new RecurringRecievedId instance
-        #     recc_id = RecurringRecievedId(company=dash_details)
-        #     recc_id.save()
-
-        #     # Setting initial values for ref_number, pattern, and recc_rec_number
-        #     recc_id.ref_number = f'{2:02}'
-
-        #     pattern = ''.join(i for i in rec_bill_number if not i.isdigit())
-        #     recc_id.pattern = pattern
-        #     recc_id.recc_rec_number = f'{pattern}{2:02}'
-        #     recc_id.save()
+                item.current_stock = int(item.current_stock)-int(qty[i])
+                item.save()
+            except:
+                pass
+        
 
         # history creation
         recurr_history = Recurr_history()
@@ -19599,4 +19486,407 @@ def recurr_bill_update(request,pk):
 
     return redirect('recurr_overview',pk=pk)
 
+def downloadRecurringBillSampleImportFile(request):
+    recInv_table_data = [['SLNO','Vendor Name','Email','GST Treatment','GSTIN','Billing Address','Source of supply','RB NO','Reference Number','Profile Name','Purchase Order Number','Repeat Every','Reccuring Bill Date','Expiry Date','Credit Period','Credit days','Customer Name','Email','GST Type','GSTIN','Billing Address','Place of supply','Payment Type','cheque_no','upi_id','bank_name','bank_acc_no','Price list','Note','Sub Total','IGST','CGST','SGST','Tax Amount','Adjustment','Shipping Charge','Grand Total','Paid','Balance'],
+                         ['1', 'Kevin Debryne', 'kevin@gmail.com','Registered Business-Regular Business that is registered under GST','45AAAAA0000A1Z5','ekm', '[KL]-Kerala', 'rec_bill-01', '', 'profile name1', '12', '3 month', '2024-04-01', '2024-06-08', 'NET 60','60', 'vinu das', 'vinudas@gmail.com', 'Unregistered Business-not Registered under GST', '', 'kozhikkod', '[OT]-Other Territory', 'Cheque','265489','','','', 'price list1', 'Example Note', 1000, 50, 50, 50, 150, 10, 20, 30, 90, 60]]
+    items_table_data = [['RI NO', 'PRODUCT','HSN','QUANTITY','PRICE','TAX PERCENTAGE','DISCOUNT','TOTAL'], 
+                        ['1', 'Test Item 1','789987','1','1000','5','0','1000']]
+
+    wb = Workbook()
+
+    sheet1 = wb.active
+    sheet1.title = 'recurring_bill'
+    sheet2 = wb.create_sheet(title='items')
+
+    # Populate the sheets with data
+    for row in recInv_table_data:
+        sheet1.append(row)
+
+    for row in items_table_data:
+        sheet2.append(row)
+
+    # Create a response with the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=recurring_invoice_sample_file.xlsx'
+
+    # Save the workbook to the response
+    wb.save(response)
+
+    return response
+
+def importRecurringBillFromExcel(request):
+    print('ENTERED')
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details = StaffDetails.objects.get(login_details = log_details).company 
+
+        current_datetime = timezone.now()
+        dateToday =  current_datetime.date()
+
+        if request.method == "POST" and 'excel_file' in request.FILES:
+        
+            excel_file = request.FILES['excel_file']
+
+            wb = load_workbook(excel_file)
+
+            # checking estimate sheet columns
+            try:
+                ws = wb["recurring_bill"]
+            except:
+                print('sheet not found')
+                messages.error(request,'`recurring_invoice` sheet not found.! Please check.')
+                return redirect('recurring_bill_listout')
+
+            try:
+                ws = wb["items"]
+            except:
+                print('sheet not found')
+                messages.error(request,'`items` sheet not found.! Please check.')
+                return redirect('recurring_bill_listout')
+            
+            ws = wb["recurring_bill"]
+            rec_inv_columns = ['SLNO','Vendor Name','Email','GST Treatment','GSTIN','Billing Address','Source of supply','RB NO','Reference Number','Profile Name','Purchase Order Number','Repeat Every','Reccuring Bill Date','Expiry Date','Credit Period','Credit days','Customer Name','Email','GST Type','GSTIN','Billing Address','Place of supply','Payment Type','cheque_no','upi_id','bank_name','bank_acc_no','Price list','Note','Sub Total','IGST','CGST','SGST','Tax Amount','Adjustment','Shipping Charge','Grand Total','Paid','Balance']
+            rec_inv_sheet = [cell.value for cell in ws[1]]
+            if rec_inv_sheet != rec_inv_columns:
+                print('invalid sheet')
+                messages.error(request,'`recurring_bill` sheet column names or order is not in the required formate.! Please check.')
+                return redirect('recurring_bill_listout')
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                slno, vendor_name,vend_mail,vend_gst_type, vend_gstin, vend_address, vend_supply, rb_no, rb_ref_no, rec_prof_name, purchase_order_no, repeat_every, rec_bill_date, exp_date, credit_period, credit_days,cust_name, cust_mail, cust_gst_type, cust_gstin, cust_address, cust_supply, pay_type, cheque_no,upi_id,bank_name,bank_acc_no, price_list, note, subtotal,igst,cgst,sgst,tax_amnt,adj,ship_charge,gtnt_total, paid,bal = row
+                if any(i is None or i == '' for i in (slno, vendor_name, vend_mail, vend_gst_type, vend_address, vend_supply, repeat_every, rec_bill_date, exp_date, credit_period, credit_days,cust_name, cust_mail, cust_gst_type, cust_address, cust_supply, pay_type, subtotal, igst, cgst, sgst, tax_amnt, adj, ship_charge, gtnt_total, paid, bal)):
+                    print('recurringInvoice == invalid data')
+                    messages.error(request,'`recurring_invoice` sheet entries missing required fields.! Please check.')
+                    return redirect('recurring_bill_listout')
+            
+            # checking items sheet columns
+            ws = wb["items"]
+            items_columns = ['RI NO', 'PRODUCT','HSN','QUANTITY','PRICE','TAX PERCENTAGE','DISCOUNT','TOTAL']
+            items_sheet = [cell.value for cell in ws[1]]
+            if items_sheet != items_columns:
+                print('invalid sheet')
+                messages.error(request,'`items` sheet column names or order is not in the required formate.! Please check.')
+                return redirect('recurring_bill_listout')
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                rb_no,name,hsn,quantity,price,tax_percentage,discount,total = row
+                if rb_no is None or name is None or quantity is None or tax_percentage is None or total is None:
+                    print('items == invalid data')
+                    messages.error(request,'`items` sheet entries missing required fields.! Please check.')
+                    return redirect('recurring_bill_listout')
+            
+            # getting data from rec_invoice sheet and create rec_invoice.
+            incorrect_data = []
+            existing_pattern = []
+            ws = wb['recurring_bill']
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                slno, vendor_name,vend_mail,vend_gst_type, vend_gstin, vend_address, vend_supply, rb_bill_no, rb_ref_no, rec_prof_name, purchase_order_no, repeat_every, rec_bill_date, exp_date, credit_period, credit_days,cust_name, cust_mail, cust_gst_type, cust_gstin, cust_address, cust_supply, pay_type, cheque_no,upi_id,bank_name,bank_acc_no, price_list, note, subtotal,igst,cgst,sgst,tax_amnt,adj,ship_charge,gtnt_total, paid,bal = row
+                recInvNo = slno
+                if slno is None:
+                    continue
+                recurring_bill_data = Recurring_bills()
+                recurring_bill_data.login_details = log_details
+                recurring_bill_data.company = comp_details
+                recurring_bill_data.vendor_details = None
+                recurring_bill_data.vend_name = vendor_name
+                recurring_bill_data.vend_mail = vend_mail
+                recurring_bill_data.vend_gst_treat = vend_gst_type
+                recurring_bill_data.vend_gst_no = vend_gstin
+                recurring_bill_data.vend_source_of_supply = vend_supply
+                recurring_bill_data.vend_billing_address = vend_address
+                recurring_bill_data.profile_name = rec_prof_name
+                recurring_bill_data.purchase_order_no = purchase_order_no
+
+                repeat_every = repeat_every
+                if repeat_every == '3 month':
+                    recurring_bill_data.repeat_every_duration = 3
+                    recurring_bill_data.repeat_every_type = 'month'
+                elif repeat_every == '6 month':
+                    recurring_bill_data.repeat_every_duration = 6
+                    recurring_bill_data.repeat_every_type = 'month'
+                elif repeat_every == '1 year':
+                    recurring_bill_data.repeat_every_duration = 1
+                    recurring_bill_data.repeat_every_type = 'year'
+                else:
+                    recurring_bill_data.repeat_every_duration = int(repeat_every.split()[0])
+                    recurring_bill_data.repeat_every_type = str(repeat_every.split()[1])
+                
+                unformated_date = rec_bill_date
+                formatted_date = datetime.strptime(unformated_date,'%Y-%m-%d').date()
+                recurring_bill_data.rec_bill_date = formatted_date
+                recurring_bill_data.expiry_date = exp_date
+
+                credit_period = credit_period
+                print('*************************************************')
+                print(credit_period)
+                print('*************************************************')
+                if credit_period == '0':
+                    recurring_bill_data.credit_period_termname = 'Due on Reciept'
+                    recurring_bill_data.credit_period_days = 0
+                elif credit_period == '30':
+                    recurring_bill_data.credit_period_termname = 'NET 30'
+                    recurring_bill_data.credit_period_days = 30
+                elif credit_period == '60':
+                    recurring_bill_data.credit_period_termname = 'NET 60'
+                    recurring_bill_data.credit_period_days = 60
+                else:
+                    print('=================================================')
+                    print(request.POST.get('credit_period'))
+                    if RecurringCreditPeriod.objects.filter(company=comp_details,days=credit_days,credit_name=credit_period).exists():
+                        credit_data = RecurringCreditPeriod.objects.filter(company=comp_details,days=credit_days,credit_name=credit_period).first()
+                        recurring_bill_data.credit_period_id = credit_data
+                        recurring_bill_data.credit_period_termname = credit_data.credit_name
+                        recurring_bill_data.credit_period_days = credit_data.days
+                    else:
+                        recurring_bill_data.credit_period_id = None
+                        recurring_bill_data.credit_period_termname = credit_period
+                        recurring_bill_data.credit_period_days = credit_days
+                    print('=================================================')
+                    # print(recurring_bill_data.credit_period_id.id)
+                    print('=================================================')
+
+                recurring_bill_data.customer_details = None
+                recurring_bill_data.cust_name = cust_name
+                recurring_bill_data.cust_mail = cust_mail
+                recurring_bill_data.cust_gst_treat = cust_gst_type
+                recurring_bill_data.cust_gst_no = cust_gstin
+                recurring_bill_data.cust_billing_address = cust_address
+                recurring_bill_data.cust_place_of_supply = cust_supply
+                
+                recurring_bill_data.payment_type = pay_type
+
+                if request.POST.get('payment_method') == 'Cash':
+                    recurring_bill_data.cheque_no = None
+                    recurring_bill_data.upi_id = None
+                    recurring_bill_data.bank_id = None
+                elif request.POST.get('payment_method') == 'Cheque':
+                    recurring_bill_data.upi_id = None
+                    recurring_bill_data.bank_id = None
+                    recurring_bill_data.cheque_no = cheque_no
+                elif request.POST.get('payment_method') == 'UPI':
+                    recurring_bill_data.bank_id = None
+                    recurring_bill_data.cheque_no = None
+                    recurring_bill_data.upi_id = upi_id
+                else:
+                    recurring_bill_data.cheque_no = None
+                    recurring_bill_data.upi_id = None
+                    if Banking.objects.filter(company=comp_details,bnk_acno=bank_acc_no).exists():
+                        bank_id = Banking.objects.filter(company=comp_details,bnk_acno=bank_acc_no).first()
+                        recurring_bill_data.bank_id = bank_id
+                        recurring_bill_data.bank_name = bank_id.bank_id
+                        recurring_bill_data.bank_acc_no =  bank_id.bnk_acno
+                    else:
+                        recurring_bill_data.bank_name = bank_name
+                        recurring_bill_data.bank_acc_no =  bank_acc_no
+
+                if price_list != '' or price_list != None :
+                    if PriceList.objects.filter(company=comp_details,name=price_list).exists():
+                        recurring_bill_data.price_list = PriceList.objects.filter(company=comp_details,name=price_list).first()
+                    else:
+                        recurring_bill_data.price_list_name = price_list
+
+                recurring_bill_data.sub_total = subtotal
+                recurring_bill_data.igst = igst
+                recurring_bill_data.cgst = cgst
+                recurring_bill_data.sgst = sgst
+                recurring_bill_data.tax_amount = tax_amnt
+                recurring_bill_data.shipping_charge = adj
+                recurring_bill_data.adjustment = ship_charge
+                recurring_bill_data.total = gtnt_total
+                recurring_bill_data.paid = paid
+                recurring_bill_data.bal = bal
+                # if 'Draft' in request.POST:
+                #     recurring_bill_data.status = 'Draft'
+                # elif 'Save' in request.POST:
+                recurring_bill_data.status = 'Save'
+                recurring_bill_data.note = note
+                recurring_bill_data.document = None
+
+                rec_bill_number = rb_bill_no
+
+                if rec_bill_number == '' or rec_bill_number == None:
+                    print('entered first if')
+                    recurring_bill_data.recc_bill_no = RecurringRecievedId.objects.filter(company=comp_details).last().recc_rec_number
+                else:
+                    print('entered second if')
+                    recurring_bill_data.recc_bill_no = rec_bill_number
+                    print(rec_bill_number)
+                    print(recurring_bill_data.recc_bill_no)
+                recurring_bill_data.recc_ref_no = RecurringRecievedId.objects.filter(company=comp_details).last().ref_number
+
+                recurring_bill_data.save()
+
+                if RecurringRecievedId.objects.filter(company=dash_details).exists():
+                    recc = RecurringRecievedId.objects.filter(company=dash_details)
+                    recc_id = recc.last()
+                    recc_id1 = recc.last()
+
+                    # Check if there is a second last journal record
+                    if recc.exclude(id=recc_id.id).last():
+                        recc_id_second_last = recc.exclude(id=recc_id.id).last()
+                        pattern = recc_id_second_last.pattern
+                    else:
+                        recc_id_second_last = recc.first()
+                        pattern = recc_id_second_last.pattern
+
+                    if rec_bill_number != recc_id.recc_rec_number and rec_bill_number != '':
+                        # Creating a new RecurringRecievedId instance
+                        recc_id = RecurringRecievedId(company=dash_details)
+                        count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                        recc_id.pattern = pattern
+                        recc_id.save()
+
+                        # Using count_for_ref_no + 1 as the reference number
+                        ref_num = int(count_for_ref_no) + 2
+                        recc_id.ref_number = f'{ref_num:02}'
+
+                        recc_id.recc_rec_number = recc_id1.recc_rec_number
+                        recc_id.save()
+                    else:
+                        # Creating a new RecurringRecievedId instance
+                        recc_id = RecurringRecievedId(company=dash_details)
+                        count_for_ref_no = RecurringRecievedId.objects.filter(company=dash_details.id).count()
+                        recc_id.pattern = pattern
+                        recc_id.save()
+
+                        # Using count_for_ref_no + 1 as the reference number
+                        ref_num = int(count_for_ref_no) + 2
+                        recc_id.ref_number = f'{ref_num:02}'
+
+                        # Incrementing the recc_rec_number
+                        recc_rec_num = ''.join(i for i in recc_id1.recc_rec_number if i.isdigit())
+                        recc_rec_num = int(recc_rec_num)+1
+                        print("#################################")
+                        print(f"-----------------{recc_id1}-----------------")
+                        recc_id.recc_rec_number = f'{pattern}{recc_rec_num:02}'
+                        print(recc_id.recc_rec_number)
+                        recc_id.save()
+                        
+                else:
+                    # Creating a new RecurringRecievedId instance
+                    recc_id = RecurringRecievedId(company=dash_details)
+                    recc_id.save()
+
+                    # Setting initial values for ref_number, pattern, and recc_rec_number
+                    recc_id.ref_number = f'{2:02}'
+
+                    pattern = ''.join(i for i in rec_bill_number if not i.isdigit())
+                    recc_id.pattern = pattern
+                    recc_id.recc_rec_number = f'{pattern}{2:02}'
+                    recc_id.save()
+
+                # history creation
+                recurr_history = Recurr_history()
+                recurr_history.company = comp_details
+                recurr_history.login_details = log_details
+                recurr_history.Recurr = recurring_bill_data
+                recurr_history.action = 'Created'
+                recurr_history.save()
+
+                ws = wb["items"]
+
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    rb_no,name,hsn,quantity,price,tax_percentage,discount,total = row
+                    if int(rb_no) == int(recInvNo):
+                        # try:
+                        #     rb_no, name, hsn, quantity, price, tax_percentage, discount, total = row
+                        # except ValueError:
+                        #     continue
+                        if rb_no is None or name is None or hsn is None or quantity is None or price is None or tax_percentage is None or total is None:
+                            messages.success(request, 'item data entry missing.!')
+                            return redirect('recurring_bill_listout')
+                        else:
+
+                            if Items.objects.filter(company=comp_details,item_name=name).exists():
+                                item_id = Items.objects.filter(company=comp_details,item_name=name).first()
+                                item_name = item_id.item_name
+                                item_hsn = item_id.hsn_code
+                                total_qty = item_id.current_stock
+                            else:
+                                item_id = None
+                                item_name = name
+                                item_hsn = hsn
+                                total_qty = 0
+
+                            if vend_supply == cust_supply:
+                                taxGST = tax_percentage
+                                taxIGST = 0
+                            else:
+                                taxIGST = tax_percentage
+                                taxGST = 0
+
+                            bal_qty = int(total_qty)-int(quantity)
+
+                            if bal_qty < 0:
+                                bal_qty = 0
+
+                            recurr_item = RecurrItemsList(
+                                item_id=item_id,
+                                item_name=item_name,
+                                item_hsn=item_hsn,
+                                total_qty=total_qty,
+                                qty=quantity,
+                                bal_qty= bal_qty,
+                                price=price,
+                                taxGST=taxGST,
+                                taxIGST=taxIGST,
+                                discount=discount,
+                                total=total,
+                                recurr_bill_id =recurring_bill_data,
+                            )
+                            recurr_item.save()
+
+                print('RECURRING BILL CREATED SUCCESS FULL')
+            
+            if not incorrect_data and not existing_pattern:
+                messages.success(request, 'Data imported successfully.!')
+                return redirect('recurring_bill_listout')
+            else:
+                if incorrect_data:
+                    messages.warning(request, f'Data with following SlNo could not import due to incorrect data provided -> {", ".join(str(item) for item in incorrect_data)}')
+                if existing_pattern:
+                    messages.warning(request, f'Data with following SlNo could not import due to RI No pattern exists already -> {", ".join(str(item) for item in existing_pattern)}')
+                return redirect('recurring_bill_listout')
+        else:
+            return redirect('recurring_bill_listout')
+    else:
+        return redirect('/')
+
+
+def getRecurr_bill_ItemDetails(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details = StaffDetails.objects.get(login_details = log_details).company 
+        itemName = request.GET['item']
+        item = Items.objects.get( item_name = itemName,company_id=comp_details.id)
+
+        context = {
+            'status':True,
+            'id':item.id,
+            'hsn':item.hsn_code,
+            'sales_rate':item.selling_price,
+            'avl':item.current_stock,
+            'tax': True if item.tax_reference == 'taxable' else False,
+            'gst':item.intrastate_tax,
+            'igst':item.interstate_tax,
+
+        }
+        print('++++++++++++++++++++++++++++++')
+        print(item.current_stock)
+        print('++++++++++++++++++++++++++++++')
+        return JsonResponse(context)
+    else:
+        return redirect('/')
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------

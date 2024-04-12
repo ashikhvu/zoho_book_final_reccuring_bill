@@ -11,6 +11,9 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 
+<!-- convert to excell -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <style>
     .bg-dark {
@@ -37,6 +40,17 @@
         </nav>
         <div class="row mt-5">
             <div class="col-md-12">
+              {% for message in messages %}
+                <h5>
+                  <div class="alert alert-danger message text-center" style="color: black;" id="alert_danger">
+                    {{ message }}
+                    <a type="button" id="alert_close" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                      <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                    </a>
+                  </div>
+                </h5>
+                <br>
+                {% endfor %}
                 <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
                   <div style="margin-top: 90px;">
                     <h4 id="selected_customer_heading" class="text" style="color: white; margin-left: 2%; padding-top: 20px;"><b>RECURRING BILLS</b></h4>
@@ -54,8 +68,8 @@
                         </a>
                         <div class="dropdown-menu m-1" style="background-color: black; color: white;">
                           <a class="dropdown-item" href="" style="color: azure;">All</a>
-                          <a class="dropdown-item" href="javascript:sortTable(1)" style="color: azure;">Item Name </a>
-                          <a class="dropdown-item" href="javascript:sortTable(2)" style="color: azure;">HSN  </a>
+                          <a class="dropdown-item" href="javascript:sortTable(1)" style="color: azure;">Vendor Name</a>
+                          <a class="dropdown-item" href="javascript:sortTable(2)" style="color: azure;">Recc Bill No</a>
                         
                         </div>
                     </div>
@@ -69,18 +83,18 @@
                                 <i class="fa fa-filter mt-1"></i>
                             </a>
                             <div class="dropdown-menu m-1" style="background-color: black; color: white;">
-                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">All</a>
-                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Active</a>
-                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Inactive</a>
+                              <a class="dropdown-item dropdown-item-filter" onclick="filterTable_status('All')" style="background-color: black; color: white;">All</a>
+                              <a class="dropdown-item dropdown-item-filter" onclick="filterTable_status('Save')" style="background-color: black; color: white;">Save</a>
+                              <a class="dropdown-item dropdown-item-filter" onclick="filterTable_status('Draft')" style="background-color: black; color: white;">Draft</a>
                             </div>
                         </div>
               
-                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="reduce_dash()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning"  href="">
-                          <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
+                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="reduce_dash()" data-bs-toggle="modal" data-bs-target="#importModal" class="btn btn-outline-warning"  href="">
+                          <i class="fa fa-file-excel p-1" style="font-size: large;"></i>
                           <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Import</span>
                       </a>
                       <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="exportToExcel()" class="btn btn-outline-warning" >
-                        <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
+                        <i class="fa fa-file-excel p-1" style="font-size: large;"></i>
                         <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Export</span>
                     </a>
         
@@ -105,14 +119,14 @@
                   <thead class="text-white">
                     
                       <tr style="background-color: rgb(0, 0, 0);border-color:rgba(0, 0, 0, 0.549) rgb(0, 0, 0) rgb(173, 166, 166) rgb(0, 0, 0);text-align: center;">
-                          <th style="color: rgb(247, 247, 247);">No.</th>
-                          <th style="color: rgb(250, 247, 242);">Date</th>
-                          <th style="color: rgb(244, 244, 244);">Recc Bill No</th>
-                          <th style="color: rgb(255, 255, 255);">Vendor Name</th>
-                          <th style="color: rgb(252, 252, 252);">Vendor Mail </th>
-                          <th style="color: rgb(237, 237, 236);">Account </th>
-                          <th style="color: rgb(247, 245, 240);">Status</th>
-                          <th style="color: rgb(251, 251, 251);">Balance</th>
+                          <th style="color: rgb(247, 247, 247);">NO.</th>
+                          <th style="color: rgb(250, 247, 242);">DATE</th>
+                          <th style="color: rgb(244, 244, 244);">REC. BILL NO</th>
+                          <th style="color: rgb(255, 255, 255);">VENDOR NAME</th>
+                          <th style="color: rgb(252, 252, 252);">VENDOR MAIL </th>
+                          <th style="color: rgb(237, 237, 236);">AMOUNT </th>
+                          <th style="color: rgb(247, 245, 240);">STATUS</th>
+                          <th style="color: rgb(251, 251, 251);">BALANCE</th>
                           
                       </tr>
                   </thead>
@@ -121,14 +135,14 @@
                   {% for i in recurr_bills %}
                 <tr style="background-color: rgb(0, 0, 0);border-color:rgba(0, 0, 0, 0.549) rgb(0, 0, 0) rgb(173, 166, 166) rgb(0, 0, 0);text-align: center;" class='clickable-row' data-href="{% url 'itemsoverview' i.id%}">             
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;">{{forloop.counter}}</td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id%}">{{ i.expiry_date }}</td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id%}">{{ i.rec_bill_date|date:'d-m-Y' }}</td>
                   <!-- <td style="color: rgb(0, 0, 0); background-color: black;">{{ i.type }}</td> -->
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.rec_bill_date }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.vend_name }}</a></td>
+                  <td class="bg-dark text-white bill_no" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.recc_bill_no }}</a></td>
+                  <td class="bg-dark text-white vend_name" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.vend_name }}</a></td>
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.vend_mail }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.paid }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.status }}</a></td>
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.total }}</a></td>
+                  <td class="bg-dark text-white status_here" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.status }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'recurr_overview'  i.id %}">{{ i.bal }}</a></td>
               </tr>
                 {% endfor %}
                 {% endif %}
@@ -159,33 +173,55 @@
         <!-- Your existing HTML code -->
         
         <script>
-          // Function to sort the table based on the selected column
-          function sortTable(columnIndex) {
-            var table, rows, switching, i, x, y, shouldSwitch;
-            table = document.getElementById("data-table");
-            switching = true;
+          // function sortTable(columnIndex) {
+          //   var table, rows, switching, i, x, y, shouldSwitch;
+          //   table = document.getElementById("data-table");
+          //   switching = true;
         
-            while (switching) {
-              switching = false;
-              rows = table.getElementsByTagName("tr");
+          //   while (switching) {
+          //     switching = false;
+          //     rows = table.getElementsByTagName("tr");
         
-              for (i = 1; i < rows.length - 1; i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("td")[columnIndex];
-                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+          //     for (i = 1; i < rows.length - 1; i++) {
+          //       shouldSwitch = false;
+          //       x = rows[i].getElementsByTagName("td")[columnIndex];
+          //       y = rows[i + 1].getElementsByTagName("td")[columnIndex];
         
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                  shouldSwitch = true;
-                  break;
-                }
-              }
+          //       if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //         shouldSwitch = true;
+          //         break;
+          //       }
+          //     }
         
-              if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-              }
+          //     if (shouldSwitch) {
+          //       rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          //       switching = true;
+          //     }
+          //   }
+          // }
+
+          function sortTable(col) {
+            var tbody = $('#data-table');
+            var rows = tbody.find('tr').toArray();
+
+            if (col == 1) {
+                rows.sort(function(a, b) {
+                    var balanceA = parseFloat($(a).find('.vend_name').text().trim());
+                    var balanceB = parseFloat($(b).find('.vend_name').text().trim());
+                    return balanceA - balanceB;
+                });
+            } else {
+                rows.sort(function(a, b) {
+                    var nameA = $(a).find('.bill_no').text().toLowerCase();
+                    var nameB = $(b).find('.bill_no').text().toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
             }
-          }
+
+            $.each(rows, function(index, row) {
+                tbody.append(row);
+            });
+        }
         
           // Function to handle dropdown item click
           function handleDropdownItemClick(index) {
@@ -211,21 +247,21 @@
         
         <script>
           // Function to filter the table based on the selected status
-          function filterTable(status) {
-            var table, rows, i;
-            table = document.getElementById("data-table");
-            rows = table.getElementsByTagName("tr");
+          // function filterTable(status) {
+          //   var table, rows, i;
+          //   table = document.getElementById("data-table");
+          //   rows = table.getElementsByTagName("tr");
         
-            for (i = 1; i < rows.length; i++) {
-              var rowStatus = rows[i].lastElementChild.textContent.trim(); // Assuming status is in the last column
+          //   for (i = 1; i < rows.length; i++) {
+          //     var rowStatus = rows[i].lastElementChild.textContent.trim(); // Assuming status is in the last column
         
-              if (status === "All" || rowStatus === status) {
-                rows[i].style.display = "";
-              } else {
-                rows[i].style.display = "none";
-              }
-            }
-          }
+          //     if (status === "All" || rowStatus === status) {
+          //       rows[i].style.display = "";
+          //     } else {
+          //       rows[i].style.display = "none";
+          //     }
+          //   }
+          // }
         
           // Function to handle dropdown item click for filtering
           function handleFilterDropdownItemClick(status) {
@@ -258,44 +294,48 @@
         <!-- ................................... import modal ................. -->
         
         
-        <div class="modal fade" id="import_modal">
+        <div class="modal fade" id="importModal">
           <div class="modal-dialog modal-xl">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-              <div class="modal-header " style="background: rgb(32, 35, 37);">
-                <h1 class="text-light">Import Item</h1>
-              </div>
-              <div class="modal-body" style="background: rgb(32, 35, 37);">
-                <div class="card p-3 m-3" style="background-color: black;">        
-                  <div class="row" style="background-color: black;">
-                    <div class="col-md-12 col-lg-12 col-sm-12" style="background-color: black;">
-                      <h5 class="text-danger">IMPORTANT:</h5>
-                      <p class="text-light">File should have  sheet named 'Sheet1' and column name & order should be in the given format(Uppercase)</p><br>
-                      
-                      <p class="text-light">Status should be given in one of the following format <br>
-                          Active  <br>
-                          inactive
-                      </p><br>
-                      <p class="text-light">If Taxble ,then fill Intra-State TAX and Inter-State TAX  <br>
-                          If not have CGST and SGST Tax  then filled with 0
-                          
-                      </p>
-        
-        
+              <div class="modal-content" style="background-color: #3b3b3b;">
+                  <div class="modal-header">
+                      <h3 class="modal-title text-light" id="exampleModalLabel">Import Recurring Invoice</h3>
+                      <button type="button" class="btn close text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                      </button>
                     </div>
+                  <div class="modal-body mx-3 rounded-1" style="background-color: #000;">
+                      <div class="file_instructions">
+                          <div class="alert alert-danger" role="alert">
+                              <span class="fw-bolder">IMPORTANT:</span>
+                              <p>File should have 2 sheets named 'recurring_bill' & 'items' and column name & order should be in the given formate(Uppercase).</p>
+                          <p class="fw-bolder">Recurring Invoice sheet - SLNO*, Vendor Name*, Email*, GST Treatment*, GSTIN, Billing Address, Source of supply*, Recurring Bill No, Reference Number, Profile Name, Purchase Order Number, Repeat Every*, Reccuring Bill Date*, Expiry Date*, Credit Period*, Customer Name*, Email*, GST Type*, GSTIN, Billing Address, Place of supply*, Payment Type*,cheque_no ,upi_id , bank_name, bank_acc_no, Price list, Note ,Sub Total*, IGST*, CGST*, SGST*, Tax Amount*, Adjustment, Shipping Charge, Grand Total*, Paid*, Balance </p>
+                              <p class="fw-bolder">Items sheet - RB NO**, Item Name*, HSN*, QUANTITY*, PRICE*, TAX PERCENTAGE*, DISCOUNT, TOTAL* </p>
+                              <p>* All required columns should be filled.</p>
+                              <p>** <b>RB NO</b> is <b>SLNO</b> of recurring_bill</p>
+                              <p>Place of supply should be in the give format with state code('Ex: [KL]-Kerala') or '[OT]-Other Territory'.</p>
+                              <p>Date format should be 'YYYY-MM-DD' or 'DD-MM-YYYY'.</p>
+                          </div>
+                      </div>
+                      <div class="sample_file mb-2">
+                          <a href="{% url 'downloadRecurringBillSampleImportFile' %}" class="fw-bolder btn btn-outline-warning btn-sm">Download Sample File</a>
+                      </div>
+                      <form id="importEstimateForm" action="{% url 'importRecurringBillFromExcel' %}" method="POST" class="form" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <div class="form-group">
+                              <label for="excel_file" class="form-label text-white">File</label>
+                              <input id="excel_file" class="form-control" type="file" name="excel_file" required>
+                          </div>
+                          <div class="d-flex justify-content-center mt-4">
+                              <input id="submit_import_excel" value="IMPORT" class="btn btn-outline-warning" type="submit">
+                          </div>
+                          
+                      </form>
                   </div>
-                </div>
-                <a href="{% url 'downloadItemSampleImportFile' %}" class="text-primary" style="font-size:medium;">Download Sample File here</a> <br>
-        
-                <form action="{% url 'import_item' %}" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  <h6 class="text-light"></h6>
-                  <input type="file" name="excel_file" class="form-control text-dark" style="width: 50%;"><br>
-                  <button class="btn btn-outline-warning mt-3">IMPORT</button>
-                </form>
+                  <div class="modal-footer"></div>
               </div>
-            </div>
           </div>
-        </div>
+      </div>
+
         <script>
          function sortTable(columnIndex) {
             const table = document.getElementById("data-table");
@@ -347,4 +387,35 @@
         </div>
         </div>
 
+        <script>
+          $('#alert_close').click(function(){
+            $('#alert_danger').hide()
+          })
+        </script>
+
+        <script>
+          function exportToExcel() {
+              var table = document.querySelector('#data-table');
+              var ws = XLSX.utils.table_to_sheet(table);
+              var wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+              XLSX.writeFile(wb, 'Recurring_bill.xlsx');
+          }
+        </script>
+
+      <script>
+
+          function filterTable_status(key) {
+              $('#data-table tbody tr').each(function() {
+                  var cell = $(this).find('.status_here');
+                  var status = cell.text().trim();
+                  if (key == 'All' || status === key) {
+                      $(this).show();
+                  } else {
+                      $(this).hide();
+                  }
+              });
+          }
+
+        </script>
 {% endblock %}

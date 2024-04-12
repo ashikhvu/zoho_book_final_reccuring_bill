@@ -1021,8 +1021,11 @@ class Recurring_bills(models.Model):
     cheque_no = models.CharField(max_length=255,null=True,blank=True)
     upi_id = models.CharField(max_length=255,null=True,blank=True)
     bank_id = models.ForeignKey(Banking,on_delete=models.CASCADE,null=True,blank=True)
+    bank_name = models.CharField(max_length=255,null=True,blank=True)
+    bank_acc_no = models.CharField(max_length=255,null=True,blank=True)
 
     price_list = models.ForeignKey(PriceList,on_delete=models.CASCADE,null=True,blank=True)
+    price_list_name = models.CharField(max_length=255,null=True,blank=True)
 
     sub_total = models.FloatField(null=True,blank=True)
     igst = models.FloatField(null=True,blank=True)

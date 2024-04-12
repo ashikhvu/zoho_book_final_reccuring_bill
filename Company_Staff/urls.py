@@ -451,7 +451,6 @@ urlpatterns = [
     path('createReccuringBill',views.createReccuringBill,name='createReccuringBill'),
     path('create_repeat_every',views.create_repeat_every,name='create_repeat_every'),
     path('add_new_creadit_period',views.add_new_creadit_period,name='add_new_creadit_period'),
-    # path('createRecurrCustomer',views.createRecurrCustomer,name='createRecurrCustomer'),
     path('check_vendor_work_phone_exist',views.check_vendor_work_phone_exist,name='check_vendor_work_phone_exist'),
     path('check_vendor_phonenumber_exist',views.check_vendor_phonenumber_exist,name='check_vendor_phonenumber_exist'),
     path('recurr_vendor_create',views.recurr_vendor_create,name='recurr_vendor_create'),
@@ -460,7 +459,6 @@ urlpatterns = [
     path('recurr_overview/<int:pk>',views.recurr_overview,name='recurr_overview'),
     path('check_rec_bill_no_valid',views.check_rec_bill_no_valid,name='check_rec_bill_no_valid'),
     path('get_price_list_percentage/<int:pk>',views.get_price_list_percentage,name='get_price_list_percentage'),
-    # path('recurr_change_status/<int:pk>',views.recurr_change_status,name='recurr_change_status'),
     path('delete_recurr_bill/<int:pk>',views.delete_recurr_bill,name='delete_recurr_bill'),
     path('recurr_add_item_unit',views.recurr_add_item_unit,name='recurr_add_item_unit'),
     path('recurr_add_item_account',views.recurr_add_item_account,name='recurr_add_item_account'),
@@ -471,6 +469,9 @@ urlpatterns = [
     path('share_email_recurr/<int:pk>',views.share_email_recurr,name='share_email_recurr'),
     path('recurr_bill_edit/<int:pk>',views.recurr_bill_edit,name='recurr_bill_edit'),
     path('recurr_bill_update/<int:pk>',views.recurr_bill_update,name='recurr_bill_update'),
+    path('Company/rec_bill_import_sample_file',views.downloadRecurringBillSampleImportFile, name='downloadRecurringBillSampleImportFile'),
+    path('Company/import_recurring_bill',views.importRecurringBillFromExcel, name='importRecurringBillFromExcel'),
+    path('getRecurr_bill_ItemDetails',views.getRecurr_bill_ItemDetails,name='getRecurr_bill_ItemDetails'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 

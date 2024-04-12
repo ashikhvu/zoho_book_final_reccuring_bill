@@ -357,7 +357,7 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
-        <li class="breadcrumb-item"><a class="text-warning-emphasis">Sales</a></li>
+        <!-- <li class="breadcrumb-item"><a class="text-warning-emphasis">Sales</a></li> -->
         <li class="breadcrumb-item"><a href="{% url 'recurring_bill_listout' %}" class="text-warning-emphasis">Recurring Bills</a></li>
         <li class="breadcrumb-item" aria-current="page" id="over">Overview</li>
         <li class="breadcrumb-item" aria-current="page" id="tmplt" style="display: none;">Templates</li>
@@ -565,7 +565,7 @@
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Start Date</h6>
-                        <p class="mb-0 text-right">{{recurr_bill.rec_bill_date}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.rec_bill_date|date:'Y-m-d'}}</p>
                       </div>
 
                     <!-- <div class="d-flex px-3 justify-content-between text-black mb-2">
@@ -575,7 +575,7 @@
 
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">End Date</h6>
-                        <p class="mb-0 text-right">{{recurr_bill.expiry_date}}</p>
+                        <p class="mb-0 text-right">{{recurr_bill.expiry_date|date:'Y-m-d'}}</p>
                       </div>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Payment Method</h6>
@@ -662,7 +662,7 @@
                   <hr class="mx-3">
                   
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                       <h5 class="fw-bold mb-2 ms-3" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Vendor Details</h5>
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Vendor Name</h6>
@@ -672,9 +672,9 @@
                         <h6 class="mb-0">Mail id</h6>
                         <p class="mb-0 text-right">{{recurr_bill.vend_mail}}</p>
                       </div>
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
-                        <h6 class="mb-0">Gst Treat</h6>
-                        <p class="mb-0 text-right">{{recurr_bill.vend_gst_treat}}</p>
+                      <div class="d-flex ps-3 pe-2 justify-content-between text-black mb-2">
+                        <h6 class="mb-0" style="word-break: break-all;">Gst Treat</h6>
+                        <p style="width: 50%;" class="mb-0 text-right">{{recurr_bill.vend_gst_treat}}</p>
                       </div>
                       {% if recurr_bill.vend_gst_no %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
@@ -694,8 +694,8 @@
                       {% endif %}
                     </div>
                     
-                    <div class="col-md-12">
-                      <hr class="mx-3">
+                    <div class="col-md-6">
+                      <!-- <hr class="mx-3"> -->
                       <!-- <div class="d-flex justify-content-end"> -->
                         <h5 class="fw-bold ms-3" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Customer Details</h5>
                       <!-- </div> -->
@@ -707,9 +707,9 @@
                         <h6 class="mb-0">Mail id</h6>
                         <p class="mb-0 text-right">{{recurr_bill.cust_mail}}</p>
                       </div>
-                      <div class="d-flex px-3 justify-content-between text-black mb-2">
+                      <div class="d-flex ps-3 pe-2 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Gst Treat</h6>
-                        <p class="mb-0 text-right">{{recurr_bill.cust_gst_treat}}</p>
+                        <p style="width: 50%;word-break: break-all;" class="mb-0 text-right">{{recurr_bill.cust_gst_treat}}</p>
                       </div>
                       {% if recurr_bill.cust_gst_no %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
@@ -779,11 +779,11 @@
                 <div id="Slip" class="py-3" style="display: none;">
                   <div class="slip-container bg-white" id="slip_container">
                     <div class="slip text-dark">
-                        <h5 class="text-center text-dark" style="font-weight: bold;">{{details.company_name}}</h5>
+                        <h5 class="text-center text-dark" style="font-weight: bold;">{{company.company_name|upper}}</h5>
                         <div class="address text-center">
-                            <p>{{details.address}}</p>
-                            <p>{{details.state}}, {{details.country}}</p>
-                            <p>{{details.contact}}</p>
+                            <p>{{company.address}}</p>
+                            <p>{{company.state}}, {{company.country}}</p>
+                            <p>{{company.contact}}</p>
                         </div>
 
                         <div class="divider"></div>
@@ -877,7 +877,7 @@
                                 <span>Tax Amount</span>
                                 <span><span>&#8377; </span>{{recurr_bill.tax_amount}}</span>
                             </div>
-                            {% if invoice.igst == 0 %}
+                            {% if recurr_bill.igst == 0 %}
                             <div class="subtot-item d-flex justify-content-between">
                                 <span>CGST</span>
                                 <span><span>&#8377; </span>{{recurr_bill.cgst}}</span>
@@ -957,13 +957,22 @@
                             </section>
                             <br>
                             <section class="store-user mt-2">
-                              <div class="col-12">
+                              <div style="text-align: center;">
+                                <p class="text-dark fw-bolder" style=" text-align: center;color: black;"> {{company.company_name}} <br>
+                                  {{company.address}} <br>
+                                  {{company.city}},
+                                  {{company.state}}<br>
+                                  {{company.login_details.email}}
+                                  <br>
+                              </p>
+                              </div>
+                                  <hr>
                                 <div class="row pb-3">
                                   <div class="col-7">
                                     <p><b class="text-black">From</b>,</p>
                                     <div style="margin-left: 10%;">
                                       <h3>{{ recurr_bill.vend_name }}</h3>
-                                      <p class="text-black"> 
+                                      <p class="text-dark"> 
                                         {{ recurr_bill.vendor_details.billing_phone }} <br>
                                         {{ recurr_bill.vendor_details.billing_address }} <br>
                                         {{ recurr_bill.vendor_details.billing_city }} <br>
@@ -1130,11 +1139,21 @@
                               </div>
                             </section>
                             <hr>
+                            <div style="text-align: center;">
+                              <p class="fw-bolder" style=" text-align: center; color: black;"> {{company.company_name}} <br>
+                                {{company.address}} <br>
+                                {{company.city}},
+                                {{company.state}}<br>
+                                {{company.login_details.email}}
+                                <br>
+                            </p>
+                            </div>
+                            <hr>
                             <section class="store-user mt-2">
                               <div class="col-12">
                                 <div class="row pb-3">
                                   <div class="col-7">
-                                    <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">COMPANY ADDRESS</b>,</p>
+                                    <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">VENDOR ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
                                       <h3>{{ recurr_bill.vend_name }}</h3>
                                       <p class="text-black">
@@ -1148,7 +1167,7 @@
                                     </div>
                                   </div>
                                   <div class="col-5">
-                                    <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">BILLING ADDRESS</b>,</p>
+                                    <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">CUSTOMER ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
                                       <h3>{{ recurr_bill.vend_name }}</h3>
                                       <p class="text-black"> 
@@ -1293,11 +1312,11 @@
                               <div class="row">
                                   <div class="col-sm-12 py-3" style="background-image: linear-gradient(#ffae1f, black); color: white;">
                                       <p style="font-size: 4vh; text-align: center;">RECURRING BILL</p>
-                                      <p style=" text-align: center;"> {{details.company_name}} <br>
-                                          {{details.address}} <br>
-                                          {{details.city}},
-                                          {{details.state}}<br>
-                                          {{details.login_details.email}}
+                                      <p style=" text-align: center;"> {{company.company_name}} <br>
+                                          {{company.address}} <br>
+                                          {{company.city}},
+                                          {{company.state}}<br>
+                                          {{company.login_details.email}}
                                           <br>
                                       </p>
                                   </div>
@@ -1757,6 +1776,7 @@
 
   function filterTable(key) {
     $('#sidetable tbody tr').each(function() {
+        // alert($(this).html())
         var cell = $(this).find('.stat');
         var status = cell.text().trim();
         if (key === 'All' || status === key) {
@@ -1764,6 +1784,7 @@
         } else {
             $(this).hide();
         }
+        // alert(`${key}---${status}`)
     });
 }
 
