@@ -721,7 +721,7 @@ input[type="date"] {
                               </div>
                             </div>
                             <input hidden id="account_value1" type="text" name="account_id" value="">
-                            <input type="text" class="form-control text-light" id="account_list1" name="customer_name" placeholder="search..." required>
+                            <input type="text" class="form-control text-light" id="account_list1" name="customer_name" placeholder="search..." >
                             <script>
                               document.getElementById('custom_dropdowns1').style.display = 'none'
                               $('#account_list1').on('click',function(){
@@ -765,7 +765,7 @@ input[type="date"] {
                         <label class="text-white">GST Type</label>
                     </div>
                     <div class="col-xl-8">
-                        <input type="text" class="form-control" id="cust_gstType" name="cust_gst_type" placeholder="GST Treatment"  readonly required>
+                        <input type="text" class="form-control" id="cust_gstType" name="cust_gst_type" placeholder="GST Treatment"  readonly >
                     </div>
                 </div>
             </div>
@@ -776,7 +776,7 @@ input[type="date"] {
                         <label class=" text-white">Email</label>
                     </div>
                     <div class="col-xl-8">
-                        <input class="form-control" type="email" name="customerEmail" placeholder="Email"  id="cust_Email" readonly required>
+                        <input class="form-control" type="email" name="customerEmail" placeholder="Email"  id="cust_Email" readonly >
                     </div>
                 </div>
             </div>
@@ -809,13 +809,13 @@ input[type="date"] {
                         <label class="text-white">Place of supply</label>
                     </div>
                     <div class="col-xl-8">
-                        <select type="text" class="form-control  text-white"  style="background-color:black" id="place_of_supply" name="place_of_supply" required>
+                        <select type="text" class="form-control  text-white"  style="background-color:black" id="cust_place_of_supply"  name="place_of_supply" >
                             <option value="" selected disabled>--Choose--</option>
                             <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option>
                             <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
                             <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> 
                             <option value="[AS]-Assam">[AS]-Assam</option>
-                            <option value="[BR]-Bihar">[BR]-Bihar</option> 
+                            <option value="[BR]-Bihar">[BR]-Bihar</option>
                             <option value="[CH]-Chandhigarh">[CH]-Chandhigarh</option>
                             <option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
                             <option value="[DD]-Daman Diu">[DD]-Daman Diu</option>
@@ -975,6 +975,16 @@ input[type="date"] {
 
               </tr>
           </thead>
+          <style>
+            .hover_light{
+                background-color: transparent;
+                color: white;
+            }
+            .hover_light:hover{
+                background-color: white;
+                color: black;
+            }
+          </style>
           <tbody id="items-table-body">
               <tr id='tab_row1'>
                   <td class="nnum" style="text-align: center;color: white; ">1</td>
@@ -983,9 +993,9 @@ input[type="date"] {
                           <div class="w-100">
                               <div class="p-0 border-0 bg-none text-light position-relative drop-box" style="display: block;">
                                   <input required type="text" id="item1" value="" name="item_name[]" class="dropdown-toggle form-control item-display" onkeyup="filterFunction($(this).attr('id'))"  data-toggle="dropdown" aria-expanded="false" placeholder="Items.." autocomplete="off">
-                                  <ul class="dropdown-menu w-100 items-available position-absolute" id="menu1"  style="overflow-y: auto; height: fit-content;max-height: 40vh;color: white; background-color:rgb(45, 44, 44);"> 
+                                  <ul class="dropdown-menu w-100 items-available position-absolute mt-1" id="menu1"  style="overflow-y: auto; height: fit-content;max-height: 40vh;color: white; background-color:rgb(0, 0, 0);border: 1px solid white;"> 
                                     {% for i in items %}
-                                    <li class="dropdown items-options text-light ps-2" onclick="getItemDetails($(this).parent().prev().attr('id'),`{{i.item_name}}`)">{{i.item_name}}</li>
+                                    <li class="dropdown items-options ps-3 py-2 hover_light" onclick="getItemDetails($(this).parent().prev().attr('id'),`{{i.item_name}}`)">{{i.item_name}}</li>
                                     {% endfor %}
                                   </ul>
                                   
@@ -1314,7 +1324,7 @@ input[type="date"] {
                                 <label>Primary Contact</label>
                             </div>
                             <div class="col-sm-12 col-md-1 col-lg-1" >
-                                <select id="select1"  name="salutation" class="form-control bg-light text-dark mt-2 " >
+                                <select id="select3"  name="salutation" class="form-control bg-light text-dark mt-2 " >
                                 
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
@@ -1324,11 +1334,11 @@ input[type="date"] {
                                 </select> 
                             </div>
                             <div class="col-sm-12 col-md-2 col-lg-3" >
-                                <input  type="text" class="form-control bg-light text-dark mt-2 change-disply " id="fname" name="first_name" placeholder="first name" required >
+                                <input  type="text" class="form-control bg-light text-dark mt-2 change-disply " id="fname3" name="first_name" placeholder="first name" required >
         
                             </div>
                             <div class="col-sm-12 col-md-2 col-lg-3" >
-                                <input type="text" class="form-control bg-light text-dark mt-2 " id="lname" name="last_name" placeholder="last name" required >
+                                <input type="text" class="form-control bg-light text-dark mt-2 " id="lname3" name="last_name" placeholder="last name" required >
         
                             </div>
                         </div>
@@ -1337,7 +1347,7 @@ input[type="date"] {
                             <div class="col-sm-12 col-md-3 col-lg-3 col-form-label"><label>Customer Display Name</label></div>
                             <div class="col-sm-12 col-md-6 col-lg-7">
                                
-                                <select class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name">
+                                <select class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name3" required>
                                     
                                 </select>
                                 
@@ -1510,6 +1520,7 @@ input[type="date"] {
         
                             </fieldset4>
         
+                            <input type="text" value="{{ company.state }}" id="place_of_supply" style="display: none;">
         
                             <div class="form-group row mt-4">
                                 <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Source of Supply*</label>
@@ -1676,7 +1687,7 @@ input[type="date"] {
         
                             
                             <div class="form-group row mt-4">
-                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Payment Terms</label>
+                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white"> Payment Terms</label>
                                 
                                 <div class=" col-sm-12 col-md-3 col-lg-3">
                                     <select name="payment_terms" id="paytearm-select" class="form-control bg-light text-dark">
@@ -1684,7 +1695,7 @@ input[type="date"] {
         
                                         {% for pay_terms in payments %}
                                         <option value="{{pay_terms.id}}" >{{pay_terms.term_name}}</option>
-                                    {% endfor %}
+                                        {% endfor %}
                                         
                                     </select>
         
@@ -2045,7 +2056,7 @@ input[type="date"] {
                                 <label>Primary Contact</label>
                             </div>
                             <div class="col-sm-12 col-md-1 col-lg-1" >
-                                <select id="select1"  name="salutation" class="form-control bg-light text-dark mt-2 " >
+                                <select id="select2"  name="salutation" class="form-control bg-light text-dark mt-2 " >
                                 
                                     <option value="Mr">Mr</option>
                                     <option value="Mrs">Mrs</option>
@@ -2055,11 +2066,11 @@ input[type="date"] {
                                 </select> 
                             </div>
                             <div class="col-sm-12 col-md-2 col-lg-3" >
-                                <input  type="text" class="form-control bg-light text-dark mt-2 change-disply " id="fname1" name="first_name" placeholder="first name" required >
+                                <input  type="text" class="form-control bg-light text-dark mt-2 change-disply " id="fname2" name="first_name" placeholder="first name" required >
         
                             </div>
                             <div class="col-sm-12 col-md-2 col-lg-3" >
-                                <input type="text" class="form-control bg-light text-dark mt-2 " id="lname1" name="last_name" placeholder="last name" required >
+                                <input type="text" class="form-control bg-light text-dark mt-2 " id="lname2" name="last_name" placeholder="last name" required >
         
                             </div>
                         </div>
@@ -2081,8 +2092,10 @@ input[type="date"] {
                             <div class="col-sm-12 col-md-3 col-lg-3 col-form-label"><label>Vendor Display Name</label></div>
                             <div class="col-sm-12 col-md-6 col-lg-7">
                                
-                                <input class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name1" readonly>
-                                
+                                <!-- <input class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name1" readonly> -->
+                                <select class="form-control bg-light text-dark "  name="v_display_name" id="v_display_name2">
+                            
+                                </select>
                                    
                                     
                             </div>
@@ -2691,7 +2704,7 @@ input[type="date"] {
                 <div class="row mt-3">
                     <div class="col-md-3">
                         <div id="select1_div" style="display: none;">
-                            <label for="select1">Intra-State TAX</label><br> <br>
+                            <label for="select2">Intra-State TAX</label><br> <br>
                             <select name="intra" class="form-control" id="intraStateTax" style="background-color: black; color: white;">
                                 <option value="0">GST0[0%]</option>
                                 <option value="3">GST3[3%]</option>
@@ -2704,7 +2717,7 @@ input[type="date"] {
                     </div>
                     <div class="col-md-6">
                         <div id="select2_div" style="display: none;">
-                            <label for="select2">Inter-State TAX</label> <br><br>
+                            <label for="select3">Inter-State TAX</label> <br><br>
                             <select name="inter" class="form-control " id="interStateTax" style="background-color: black; color: white;">
                                 <option value="0">IGST0[0%]</option>
                                 <option value="3">IGST3[3%]</option>
@@ -3653,7 +3666,7 @@ input[type="date"] {
                 <div class="col-lg-12 col-md-12 col-sm-12">
                 <div class="d-flex">
                     <button class="btn save_btn rounded-pill text-grey w-50 my-1 mx-1 btn-outline-warning "
-                    type="submit" data-dismiss="modal" id="termSave">Save
+                    type="submit" data-dismiss="modal" id="termSave1">Save
                     </button> 
                     
 
@@ -4257,9 +4270,9 @@ $('#items-table-body').append(
                 <div class="w-100">
                     <div class="p-0 border-0 bg-none position-relative drop-box" style="display: block;">
                         <input required type="text" id="item${roinc}" value="" name="item_name[]" class="dropdown-toggle form-control item-display" onkeyup="filterFunction($(this).attr('id'))"  data-toggle="dropdown" aria-expanded="false" placeholder="Items.." autocomplete="off">
-                        <ul class="dropdown-menu w-100 items-available position-absolute" id="menu${roinc}"  style="overflow-y: auto; height: fit-content;max-height: 40vh;color: white; background-color:rgb(45, 44, 44);"> 
+                        <ul class="dropdown-menu w-100 items-available position-absolute mt-1" id="menu${roinc}"  style="overflow-y: auto; height: fit-content;max-height: 40vh;color: white; background-color:rgb(0, 0, 0);border: 1px solid white;"> 
                           {% for i in items %}
-                          <li class="dropdown items-options text-light ps-2" onclick="getItemDetails($(this).parent().prev().attr('id'),'{{i.item_name}}')">{{i.item_name}}</li>
+                          <li class="dropdown items-options ps-3 py-2 hover_light" onclick="getItemDetails($(this).parent().prev().attr('id'),'{{i.item_name}}')">{{i.item_name}}</li>
                             {% endfor %}
                         </ul>
                         
@@ -4680,51 +4693,51 @@ $(document).on("click","#saveNewItem",function(){
     }
 });
 
-function reloadItems() {
-    $.ajax({
-        url: "{% url 'getItems' %}",
-        type: "GET",
-        dataType: "json",
-        data: {},
-        csrfmiddlewaretoken: '{{ csrf_token }}',
+// function reloadItems() {
+//     $.ajax({
+//         url: "{% url 'recur_getItems' %}",
+//         type: "GET",
+//         dataType: "json",
+//         data: {},
+//         csrfmiddlewaretoken: '{{ csrf_token }}',
 
-        success: function(data) {
-            $('#items-table-body tr').each(function () {
-            var currentRow = $(this);
-            var html = currentRow.html();
+//         success: function(data) {
+//             $('#items-table-body tr').each(function () {
+//             var currentRow = $(this);
+//             var html = currentRow.html();
             
-            if (html !== '') {
-                currentRow.find(".items-available").find("li").remove();
+//             if (html !== '') {
+//                 currentRow.find(".items-available").find("li").remove();
 
-                $.each(data, function(key, value) {
-                    for (let i = 0; i < value.length; i++) {
-                        currentRow.find(".items-available").append(`
-                            <li class="dropdown-item items-options" onclick="getItemDetails($(this).parent().prev().attr('id'), '${value[i]}')">
-                                ${value[i]}
-                            </li>`
-                        );
-                    }
-                });
+//                 $.each(data, function(key, value) {
+//                     for (let i = 0; i < value.length; i++) {
+//                         currentRow.find(".items-available").append(`
+//                             <li class="dropdown-item items-options" onclick="getItemDetails($(this).parent().prev().attr('id'), '${value[i]}')">
+//                                 ${value[i]}
+//                             </li>`
+//                         );
+//                     }
+//                 });
 
-                console.log('Success');
-            }
-        });
+//                 console.log('Success');
+//             }
+//         });
 
 
-        },
-        error: function(xhr, status, error) {
-            console.error(xhr.responseText);
-        }
+//         },
+//         error: function(xhr, status, error) {
+//             console.error(xhr.responseText);
+//         }
 
-    });
-    if ($('#createNewAccount').hasClass('show')){
-        $('#createNewAccount').modal('toggle');
-    }
+//     });
+//     if ($('#createNewAccount').hasClass('show')){
+//         $('#createNewAccount').modal('toggle');
+//     }
 
-    if ($('#newunit').hasClass('show')){
-        $('#newunit').modal('toggle');
-    }
-}
+//     if ($('#newunit').hasClass('show')){
+//         $('#newunit').modal('toggle');
+//     }
+// }
 </script>
 <script>
       
@@ -4747,72 +4760,72 @@ function reloadItems() {
     });
     
     
-    $(document).on("click","#itemSave",function(){
+    // $(document).on("click","#itemSave",function(){
     
-    if ($('input[name="radioOption"]:checked').val() == 'Goods'){
+    // if ($('input[name="radioOption"]:checked').val() == 'Goods'){
     
-        itemtype = $('#item_type1').val();
-      }
-    else{
-      itemtype = $('#item_type2').val();
-    }
+    //     itemtype = $('#item_type1').val();
+    //   }
+    // else{
+    //   itemtype = $('#item_type2').val();
+    // }
     
-    if ($('input[name="radioOption1"]:checked').val() == 'Taxable'){
-        inter_st = $('#inter').val();
-        intra_st = $('#intra').val();
-        var tax = 'taxable'
+    // if ($('input[name="radioOption1"]:checked').val() == 'Taxable'){
+    //     inter_st = $('#inter').val();
+    //     intra_st = $('#intra').val();
+    //     var tax = 'taxable'
 
-      }
-    else{
-      inter_st = 0;
-      intra_st = 0;
-      var tax = 'non taxable'
+    //   }
+    // else{
+    //   inter_st = 0;
+    //   intra_st = 0;
+    //   var tax = 'non taxable'
 
-    }
+    // }
     
     
-    $.ajax({
+    // $.ajax({
         
 
       
-      type : 'POST',
-      url:"{% url 'invoice_item' %}",
+    //   type : 'POST',
+    //   url:"{% url 'invoice_item' %}",
       
-      data:{
-          type : itemtype,
-          name : $("#item_name").val(),
-          unit : $("#item_units").val(),
-          hsn_number : $("#myInputField").val(),
-          inter : inter_st,
-          intra : intra_st,
-          sell_price : $("#sell_price").val(),
-          cost_price : $("#cost_price").val(),
-          sell_acc : $("#sell_acc").val(),
-          cost_acc : $("#cost_acc").val(),
-          sell_desc : $("#sell_desc").val(),
-          cost_desc : $("#cost_desc").val(),
-          stock : $("#stockOnHand").val(),
-          stock_rate : $("#stockRate").val(),
-          min_stock : $("#minStock").val(),
-          taxref : tax,
+    //   data:{
+    //       type : itemtype,
+    //       name : $("#item_name").val(),
+    //       unit : $("#item_units").val(),
+    //       hsn_number : $("#myInputField").val(),
+    //       inter : inter_st,
+    //       intra : intra_st,
+    //       sell_price : $("#sell_price").val(),
+    //       cost_price : $("#cost_price").val(),
+    //       sell_acc : $("#sell_acc").val(),
+    //       cost_acc : $("#cost_acc").val(),
+    //       sell_desc : $("#sell_desc").val(),
+    //       cost_desc : $("#cost_desc").val(),
+    //       stock : $("#stockOnHand").val(),
+    //       stock_rate : $("#stockRate").val(),
+    //       min_stock : $("#minStock").val(),
+    //       taxref : tax,
 
 
           
-          csrfmiddlewaretoken: '{{ csrf_token }}'
+    //       csrfmiddlewaretoken: '{{ csrf_token }}'
           
-        },
+    //     },
       
-        success: function(response) {
-          // console.log(response)
-          document.getElementById("modalItem").reset();
-          reloadItems();
-        },
-    });        
-    });
+    //     success: function(response) {
+    //       // console.log(response)
+    //       document.getElementById("modalItem").reset();
+    //       reloadItems();
+    //     },
+    // });        
+    // });
     
     function reloadItems() {
         $.ajax({
-            url: "{% url 'getItems' %}",
+            url: "{% url 'recur_getItems' %}",
             type: "GET",
             dataType: "json",
             data: {},
@@ -4829,9 +4842,7 @@ function reloadItems() {
                     $.each(data, function(key, value) {
                         for (let i = 0; i < value.length; i++) {
                             currentRow.find(".items-available").append(`
-                                <li class="dropdown-item items-options" onclick="getItemDetails($(this).parent().prev().attr('id'), '${value[i]}')">
-                                    ${value[i]}
-                                </li>`
+                                <li class="dropdown items-options ps-3 py-2 hover_light" onclick="getItemDetails($(this).parent().prev().attr('id'), '${value[i]}')">${value[i]}</li>`
                             );
                         }
                     });
@@ -4926,7 +4937,7 @@ function reloadItems() {
                 $('#cust_addres').show()
                 $('#cust_bill_Address').val(response.customer_address)
             }
-            $('#place_of_supply').val(response.customer_place_of_supply)
+            $('#cust_place_of_supply').val(response.customer_place_of_supply)
             change_gst();
         },
         error: function(error){
@@ -5061,7 +5072,7 @@ function reloadItems() {
                         csrfmiddlewaretoken:'{{ csrf_token }}'
                     },
                     success:function(response){
-                        $('#repeat_every_select').append($('<option>',{
+                        $('#repeat_every_recurr').append($('<option>',{
                             value:repeat_duration+" "+repeat_type,
                             text: repeat_duration+" "+repeat_type,
                         }))
@@ -5267,43 +5278,6 @@ function reloadItems() {
         // GST Number Check End 
 
     });
-
-      // Name display 
-
-        
-      const Title = document.getElementById('select1');
-const fname = document.getElementById('fname');
-const laname = document.getElementById('lname');
-const vDisplayName = document.getElementById('v_display_name');
-
-// Listen for input events on the initial input fields
-Title.addEventListener('input', updateOutputFields);
-fname.addEventListener('input', updateOutputFields);
-laname.addEventListener('input', updateOutputFields);
-
-// Function to update the output fields
-function updateOutputFields() {
-    const selectedTitle = Title.value;
-    const selectedFname = fname.value;
-    const selectedLname = laname.value;
-
-    // Clear existing options
-    vDisplayName.innerHTML = '';
- // Add new options based on input field values
- const option1 = document.createElement('option');
-    option1.text = selectedTitle + ' ' + selectedFname + ' ' + selectedLname;
-    vDisplayName.add(option1);
-
-   
-
-    const option2 = document.createElement('option');
-    option2.text = selectedFname + ' ' + selectedLname;
-    vDisplayName.add(option2);
-
-    const option3 = document.createElement('option');
-    option3.text = selectedLname + ' ' + selectedFname;
-    vDisplayName.add(option3);
-}
 
 </script>
 
@@ -5641,7 +5615,7 @@ function updateOutputFields() {
 </script>
 
 <script>
-    $(document).on("click","#termSave",function(){
+    $(document).on("click","#termSave1",function(){
    
 
   $.ajax({
@@ -7303,14 +7277,25 @@ if (vals == "Other Expense") {
 </script>
 
 <script>
-    $(document).ready(function(){
-        $('#select1,#fname1,#lname1').on('input',function(){
-            var word1 = $('#select1').val()
-            var word2 = $('#fname1').val()
-            var word3 = $('#lname1').val();
-            $('#v_display_name1').val(word1+" "+word2+" "+word3);
-        })
-    })
+    // for customer
+    // $(document).ready(function(){
+    //     $('#select1,#fname1,#lname1').on('input',function(){
+    //         var word1 = $('#select1').val()
+    //         var word2 = $('#fname1').val()
+    //         var word3 = $('#lname1').val();
+    //         $('#v_display_name1').val(word1+" "+word2+" "+word3);
+    //     })
+    // })
+    // for vendor
+    // $(document).ready(function(){
+    //     $('#select2,#fname2,#lname2').on('input',function(){
+    //         alert('asd')
+    //         var word1 = $('#select2').val()
+    //         var word2 = $('#fname2').val()
+    //         var word3 = $('#lname2').val();
+    //         $('#v_display_name2').val(word1+" "+word2+" "+word3);
+    //     })
+    // })
 
     // Work Phone Number Validation 
     $(document).ready(function () {
@@ -7513,4 +7498,99 @@ if (vals == "Other Expense") {
 
 <!-- final submition of recurring bill end -->
 
+<script>
+    // Name display for customer
+
+        
+    const Title = document.getElementById('select3');
+    const fname = document.getElementById('fname3');
+    const laname = document.getElementById('lname3');
+    const vDisplayName = document.getElementById('v_display_name3');
+
+    // Listen for input events on the initial input fields
+    Title.addEventListener('input', updateOutputFields);
+    fname.addEventListener('input', updateOutputFields);
+    laname.addEventListener('input', updateOutputFields);
+
+    // Function to update the output fields
+    function updateOutputFields() {
+        const selectedTitle1 = Title.value;
+        const selectedFname1 = fname.value;
+        const selectedLname1 = laname.value;
+
+        // Clear existing options
+        vDisplayName.innerHTML = '';
+    // Add new options based on input field values
+    const option1 = document.createElement('option');
+        option1.text = selectedTitle1 + ' ' + selectedFname1 + ' ' + selectedLname1;
+        vDisplayName.add(option1);
+
+    
+
+        const option2 = document.createElement('option');
+        option2.text = selectedFname1 + ' ' + selectedLname1;
+        vDisplayName.add(option2);
+
+        const option3 = document.createElement('option');
+        option3.text = selectedLname1 + ' ' + selectedFname1;
+        vDisplayName.add(option3);
+    }
+
+</script>
+
+<script>
+    // Name display for vendor
+
+        
+    const Title2 = document.getElementById('select2');
+    const fname2 = document.getElementById('fname2');
+    const laname2 = document.getElementById('lname2');
+    const vDisplayName2 = document.getElementById('v_display_name2');
+    
+    // Listen for input events on the initial input fields
+    Title2.addEventListener('input', updateOutputFields);
+    fname2.addEventListener('input', updateOutputFields);
+    laname2.addEventListener('input', updateOutputFields);
+
+    // Function to update the output fields
+    function updateOutputFields() {
+    const selectedTitle = Title2.value;
+    const selectedFname = fname2.value;
+    const selectedLname = laname2.value;
+
+    // Clear existing options
+    vDisplayName2.innerHTML = '';
+    // Add new options based on input field values
+    const option1 = document.createElement('option');
+    option1.text = selectedTitle + ' ' + selectedFname + ' ' + selectedLname;
+    vDisplayName2.add(option1);
+
+
+
+    const option2 = document.createElement('option');
+    option2.text = selectedFname + ' ' + selectedLname;
+    vDisplayName2.add(option2);
+
+    const option3 = document.createElement('option');
+    option3.text = selectedLname + ' ' + selectedFname;
+    vDisplayName2.add(option3);
+    }
+</script>
+
+<script>
+    $.ajax({
+        url : '{% url "recur_getItems" %}',
+        get: 'GET',
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response)
+        {
+            alert('success')
+        },
+        error: function(error){
+            alert('not working')
+        }
+    });
+</script>
 {% endblock %}

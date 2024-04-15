@@ -17943,7 +17943,7 @@ def getItems(request):
         elif log_details.user_type == 'Company':
                 com = CompanyDetails.objects.get(login_details=log_details)
         items = {}
-        option_objects = Items.objects.filter(company = com)
+        option_objects = Items.objects.filter(company = com, activation_tag='active')
         for option in option_objects:
             items[option.id] = [option.item_name]
 
@@ -18149,6 +18149,7 @@ def recurring_bill_create(request):
                 'recc_bill_no':recc_bill_no,
                 'units':units,
                 'accounts':accounts,
+                'company':company,
         }
         return render(request,'zohomodules/recurring_bill/recurring_bill_create.html',context)
     else:
@@ -18641,7 +18642,7 @@ def add_new_recrring_bill(request):
         else:    
             dash_details = CompanyDetails.objects.get(login_details=log_details)
             comp_details=CompanyDetails.objects.get(login_details=log_details)
-            
+
         recurring_bill_data = Recurring_bills()
         recurring_bill_data.login_details = log_details
         recurring_bill_data.company = comp_details
@@ -18696,16 +18697,18 @@ def add_new_recrring_bill(request):
             print(recurring_bill_data.credit_period_id.id)
             print('=================================================')
 
-        recurring_bill_data.customer_details = Customer.objects.get(id=request.POST.get('account_id')) 
-        recurring_bill_data.cust_name = request.POST.get('customer_name')
-        recurring_bill_data.cust_mail = request.POST.get('customerEmail')
-        recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
-        recurring_bill_data.cust_gst_no = request.POST.get('cust_gstin')
-        recurring_bill_data.cust_billing_address = request.POST.get('cust_bill_address')
-        print('--------------------------------------------------')
-        print(request.POST.get('cust_bill_address'))
-        print('--------------------------------------------------')
-        recurring_bill_data.cust_place_of_supply = request.POST.get('place_of_supply')
+
+        if request.POST.get('account_id'):
+            recurring_bill_data.customer_details = Customer.objects.get(id=request.POST.get('account_id')) 
+            recurring_bill_data.cust_name = request.POST.get('customer_name')
+            recurring_bill_data.cust_mail = request.POST.get('customerEmail')
+            recurring_bill_data.cust_gst_treat = request.POST.get('cust_gst_type')
+            recurring_bill_data.cust_gst_no = request.POST.get('cust_gstin')
+            recurring_bill_data.cust_billing_address = request.POST.get('cust_bill_address')
+            print('--------------------------------------------------')
+            print(request.POST.get('cust_bill_address'))
+            print('--------------------------------------------------')
+            recurring_bill_data.cust_place_of_supply = request.POST.get('place_of_supply')
         
         recurring_bill_data.payment_type = request.POST.get('payment_method')
         if request.POST.get('cheque_id'):
@@ -19206,34 +19209,34 @@ def share_email_recurr(request,pk):
                 template = get_template(template_path)
                 html  = template.render(context)
                 result = BytesIO()
-                # pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-                # pdf = result.getvalue()
-                # filename = f'{recurr_bill.recc_bill_no}details - {recurr_bill.id}.pdf'
-                # subject = f"{recurr_bill.profile_name}{recurr_bill.recc_bill_no}  - {recurr_bill.id}-details"
-                # body="hi, here is your recurring bill "
-                # email = EmailMessage(
-                #     subject,
-                #     body,
-                #     settings.EMAIL_HOST_USER,
-                #     ["vuashikh16@gmail.com"],
-                # )
-                # email.attach(filename, pdf, "application/pdf")
-                # email.send(fail_silently=False)
-                subject = 'Subject of the Email'
-                body = 'Message Body'
-                filename = 'attachment.pdf' 
-                pdf = open('/home/user/altos_technologies/ALTOS_LIVE_PROJECT/23-03-2024(zoho_book_final_reccuring_bill)/Zoho/Zoho_Project/media/docs/download_da8ctzY.pdf', 'rb').read()  # Replace '/path/to/attachment.pdf' with the path to your attachment
-
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+                pdf = result.getvalue()
+                filename = f'{recurr_bill.recc_bill_no}details - {recurr_bill.id}.pdf'
+                subject = f"{recurr_bill.profile_name}{recurr_bill.recc_bill_no}  - {recurr_bill.id}-details"
+                body="hi, here is your recurring bill "
                 email = EmailMessage(
-                    subject=subject,
-                    body=body,
-                    from_email="vuashikh16@gmail.com",
-                    to=["vuashikh16@gmail.com"],
+                    subject,
+                    body,
+                    settings.EMAIL_HOST_USER,
+                    ["vuashikh16@gmail.com"],
                 )
                 email.attach(filename, pdf, "application/pdf")
-                email.send()
-                messages.success(request, 'over view page has been shared via email successfully..!')
-                return redirect('recurr_overview',pk)
+                email.send(fail_silently=False)
+                # subject = 'Subject of the Email'
+                # body = 'Message Body'
+                # filename = 'attachment.pdf' 
+                # pdf = open('/home/user/altos_technologies/ALTOS_LIVE_PROJECT/23-03-2024(zoho_book_final_reccuring_bill)/Zoho/Zoho_Project/media/docs/download_da8ctzY.pdf', 'rb').read()  # Replace '/path/to/attachment.pdf' with the path to your attachment
+
+                # email = EmailMessage(
+                #     subject=subject,
+                #     body=body,
+                #     from_email="vuashikh16@gmail.com",
+                #     to=["vuashikh16@gmail.com"],
+                # )
+                # email.attach(filename, pdf, "application/pdf")
+                # email.send()
+                # messages.success(request, 'over view page has been shared via email successfully..!')
+                # return redirect('recurr_overview',pk)
     except Exception as e:
             print(e)
             messages.error(request, f'{e}')
@@ -19295,6 +19298,7 @@ def recurr_bill_edit(request,pk):
             'recc_bill_no':recc_bill_no,
             'units':units,
             'accounts':accounts,
+            'company':company,
         }
     return render(request,'zohomodules/recurring_bill/recurring_bill_edit.html',context)
 
@@ -19881,7 +19885,6 @@ def getRecurr_bill_ItemDetails(request):
             'tax': True if item.tax_reference == 'taxable' else False,
             'gst':item.intrastate_tax,
             'igst':item.interstate_tax,
-
         }
         print('++++++++++++++++++++++++++++++')
         print(item.current_stock)
@@ -19889,4 +19892,71 @@ def getRecurr_bill_ItemDetails(request):
         return JsonResponse(context)
     else:
         return redirect('/')
+
+def convertRecurringbill(request,pk):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details = StaffDetails.objects.get(login_details = log_details).company 
+
+        recurr = Recurring_bills.objects.get(id=pk)
+        recurr.status = "Save"
+        recurr.save()
+
+    return redirect('recurr_overview',pk=pk)
+
+# def recur_getItems(request):
+#     if 'login_id' in request.session:
+#         log_id = request.session['login_id']
+#         if 'login_id' not in request.session:
+#             return redirect('/')
+#         log_details= LoginDetails.objects.get(id=log_id)
+           
+#         if log_details.user_type == 'Staff':
+#             staff = StaffDetails.objects.get(login_details=log_details)
+#             com = staff.company
+                    
+#         elif log_details.user_type == 'Company':
+#             com = CompanyDetails.objects.get(login_details=log_details)
+#         items = {}
+#         option_objects = Items.objects.filter(company = com)
+#         for option in option_objects:
+#             items[option.id] = [option.item_name]
+
+#         return JsonResponse(items)
+#     else:
+#         return redirect('/')
+
+def recur_getItems(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        if 'login_id' not in request.session:
+            return redirect('/')
+        log_details= LoginDetails.objects.get(id=log_id)
+           
+        if log_details.user_type == 'Staff':
+            staff = StaffDetails.objects.get(login_details=log_details)
+            com = staff.company
+                    
+        elif log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details=log_details)
+        items = {}
+        option_objects = Items.objects.filter(company = com)
+        for option in option_objects:
+            items[option.id] = [option.item_name]
+
+        for i in range(len(items)):
+            # print(items[i])
+            print(i)
+            pass
+
+        return JsonResponse(items)
+    else:
+        return redirect('/')
+
 # --------------------------------------   ashikhvu   (end)   -----------------------------------------------

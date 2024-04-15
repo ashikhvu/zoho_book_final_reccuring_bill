@@ -465,8 +465,8 @@
                     </div>
                     <div class="col-md-6">
                       <div class="d-sm-flex" style="float: right;">
-                        {% if invoice.status == 'Draft' %}
-                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" onclick="return confirm('Do you want to convert this Draft to Saved ?')" title="CONVERT" id="convert_btn" href="{% url 'convertRecurringInvoice' invoice.id %}">
+                        {% if recurr_bill.status == 'Draft' %}
+                        <a class="btn btn-outline-warning small_btn mt-2 ms-1" onclick="return confirm('Do you want to convert this Draft to Saved ?')" title="CONVERT" id="convert_btn" href="{% url 'convertRecurringbill' recurr_bill.id %}">
                           <i class="fa fa-exchange"></i>
                         </a>
                         {% endif %}
@@ -672,9 +672,9 @@
                         <h6 class="mb-0">Mail id</h6>
                         <p class="mb-0 text-right">{{recurr_bill.vend_mail}}</p>
                       </div>
-                      <div class="d-flex ps-3 pe-2 justify-content-between text-black mb-2">
+                      <div class="d-flex ps-3 pe-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0" style="word-break: break-all;">Gst Treat</h6>
-                        <p style="width: 50%;" class="mb-0 text-right">{{recurr_bill.vend_gst_treat}}</p>
+                        <p style="width: 50%;" class="mb-0 text-end">{{recurr_bill.vend_gst_treat}}</p>
                       </div>
                       {% if recurr_bill.vend_gst_no %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
@@ -694,6 +694,7 @@
                       {% endif %}
                     </div>
                     
+                    {% if recurr_bill.cust_name != None and recurr_bill.cust_name != ''  %}
                     <div class="col-md-6">
                       <!-- <hr class="mx-3"> -->
                       <!-- <div class="d-flex justify-content-end"> -->
@@ -707,9 +708,9 @@
                         <h6 class="mb-0">Mail id</h6>
                         <p class="mb-0 text-right">{{recurr_bill.cust_mail}}</p>
                       </div>
-                      <div class="d-flex ps-3 pe-2 justify-content-between text-black mb-2">
+                      <div class="d-flex ps-3 pe-3 justify-content-between text-black mb-2">
                         <h6 class="mb-0">Gst Treat</h6>
-                        <p style="width: 50%;word-break: break-all;" class="mb-0 text-right">{{recurr_bill.cust_gst_treat}}</p>
+                        <p style="width: 50%;word-break: break-all;" class="mb-0 text-end">{{recurr_bill.cust_gst_treat}}</p>
                       </div>
                       {% if recurr_bill.cust_gst_no %}
                       <div class="d-flex px-3 justify-content-between text-black mb-2">
@@ -728,20 +729,22 @@
                       </div>
                       {% endif %}
                     </div>
-                  </div>
+                    <hr class="mx-3">
+                    {% endif %}
+                  <!-- </div> -->
 
-                  <hr class="mx-3">
+                  <!-- <hr class="mx-3"> -->
 
-                  <div class="row mt-1">
-                    <div class="row px-4">
-                      <div class="col-md-8">
-                        <h5 class="fw-bold" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Item Details</h5>
-                      </div>
-                      <div class="col-md-4"></div>
-                    </div>
-                    <div class="row">
+                  <!-- <div class="row mt-1"> -->
+                    <!-- <div class="row px-4"> -->
+                      <div class="col-md-6">
+                        <h5 class="fw-bold ms-3" style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Item Details</h5>
+                      <!-- </div> -->
+                      <!-- <div class="col-md-4"></div> -->
+                    <!-- </div> -->
+                    <!-- <div class="row"> -->
                       {% for i in recurr_items %}
-                      <div class="col-6">
+                      <!-- <div class="col-6"> -->
                         <div class="d-flex px-3 justify-content-between text-black mb-2">
                           <h6 class="mb-0">Item</h6>
                           <p class="mb-0 text-right">{{i.item_name}}</p>
@@ -768,7 +771,7 @@
                           <h6 class="mb-0">Total</h6>
                           <p class="mb-0 text-right">{{i.total}}</p>
                         </div>
-                        <hr class="mx-2">
+                        <!-- <hr class="mx-2"> -->
                       </div>
                       {% endfor %}
                     </div>
@@ -983,6 +986,7 @@
                                     </div>
                                   </div>
                                   <div class="col-5">
+                                    {% if recurr_bill.cust_name != None and recurr_bill.cust_name != ''  %}
                                     <p><b class="text-black">To</b>,</p>
                                     <div style="margin-left: 10%;">
                                       <h3>{{ recurr_bill.cust_name }}</h3>
@@ -995,6 +999,7 @@
                                         {{ recurr_bill.customer_details.billing_pincode }}
                                       </p>
                                     </div>
+                                    {% endif %}
                                   </div>
                                 </div>
                                 <hr class="mx-3">
@@ -1167,6 +1172,7 @@
                                     </div>
                                   </div>
                                   <div class="col-5">
+                                    {% if recurr_bill.cust_name != None and recurr_bill.cust_name != ''  %}
                                     <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">CUSTOMER ADDRESS</b>,</p>
                                     <div style="margin-left: 10%;">
                                       <h3>{{ recurr_bill.vend_name }}</h3>
@@ -1179,6 +1185,7 @@
                                         {{ recurr_bill.customer_details.billing_pincode }}
                                       </p>
                                     </div>
+                                    {% endif %}
                                   </div>
                                 </div>
                                 <hr class="mx-3">
@@ -1323,6 +1330,7 @@
                                   
                                   <div class="row col-12">
                                       <!-- <div class="col-md-1"></div> -->
+                                      {% if recurr_bill.cust_name != None and recurr_bill.cust_name != ''  %}
                                       <div class="col-6 py-3 px-5">
                                           <p style="color:black;"> <span style=" font-weight: bold;">To: </span><br>
                                             <span>{{ recurr_bill.cust_name }}</span>
@@ -1334,6 +1342,7 @@
                                             {{ recurr_bill.customer_details.billing_pincode }}
                                           </p>
                                       </div>
+                                      {% endif %}
                                       <!-- <div class="col-md-1"></div> -->
                                       <div class="col-6 py-3 px-3">
                                           <table class="table table-borderless">
@@ -1485,14 +1494,14 @@
                       </div>
                   </div>
 
-
-
-                  </div>
                   <div id="templateToggle" class="templateToggleSegment mt-3 mb-0 w-100 d-flex justify-content-center">
-                    <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-warning btn-sm m-2 active templateToggleButtons">1</button>
-                    <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">2</button>
-                    <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">3</button>
+                      <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-warning btn-sm m-2 active templateToggleButtons">1</button>
+                      <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">2</button>
+                      <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">3</button>
                   </div>
+
+                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -1939,7 +1948,7 @@
     var opt =
     {
         margin: 1,
-        filename: 'RecurringInvoice_slip_'+ recInvNo + '.pdf',
+        filename: 'RecurringBill_slip_'+ recInvNo + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
@@ -2092,4 +2101,5 @@ function slipPrint(){
 
   }
 </script>
+
 {%endblock%}

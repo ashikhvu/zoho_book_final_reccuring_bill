@@ -472,6 +472,8 @@ urlpatterns = [
     path('Company/rec_bill_import_sample_file',views.downloadRecurringBillSampleImportFile, name='downloadRecurringBillSampleImportFile'),
     path('Company/import_recurring_bill',views.importRecurringBillFromExcel, name='importRecurringBillFromExcel'),
     path('getRecurr_bill_ItemDetails',views.getRecurr_bill_ItemDetails,name='getRecurr_bill_ItemDetails'),
+    path('convertRecurringbill/<int:pk>',views.convertRecurringbill,name='convertRecurringbill'),
+    path('recur_getItems',views.recur_getItems,name='recur_getItems'),
     # --------------------------------------   ashikhvu   (end)   -----------------------------------------------
 
 
